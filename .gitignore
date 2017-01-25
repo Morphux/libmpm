@@ -31,3 +31,18 @@
 # Debug files
 *.dSYM/
 *.su
+
+# Coverage
+*.gcov
+*.gcno
+*.gcda
+
+# Test
+tests/test
+tests/.gdb_history
+.gdb_history
+
+# Documentation
+docs/doxygen_sqlite3.db
+docs/html
+docs/man

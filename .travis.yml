@@ -1,0 +1,27 @@
+language: c
+compiler: gcc
+
+before_install:
+    - sudo apt-get -qq update
+    - sudo apt-get install -y valgrind lcov
+    - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
+
+script:
+    - make init
+    - make
+    - make -C tests
+    - make -C tests check
+    - make -C tests valgrind
+    - make coverage
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+
+
+#addons:
+    #coverity_scan:
+        #project:
+            #name: "Morphux/libmpm"
+        #notification_email: louis@ne02ptzero.me
+        #build_command:   "make check"
+        #branch_pattern: master

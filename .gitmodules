@@ -1,0 +1,9 @@
+[submodule "lib/curl"]
+	path = lib/curl
+	url = https://github.com/curl/curl.git
+[submodule "lib/libmorphux"]
+	path = lib/libmorphux
+	url = https://github.com/Morphux/lib.git
+[submodule "lib/json-c"]
+	path = lib/json-c
+	url = https://github.com/json-c/json-c.git
