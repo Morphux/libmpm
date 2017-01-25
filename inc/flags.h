@@ -14,10 +14,16 @@
 *                       limitations under the License.                         *
 \******************************************************************************/
 
-#ifndef LIBMPM_H
-# define LIBMPM_H
-
+#ifndef FLAGS_H
+# define FLAGS_H
 # include <morphux.h>
-# include <flags.h>
 
-#endif /* LIBMPM_H */
+enum {
+	MPM_VERBOSE_LEVEL = 0,
+	MPM_LAST /* Always keep this one last */
+};
+
+void		mpm_set_flag(u8_t flag, u8_t val);
+u8_t		mpm_get_flag(u8_t flag);
+
+#endif /* FLAGS_H */

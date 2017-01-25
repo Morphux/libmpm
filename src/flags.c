@@ -14,10 +14,30 @@
 *                       limitations under the License.                         *
 \******************************************************************************/
 
-#ifndef LIBMPM_H
-# define LIBMPM_H
+#include <flags.h>
 
-# include <morphux.h>
-# include <flags.h>
+static u8_t		mpm_flags[MPM_LAST] = {0};
 
-#endif /* LIBMPM_H */
+/*!
+ * \brief Set an internal flag
+ * \param flag Flag number (see enum in flags.h)
+ * \param val Value to assign
+ * \note If the flag is greater than MPM_LAST value this function won't do
+ * anything
+ */
+void		mpm_set_flag(u8_t flag, u8_t val) {
+	if (flag < MPM_LAST)
+		mpm_flags[flag] = val;
+}
+
+/*!
+ * \brief Get an internal flag
+ * \param flag Flag number (see enum in flags.h)
+ * \return The flag value
+ * \note If the value asked by the caller is higher than MPM_LAST, this function
+ * will raiser an assertion.
+ */
+u8_t		mpm_get_flag(u8_t flag) {
+	assert(flag < MPM_LAST);
+	return mpm_flags[flag];
+}
