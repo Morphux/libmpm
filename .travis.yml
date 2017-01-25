@@ -17,11 +17,17 @@ script:
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 
+env:
+  global:
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "g1tGQ6lNrj9oqXy/7vG1cmrnRsMAPCT9adyJ6REihhx1RzLpbKerfPKGwOGY6hIwH7zGnsgr1B27+Y6OCXEIWN1W0fdJU0ryl8XK6KHzjBLGBatZlxD4jKjLX/I6KXJw/7bd5Yt0eb8GLsJjMN/TqBRf9Ny9FNnNqXVLoiyQTlmYIWOgZVT9dRhiksv9GQ3/RO9MwgSxqna0G9+mRX9u7oyqvp6S72jDCRC6alZocAGzRmsy8rX6at7hasM9DC+sCtN8lTDQz6uBGEt/ONEPP48DMuGYf9ev5ljq0CTA56RosvBLHRcZLJXbfucNWMF6Wz6weC98VQGoTpyJOk6Qd/YiFksqs4b2PuS8MZF8xFWjfJKvBRCf4CeDXEbEHywY2ngywVoJu3X184FQyUkeXt8B1atHkY2ro0g00p0bTYalTR8J4uZD2wT25FcFSDHyBdTd2+xmrxJvMmcW2xII1e6XRXPd7PA8GQQpgPCi9PZqUbwoY69Z/Yv20xL2m8WuYw9pKnO2BN0f3CJrPTCYaqktFf5UGia7QSPxJZ77qrlDZUn3Rku4iXGTg0q/BJfOjYFMcVT93n7xCR3TLdok8s+TnfCFBmhfyhkUdl9p1o9yakmg+IqUP9O1eLopL8ByyRZ5t1A176re4MqAappa89KIIpxTNK3WA85CpAryGmw="
 
-#addons:
-    #coverity_scan:
-        #project:
-            #name: "Morphux/libmpm"
-        #notification_email: louis@ne02ptzero.me
-        #build_command:   "make check"
-        #branch_pattern: master
+
+addons:
+    coverity_scan:
+        project:
+            name: "Morphux/libmpm"
+        notification_email: louis@ne02ptzero.me
+        build_command:   "make check"
+        branch_pattern: master

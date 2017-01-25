@@ -4,7 +4,7 @@
 <p align="center">
 <img src="https://img.shields.io/badge/language-c-blue.svg" /> &nbsp;
 <img src="https://img.shields.io/badge/license-Apache--2.0-yellow.svg" /> &nbsp;
-<a href="https://travis-ci.org/Morphux/lib"><img src="https://travis-ci.org/Morphux/libmpm.svg?branch=master"/></a> &nbsp;
+<a href="https://travis-ci.org/Morphux/libmpm"><img src="https://travis-ci.org/Morphux/libmpm.svg?branch=master"/></a> &nbsp;
 <a href="https://scan.coverity.com/projects/morphux-libmpm">
   <img alt="Coverity Scan Build Status"
        src="https://scan.coverity.com/projects/11577/badge.svg"/>
