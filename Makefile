@@ -50,8 +50,8 @@ OBJ_DIR = objs/
 all: $(NAME)
 
 %.o: %.c
-	@$(CC) $(CFLAGS) -c -o $@ $^
 	@echo "CC\t\t$@"
+	@$(CC) $(CFLAGS) -c -o $@ $^
 
 $(NAME): $(SQLITE) $(OBJS)
 	@echo "Creating library..."
