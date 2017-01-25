@@ -29,5 +29,6 @@ addons:
         project:
             name: "Morphux/libmpm"
         notification_email: louis@ne02ptzero.me
+        build_command_prepend:   "make init"
         build_command:   "make check"
         branch_pattern: master

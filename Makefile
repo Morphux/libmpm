@@ -55,12 +55,12 @@ all: $(NAME)
 
 $(NAME): $(SQLITE) $(OBJS)
 	@echo "Creating library..."
-	@mkdir $(OBJ_DIR)
+	if [ ! -d "$(OBJ_DIR)" ]; then mkdir $(OBJ_DIR); fi
 	@cp $(OBJS) $(OBJ_DIR)
 	@cp $(SQLITE) $(OBJ_DIR)
 	cd $(OBJ_DIR) && ar -x ../lib/libmorphux/libmorphux.a && ar -x ../lib/curl/lib/.libs/libcurl.a && ar -x ../lib/json-c/.libs/libjson-c.a
 	$(LIB) $(ARFLAGS) $(NAME) objs/*.o
-	@rm -rf objs
+	@rm -rf $(OBJ_DIR)
 
 init:
 	make -C lib/libmorphux
