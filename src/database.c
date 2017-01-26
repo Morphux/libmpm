@@ -14,11 +14,50 @@
 *                       limitations under the License.                         *
 \******************************************************************************/
 
-#ifndef LIBMPM_H
-# define LIBMPM_H
+#include <database.h>
 
-# include <morphux.h>
-# include <flags.h>
-# include <database.h>
+/*!
+ * \brief Open a connection to a database
+ * \param ret Return code, if any error
+ * \return A fresh mdatabase_t structure
+ *
+ * This function will create a new mdatabase_t struct, allocate it, and open
+ * a new database connection. In case of any error, the return value will be
+ * NULL, and the ret pointer set to an error code.
+ */
+mdatabase_t		*mpm_database_open(u8_t *ret) {
+	mdatabase_t		*ptr;
+	u8_t			error = 0;
 
-#endif /* LIBMPM_H */
+	ptr = malloc(sizeof(mdatabase_t));
+	assert(ptr != NULL);
+	error = sqlite3_open(DB_FN, &ptr->sql);
+	if (error != 0)
+		goto error;
+	return ptr;
+
+error:
+	free(ptr);
+	*ret = error;
+	return NULL;
+}
+
+/*!
+ * \brief Close a connection to an existing database
+ * \param ptr An open database
+ * \return The error code
+ *
+ * This function will close a database connection and free the passed struct.
+ * On any error, this function will return the error code.
+ */
+u8_t			mpm_database_close(mdatabase_t *ptr) {
+	u8_t		error;
+
+	if (ptr != NULL) {
+		error = sqlite3_close(ptr->sql);
+		if (error != 0)
+			return error;
+		free(ptr);
+	}
+	return 0;
+}

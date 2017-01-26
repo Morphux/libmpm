@@ -46,3 +46,6 @@ tests/.gdb_history
 docs/doxygen_sqlite3.db
 docs/html
 docs/man
+
+# Databases
+*.db

@@ -19,7 +19,7 @@ SFLAGS =	-Wall -Wextra -Werror -Wno-unused-result
 			#-L ../lib/curl/.libs/ -lcurl \
 			#-L ../lib/json-c/.libs -ljson-c \
 
-LFLAGS=			-L ../ -lmpm
+LFLAGS=			-L ../ -lmpm -pthread -ldl
 
 CFLAGS =	$(SFLAGS) $(IFLAGS) $(OFLAGS) $(LFLAGS)
 

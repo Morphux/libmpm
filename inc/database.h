@@ -14,11 +14,18 @@
 *                       limitations under the License.                         *
 \******************************************************************************/
 
-#ifndef LIBMPM_H
-# define LIBMPM_H
-
+#ifndef DATABASE_H
+# define DATABASE_H
+# include <sqlite3.h>
 # include <morphux.h>
-# include <flags.h>
-# include <database.h>
 
-#endif /* LIBMPM_H */
+# define DB_FN "test.db"
+
+typedef struct s_database {
+	sqlite3		*sql;
+}				mdatabase_t;
+
+mdatabase_t		*mpm_database_open(u8_t *ret);
+u8_t			mpm_database_close(mdatabase_t *ptr);
+
+#endif /* DATABASE_H */
