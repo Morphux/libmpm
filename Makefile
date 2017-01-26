@@ -45,7 +45,10 @@ SQLITE =	lib/sqlite/sqlite3.o
 OBJS =		$(SRCS:%.c=%.o)
 
 # Library Merge
-OBJ_DIR = objs/
+OBJ_DIR =	objs/
+L_MORPHUX =	../lib/libmorphux/libmorphux.a
+L_CURL = 	../lib/curl/lib/.libs/libcurl.a
+L_JSON = 	../lib/json-c/.libs/libjson-c.a
 
 all: $(NAME)
 
@@ -54,12 +57,13 @@ all: $(NAME)
 	@$(CC) $(CFLAGS) -c -o $@ $^
 
 $(NAME): $(SQLITE) $(OBJS)
-	@echo "Creating library..."
-	if [ ! -d "$(OBJ_DIR)" ]; then mkdir $(OBJ_DIR); fi
+	@if [ ! -d "$(OBJ_DIR)" ]; then mkdir $(OBJ_DIR); fi
 	@cp $(OBJS) $(OBJ_DIR)
 	@cp $(SQLITE) $(OBJ_DIR)
-	cd $(OBJ_DIR) && ar -x ../lib/libmorphux/libmorphux.a && ar -x ../lib/curl/lib/.libs/libcurl.a && ar -x ../lib/json-c/.libs/libjson-c.a
-	$(LIB) $(ARFLAGS) $(NAME) objs/*.o
+	@echo "AR\t\t$(L_MORPHUX) $(L_CURL) $(L_JSON)"
+	@cd $(OBJ_DIR) && ar -x $(L_MORPHUX) && ar -x $(L_CURL) && ar -x $(L_JSON)
+	@echo "CCLD\t\t$(NAME)"
+	@$(LIB) $(ARFLAGS) $(NAME) objs/*.o
 	@rm -rf $(OBJ_DIR)
 
 init:
