@@ -25,7 +25,7 @@ typedef struct s_database {
 	sqlite3		*sql;
 }				mdatabase_t;
 
-mdatabase_t		*mpm_database_open(u8_t *ret);
+mdatabase_t		*mpm_database_open(u8_t *ret, const char *fn);
 u8_t			mpm_database_close(mdatabase_t *ptr);
 
 #endif /* DATABASE_H */

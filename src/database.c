@@ -19,19 +19,25 @@
 /*!
  * \brief Open a connection to a database
  * \param ret Return code, if any error
+ * \param fn Database path
  * \return A fresh mdatabase_t structure
  *
  * This function will create a new mdatabase_t struct, allocate it, and open
  * a new database connection. In case of any error, the return value will be
  * NULL, and the ret pointer set to an error code.
+ * If a value is passed to the param fn, the library will use this value as a 
+ * database file path.
  */
-mdatabase_t		*mpm_database_open(u8_t *ret) {
+mdatabase_t		*mpm_database_open(u8_t *ret, const char *fn) {
 	mdatabase_t		*ptr;
 	u8_t			error = 0;
 
 	ptr = malloc(sizeof(mdatabase_t));
 	assert(ptr != NULL);
-	error = sqlite3_open(DB_FN, &ptr->sql);
+	if (fn != NULL)
+		error = sqlite3_open(fn, &ptr->sql);
+	else
+		error = sqlite3_open(DB_FN, &ptr->sql);
 	if (error != 0)
 		goto error;
 	return ptr;
