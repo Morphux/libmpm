@@ -43,6 +43,7 @@ mdatabase_t		*mpm_database_open(u8_t *ret, const char *fn) {
 	return ptr;
 
 error:
+	sqlite3_close(ptr->sql);
 	free(ptr);
 	*ret = error;
 	return NULL;
@@ -66,4 +67,30 @@ u8_t			mpm_database_close(mdatabase_t *ptr) {
 		free(ptr);
 	}
 	return 0;
+}
+
+/*!
+ * \brief Execute a SQL query on an already opened database
+ * \param ptr Opened database
+ * \param query SQL Query
+ * \param cl Query callback
+ * \param ct First parameter of the callback (Context)
+ * \param err Pointer on a string, to be filled with a string error.
+ *
+ * This function will execute an SQL query on an already opened database.
+ * If the ptr or query parameter is NULL, the function will not do anything
+ * and return 1.
+ * The callback is used to get the result of a query.
+ * The callback is defined and used trough defines, for readibilty purposes.
+ * see SQL_CALLBACK_PTR and SQL_CALLBACK_DEF for more information.
+ * If an SQL error happens, the err pointer is filled with a text error.
+ * This string is allocated by the sqlite library, and should be freed by the
+ * caller.
+ */
+u8_t			mpm_database_exec(mdatabase_t *ptr, const char *query,
+		SQL_CALLBACK_PTR(cl), void *ct, char **err) {
+	if (ptr == NULL || query == NULL)
+		return 1;
+
+	return sqlite3_exec(ptr->sql, query, cl, ct, err);
 }

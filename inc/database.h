@@ -21,11 +21,17 @@
 
 # define DB_FN "test.db"
 
+# define SQL_CALLBACK_PTR(name) int (*name)(void *, int, char**, char**)
+# define SQL_CALLBACK_DEF(name) int name(void *context, int col_num, char **col_txt, char **col_name)
+
 typedef struct s_database {
 	sqlite3		*sql;
 }				mdatabase_t;
 
+
 mdatabase_t		*mpm_database_open(u8_t *ret, const char *fn);
 u8_t			mpm_database_close(mdatabase_t *ptr);
+u8_t			mpm_database_exec(mdatabase_t *ptr, const char *query,
+		SQL_CALLBACK_PTR(cl), void *ct, char **err);
 
 #endif /* DATABASE_H */
