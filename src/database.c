@@ -58,15 +58,13 @@ error:
  * On any error, this function will return the error code.
  */
 u8_t			mpm_database_close(mdatabase_t *ptr) {
-	u8_t		error;
+	u8_t		error = 1;
 
 	if (ptr != NULL) {
 		error = sqlite3_close(ptr->sql);
-		if (error != 0)
-			return error;
 		free(ptr);
 	}
-	return 0;
+	return error;
 }
 
 /*!

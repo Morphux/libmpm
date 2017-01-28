@@ -25,17 +25,10 @@ TEST(database_open_2) {
 
 
 TEST(database_close_1) {
-	mdatabase_t		*ptr = NULL;
 	u8_t			ret = 0;
 
-	/* Fake mallocs */
-	ptr = malloc(sizeof(mdatabase_t));
-	ptr->sql = malloc(10);
-
-	ret = mpm_database_close(ptr);
+	ret = mpm_database_close(NULL);
 	TEST_ASSERT(ret != 0, "Error did not trigger");
-	free(ptr->sql);
-	free(ptr);
 	return TEST_SUCCESS;
 }
 
