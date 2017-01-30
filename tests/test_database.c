@@ -1,7 +1,7 @@
 #include "test.h"
 
 TEST(database_open_1) {
-	mdatabase_t		*ptr = NULL;
+	database_t		*ptr = NULL;
 	u8_t				ret = 0;
 
 	ptr = mpm_database_open(&ret, NULL);
@@ -13,7 +13,7 @@ TEST(database_open_1) {
 }
 
 TEST(database_open_2) {
-	mdatabase_t		*ptr = NULL;
+	database_t		*ptr = NULL;
 	u8_t				ret = 0;
 
 	ptr = mpm_database_open(&ret, "/illogical/path");
@@ -36,25 +36,27 @@ TEST(database_close_1) {
  * int name(void *context, int col_num, char **col_txt, char **col_name)
  */
 SQL_CALLBACK_DEF(exec_callback) {
-	(void)context;
-	fprintf(stdout, "\n\nCol_num: %d\n", col_num);
+	sql_result_t		*ptr = NULL;
+	mlist_t				**head = context, *new = NULL;
+
 	if (col_num == 0)
 		return 0;
-	while (*col_txt) {
-		fprintf(stdout, "> %s\n", *col_txt);
-		col_txt++;
-	}
+	for (u8_t i = 0; i < col_num; i++) {
+		ptr = malloc(sizeof(sql_result_t));
+		assert(ptr != NULL);
 
-	while (*col_name) {
-		fprintf(stdout, "> %s\n", *col_name);
-		col_name++;
+		ptr->name = col_name[i] ? strdup(col_name[i]) : NULL;
+		ptr->value = col_txt[i] ? strdup(col_txt[i]) : NULL;
+		list_add(new, ptr, sizeof(sql_result_t));
+		free(ptr);
 	}
-
+	list_add(*head, new, sizeof(mlist_t));
+	free(new);
 	return 0;
 }
 
 TEST(database_exec_1) {
-	mdatabase_t		*ptr = NULL;
+	database_t		*ptr = NULL;
 	u8_t			ret = 0;
 	char			*err = NULL;
 
@@ -68,7 +70,7 @@ TEST(database_exec_1) {
 }
 
 TEST(database_exec_2) {
-	mdatabase_t		*ptr = NULL;
+	database_t		*ptr = NULL;
 	u8_t			ret = 0;
 	char			*err = NULL;
 
@@ -78,9 +80,84 @@ TEST(database_exec_2) {
 	ret = mpm_database_exec(NULL, NULL, &exec_callback, ptr, &err);
 	TEST_ASSERT((ret == 1), "NULL not handled correctly.");
 	mpm_database_close(ptr);
-	clean_db("test.db");
+	clean_db(DB_FN);
 	return TEST_SUCCESS;
 }
+
+TEST(database_init_1) {
+	database_t		*ptr = NULL;
+	u8_t			ret = 0;
+
+	ptr = mpm_database_open(&ret, NULL);
+	TEST_ASSERT((ret == 0), "Can't open the database");
+	TEST_ASSERT((ptr != NULL), "Can't open the database");
+	ret = mpm_database_init(ptr);
+	TEST_ASSERT((ret == 0), "Can't init the database");
+	mpm_database_close(ptr);
+	return TEST_SUCCESS;
+}
+
+TEST(database_init_2) {
+	u8_t			ret = 0;
+
+	ret = mpm_database_init(NULL);
+	TEST_ASSERT((ret == 1), "Can't handle NULL pointer");
+	return TEST_SUCCESS;
+}
+
+TEST(database_init_test_pkg_table) {
+	database_t		*ptr = NULL;
+	u8_t			ret = 0;
+	mlist_t			*res = NULL, *tmp, *tmp2, *tmp3, *test = NULL;
+	char			*err = NULL;
+	sql_result_t	*result;
+
+	ptr = mpm_database_open(&ret, NULL);
+	TEST_ASSERT((ret == 0), "Can't open the database");
+	TEST_ASSERT((ptr != NULL), "Can't open the database");
+	ret = mpm_database_exec(ptr, "PRAGMA table_info([" PKG_TABLE "])",
+		&exec_callback, &res, &err);
+	TEST_ASSERT((ret == 0), "An error happened");
+	TEST_ASSERT((err == NULL), "An error happened");
+	mpm_database_close(ptr);
+
+	list_for_each(res, tmp, tmp2) {
+		list_for_each(tmp2, tmp3, result) {
+			if (!strcmp(result->name, "name"))
+				list_add(test, result->value, strlen(result->value));
+		}
+	}
+	TEST_ASSERT((list_size(test) == 10), "Number of columns is wrong");
+	list_free(test, NULL);
+	free_sql_results(res);
+	return TEST_SUCCESS;
+}
+
+TEST(database_init_3) {
+	database_t		*ptr = NULL;
+	u8_t			ret = 0;
+	int		st, fd[2];
+	pid_t	pid;
+
+
+	ptr = mpm_database_open(&ret, NULL);
+	TEST_ASSERT((ret == 0), "Can't open the database");
+	TEST_ASSERT((ptr != NULL), "Can't open the database");
+
+	pipe(fd);
+	if ((pid = fork()) == 0) {
+		DUP_ALL_OUTPUTS(fd);
+		ret = mpm_database_init(ptr);
+		TEST_ASSERT((ret != 0), "Error did not trigger");
+	} else {
+		WAIT_AND_CLOSE(pid, st, fd);
+		TEST_ASSERT((WEXITSTATUS(st) == 0), "Exit status is wrong");
+	}
+	mpm_database_close(ptr);
+	clean_db(DB_FN);
+	return TEST_SUCCESS;
+}
+
 
 void		clean_db(const char *name) {
 	int		st, fd[2];
@@ -95,10 +172,47 @@ void		clean_db(const char *name) {
 	}
 }
 
+int		free_sql_results(void *ptr) {
+	mlist_t		*tmp = ptr, *it, *z, *j;
+
+	if (tmp) {
+		while (tmp != NULL) {
+			it = tmp->next;
+			z = tmp->member;
+			while (z != NULL) {
+				j = z->next;
+				free_single_result_sql(z->member);
+				free(z->member);
+				free(z);
+				z = j;
+			}
+			free(tmp);
+			tmp = it;
+		}
+	}
+	return 1;
+}
+
+int		free_single_result_sql(void *ptr) {
+	sql_result_t	*tmp = ptr;
+
+	if (tmp) {
+		free(tmp->name);
+		free(tmp->value);
+		tmp->name = NULL;
+		tmp->value = NULL;
+	}
+	return 1;
+}
+
 void		register_test_database(void) {
 	reg_test("database", database_open_1);
 	reg_test("database", database_open_2);
 	reg_test("database", database_close_1);
 	reg_test("database", database_exec_1);
 	reg_test("database", database_exec_2);
+	reg_test("database", database_init_1);
+	reg_test("database", database_init_2);
+	reg_test("database", database_init_test_pkg_table);
+	reg_test("database", database_init_3);
 }

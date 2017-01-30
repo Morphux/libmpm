@@ -27,6 +27,7 @@ enum {
 	PACKAGE_STATE_ORPHAN
 };
 
+# define PKG_TABLE			"pkgs"
 # define PKG_COL_ID			"id"
 # define PKG_COL_NAME		"name"
 # define PKG_COL_VERSION	"version"

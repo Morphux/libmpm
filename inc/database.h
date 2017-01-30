@@ -23,19 +23,30 @@
 # define DB_FN "test.db"
 # define SQL_CALLBACK_PTR(name) int (*name)(void *, int, char**, char**)
 # define SQL_CALLBACK_DEF(name) int name(void *context, int col_num, char **col_txt, char **col_name)
-# define QUERY_GET_PACKAGE_BY_ID(id) "SELECT * FROM pkgs WHERE id = %lld", id
 
-typedef struct s_database {
+# define QUERY_GET_PACKAGE_BY_ID(id) "SELECT * FROM " PKG_TABLE " WHERE id = %lld", id
+# define QUERY_GET_PACKAGE_BY_NAME(name) "SELECT * FROM " PKG_TABLE " WHERE name = %s", name
+
+# define SQL_CREATE_TABLE		"CREATE table "
+# define SQL_TYPE_PRIMARY_KEY		" primary key "
+# define SQL_TYPE_NOT_NULL		" not null "
+# define SQL_TYPE_INT		" integer "
+# define SQL_TYPE_TEXT		" text "
+
+typedef struct	s_database {
 	sqlite3		*sql;
-}				mdatabase_t;
+}				database_t;
 
 
-mdatabase_t		*mpm_database_open(u8_t *ret, const char *fn);
-u8_t			mpm_database_close(mdatabase_t *ptr);
-u8_t			mpm_database_exec(mdatabase_t *ptr, const char *query,
+database_t		*mpm_database_open(u8_t *ret, const char *fn);
+u8_t			mpm_database_close(database_t *ptr);
+u8_t			mpm_database_exec(database_t *ptr, const char *query,
 					SQL_CALLBACK_PTR(cl), void *ct, char **err);
-u8_t			mpm_get_package_by_id(mdatabase_t *ptr, u64_t id,
+u8_t			mpm_get_package_by_id(database_t *ptr, u64_t id,
+					mlist_t **pkg);
+u8_t			mpm_get_package_by_name(database_t *ptr, const char *name,
 					mlist_t **pkg);
 package_t		*sql_to_package(package_t *ptr, char *name, char *val);
+u8_t			mpm_database_init(database_t *ptr);
 
 #endif /* DATABASE_H */

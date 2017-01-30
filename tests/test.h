@@ -14,5 +14,12 @@ void		register_flags_test(void);
 void		register_test_database(void);
 
 void		clean_db(const char *name);
+int			free_sql_results(void *ptr);
+int			free_single_result_sql(void *ptr);
+
+typedef struct		sql_result_s {
+	char		*name;
+	char		*value;
+}					sql_result_t;
 
 #endif /* TEST_H */

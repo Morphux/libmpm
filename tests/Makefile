@@ -38,7 +38,7 @@ valgrind: $(NAME)
 	valgrind --leak-check=full --error-exitcode=1 ./$(NAME)
 
 coverage:
-	$(MAKE) fclean all OFLAGS="-g -O0 -coverage -lgcov"
+	$(MAKE) fclean all OFLAGS="-g -O0 -coverage -lgcov -std=c99"
 
 clean:
 	rm -f $(OBJS)
