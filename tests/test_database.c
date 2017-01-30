@@ -174,6 +174,8 @@ TEST(database_add_pkg_1) {
 	cat = malloc(sizeof(category_t));
 
 	assert(pkg != NULL && cat != NULL);
+	mpm_package_init(pkg);
+	mpm_category_init(pkg->categ);
 	pkg->name = strdup("test");
 	pkg->version = strdup("1.0");
 	cat->name = strdup("test");

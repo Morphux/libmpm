@@ -14,30 +14,31 @@
 *                       limitations under the License.                         *
 \******************************************************************************/
 
-#ifndef FILES_H
-# define FILES_H
+#include <files.h>
 
-# include <morphux.h>
-# include <package.h>
+/*!
+ * \brief Initialize a file_t structure
+ * \param ptr Structure to initialize
+ */
+void	mpm_file_init(file_t *ptr) {
+	if (ptr) {
+		ptr->path = NULL;
+		ptr->parent = NULL;
+		ptr->hash = NULL;
+	}
+}
 
-typedef struct s_package package_t;
+/*!
+ * \brief Free a file_t entry
+ * \note Can be called as a callback of list_free
+ */
+int		mpm_file_free(void *tmp) {
+	file_t *ptr = tmp;
 
-enum {
-	FILE_TYPE_CONFIG,
-	FILE_TYPE_BIN,
-	FILE_TYPE_LIB,
-	FILE_TYPE_OTHER
-};
-
-typedef struct		s_file {
-	char			*path;
-	u8_t			type;
-	package_t		*parent;
-	char			*hash;
-}					file_t;
-
-
-void	mpm_file_init(file_t *ptr);
-int		mpm_file_free(void *tmp);
-
-#endif /* FILES_H */
+	if (ptr) {
+		free(ptr->path);
+		free(ptr->hash);
+		mpm_package_free(ptr->parent);
+	}
+	return 1;
+}
