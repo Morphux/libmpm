@@ -93,4 +93,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: fclean clean all
+.PHONY: fclean clean all docs
