@@ -256,7 +256,7 @@ error:
 }
 
 /*!
- * \bried Add a package entry in the database
+ * \brief Add a package entry in the database
  * \param ptr Opened connection to a database
  * \param pkg Package to add
  *
