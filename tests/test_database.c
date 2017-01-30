@@ -78,7 +78,21 @@ TEST(database_exec_2) {
 	ret = mpm_database_exec(NULL, NULL, &exec_callback, ptr, &err);
 	TEST_ASSERT((ret == 1), "NULL not handled correctly.");
 	mpm_database_close(ptr);
+	clean_db("test.db");
 	return TEST_SUCCESS;
+}
+
+void		clean_db(const char *name) {
+	int		st, fd[2];
+	pid_t	pid;
+
+	pipe(fd);
+	if ((pid = fork()) == 0) {
+		DUP_ALL_OUTPUTS(fd);
+		execl("/bin/rm", "/bin/rm", name, NULL);
+	} else {
+		WAIT_AND_CLOSE(pid, st, fd);
+	}
 }
 
 void		register_test_database(void) {
