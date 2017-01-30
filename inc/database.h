@@ -25,13 +25,14 @@
 # define SQL_CALLBACK_DEF(name) int name(void *context, int col_num, char **col_txt, char **col_name)
 
 # define QUERY_GET_PACKAGE_BY_ID(id) "SELECT * FROM " PKG_TABLE " WHERE id = %lld", id
-# define QUERY_GET_PACKAGE_BY_NAME(name) "SELECT * FROM " PKG_TABLE " WHERE name = %s", name
+# define QUERY_GET_PACKAGE_BY_NAME(name) "SELECT * FROM " PKG_TABLE " WHERE name = \"%s\"", name
 
 # define SQL_CREATE_TABLE		"CREATE table "
-# define SQL_TYPE_PRIMARY_KEY		" primary key "
+# define SQL_INSERT_TABLE		"INSERT INTO "
+# define SQL_TYPE_PRIMARY_KEY	" primary key "
 # define SQL_TYPE_NOT_NULL		" not null "
-# define SQL_TYPE_INT		" integer "
-# define SQL_TYPE_TEXT		" text "
+# define SQL_TYPE_INT			" integer "
+# define SQL_TYPE_TEXT			" text "
 
 typedef struct	s_database {
 	sqlite3		*sql;
@@ -48,5 +49,6 @@ u8_t			mpm_get_package_by_name(database_t *ptr, const char *name,
 					mlist_t **pkg);
 package_t		*sql_to_package(package_t *ptr, char *name, char *val);
 u8_t			mpm_database_init(database_t *ptr);
+u8_t			mpm_database_add_pkg(database_t *ptr, package_t *pkg);
 
 #endif /* DATABASE_H */

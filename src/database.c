@@ -97,19 +97,18 @@ u8_t			mpm_database_exec(database_t *ptr, const char *query,
  * int name(void *context, int col_num, char **col_txt, char **col_name)
  */
 SQL_CALLBACK_DEF(callback_package) {
-	mlist_t		*head = context;
+	mlist_t		**head = context;
 	package_t	*ptr;
-
-	if (col_num <= 0)
-		return 0;
 
 	ptr = malloc(sizeof(package_t));
 	assert(ptr != NULL);
+	mpm_package_init(ptr);
 
 	for (u8_t i = 0; i < col_num; i++)
 		sql_to_package(ptr, col_name[i], col_txt[i]);
 
-	list_add(head, ptr, sizeof(ptr));
+	list_add(*(head), ptr, sizeof(package_t));
+	free(ptr);
 	return 0;
 }
 
@@ -140,7 +139,7 @@ u8_t			mpm_get_package_by_id(database_t *ptr, u64_t id,
 
 	*pkg = NULL;
 	asprintf(&query, QUERY_GET_PACKAGE_BY_ID(id));
-	ret = sqlite3_exec(ptr->sql, query, &callback_package, *pkg, NULL);
+	ret = sqlite3_exec(ptr->sql, query, &callback_package, pkg, NULL);
 	free(query);
 	return ret;
 }
@@ -172,7 +171,7 @@ u8_t			mpm_get_package_by_name(database_t *ptr, const char *name,
 
 	*pkg = NULL;
 	asprintf(&query, QUERY_GET_PACKAGE_BY_NAME(name));
-	ret = sqlite3_exec(ptr->sql, query, &callback_package, *pkg, NULL);
+	ret = sqlite3_exec(ptr->sql, query, &callback_package, pkg, NULL);
 	free(query);
 	return ret;
 }
@@ -196,15 +195,15 @@ package_t		*sql_to_package(package_t *ptr, char *name, char *val) {
 
 	if (strcmp(name, PKG_COL_ID) == 0) {
 		ptr->id = strtoull(val, (char **)NULL, 10);
-	} else if (strcmp(name, PKG_COL_NAME) == 0 ||
-			strcmp(name, PKG_COL_VERSION) == 0 ||
-			strcmp(name, PKG_COL_DESC) == 0) {
+	} else if (strcmp(name, PKG_COL_NAME) == 0) {
+			/*strcmp(name, PKG_COL_VERSION) == 0 ||*/
+			/*strcmp(name, PKG_COL_DESC) == 0) {*/
 		ptr->name = strdup(val);
 	} else if (strcmp(name, PKG_COL_STATE) == 0) {
-		ptr->id = val[0] - '0';
-	} else {
-		m_panic("Unknown column '%s' in get_package\n", name);
-	}
+		ptr->state = val[0] - '0';
+	} /*else {*/
+		/*m_panic("Unknown column '%s' in get_package\n", name);*/
+	/*}*/
 	return ptr;
 }
 
@@ -227,6 +226,7 @@ u8_t		mpm_database_init(database_t *ptr) {
 			PKG_COL_NAME		SQL_TYPE_TEXT	SQL_TYPE_NOT_NULL		"," \
 			PKG_COL_VERSION		SQL_TYPE_TEXT	SQL_TYPE_NOT_NULL		"," \
 			PKG_COL_CATEG		SQL_TYPE_TEXT	SQL_TYPE_NOT_NULL		"," \
+			PKG_COL_DESC		SQL_TYPE_TEXT	SQL_TYPE_NOT_NULL		"," \
 			PKG_COL_STATE		SQL_TYPE_INT	SQL_TYPE_NOT_NULL		"," \
 			PKG_COL_DEPS		SQL_TYPE_TEXT							"," \
 			PKG_COL_FILES		SQL_TYPE_TEXT	SQL_TYPE_NOT_NULL		"," \
@@ -251,6 +251,42 @@ u8_t		mpm_database_init(database_t *ptr) {
 
 error:
 	m_error("An error happened in the database init: %s\n", err);
+	sqlite3_free(err);
+	return ret;
+}
+
+/*!
+ * \bried Add a package entry in the database
+ * \param ptr Opened connection to a database
+ * \param pkg Package to add
+ *
+ * This function will add a package entry to an already opened connection.
+ */
+u8_t		mpm_database_add_pkg(database_t *ptr, package_t *pkg) {
+	char	*query, *err;
+	char	*deps, *files, *binaries, *config, *docs;
+	u8_t	ret;
+
+	if (pkg == NULL || ptr == NULL)
+		return 1;
+
+	deps = NULL;
+	files = NULL;
+	binaries = NULL;
+	config = NULL;
+	docs = NULL;
+	asprintf(&query, SQL_INSERT_TABLE PKG_TABLE \
+		" (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) " \
+		"VALUES (\"%s\", \"%s\", \"%s\", \"%s\", %d, \"%s\", \"%s\", \"%s\", \"%s\", \"%s\");",
+			PKG_COL_NAME, PKG_COL_VERSION, PKG_COL_CATEG, PKG_COL_DESC,
+			PKG_COL_STATE, PKG_COL_DEPS, PKG_COL_FILES, PKG_COL_BINARIES,
+			PKG_COL_CONFIG, PKG_COL_DOCS,
+			pkg->name, pkg->version, pkg->categ->name, pkg->desc, 
+			pkg->state, deps, files, binaries, config, docs);
+
+	ret = mpm_database_exec(ptr, query, NULL, NULL, &err);
+	free(query);
+	assert(ret == 0 && err == NULL);
 	sqlite3_free(err);
 	return ret;
 }

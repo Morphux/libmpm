@@ -14,47 +14,17 @@
 *                       limitations under the License.                         *
 \******************************************************************************/
 
-#ifndef PACKAGE_H
-# define PACKAGE_H
-
-# include <morphux.h>
 # include <category.h>
-# include <files.h>
 
-enum {
-	PACKAGE_STATE_USER_INSTALLED,
-	PACKAGE_STATE_DEPENDENCY,
-	PACKAGE_STATE_ORPHAN
-};
+/*!
+ * \brief Free a category
+ * \note This function can be used as a list_free callback
+ */
+int		mpm_free_category(void *tmp) {
+	category_t	*ptr = tmp;
 
-# define PKG_TABLE			"pkgs"
-# define PKG_COL_ID			"id"
-# define PKG_COL_NAME		"name"
-# define PKG_COL_VERSION	"version"
-# define PKG_COL_CATEG		"categ"
-# define PKG_COL_DESC		"desc"
-# define PKG_COL_STATE		"state"
-# define PKG_COL_DEPS		"deps"
-# define PKG_COL_FILES		"files"
-# define PKG_COL_BINARIES	"binaries"
-# define PKG_COL_CONFIG		"config"
-# define PKG_COL_DOCS		"docs"
-
-typedef struct		s_package {
-	u64_t			id;
-	char			*name;
-	char			*version;
-	category_t		*categ;
-	char			*desc;
-	u8_t			state;
-	mlist_t			*deps;
-	mlist_t			*files;
-	mlist_t			*binaries;
-	mlist_t			*config;
-	mlist_t			*docs;
-}					package_t;
-
-int		mpm_package_free(void *tmp);
-void	mpm_package_init(package_t *ptr);
-
-#endif /* PACKAGE_H */
+	if (ptr) {
+		free(ptr->name);
+	}
+	return 1;
+}

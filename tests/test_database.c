@@ -127,7 +127,7 @@ TEST(database_init_test_pkg_table) {
 				list_add(test, result->value, strlen(result->value));
 		}
 	}
-	TEST_ASSERT((list_size(test) == 10), "Number of columns is wrong");
+	TEST_ASSERT((list_size(test) == 11), "Number of columns is wrong");
 	list_free(test, NULL);
 	free_sql_results(res);
 	return TEST_SUCCESS;
@@ -151,10 +151,108 @@ TEST(database_init_3) {
 		TEST_ASSERT((ret != 0), "Error did not trigger");
 	} else {
 		WAIT_AND_CLOSE(pid, st, fd);
-		TEST_ASSERT((WEXITSTATUS(st) == 0), "Exit status is wrong");
 	}
 	mpm_database_close(ptr);
 	clean_db(DB_FN);
+	return TEST_SUCCESS;
+}
+
+TEST(database_add_pkg_1) {
+	package_t	*pkg = NULL;
+	category_t	*cat = NULL;
+	database_t		*ptr = NULL;
+	u8_t			ret = 0;
+
+	ptr = mpm_database_open(&ret, NULL);
+	TEST_ASSERT((ret == 0), "Can't open the database");
+	TEST_ASSERT((ptr != NULL), "Can't open the database");
+
+	ret = mpm_database_init(ptr);
+	TEST_ASSERT((ret == 0), "Can't init database");
+
+	pkg = malloc(sizeof(package_t));
+	cat = malloc(sizeof(category_t));
+
+	assert(pkg != NULL && cat != NULL);
+	pkg->name = strdup("test");
+	pkg->version = strdup("1.0");
+	cat->name = strdup("test");
+	pkg->categ = cat;
+	pkg->desc = strdup("This a test package.");
+	pkg->state = PACKAGE_STATE_USER_INSTALLED;
+	pkg->deps = pkg->files = pkg->binaries = pkg->docs = pkg->config = NULL;
+	ret = mpm_database_add_pkg(ptr, pkg);
+	TEST_ASSERT((ret == 0), "Can't add a package in the database");
+	mpm_database_close(ptr);
+	mpm_package_free(pkg);
+	free(pkg);
+	return TEST_SUCCESS;
+}
+
+TEST(database_add_pkg_2) {
+	u8_t	ret = 0;
+
+	ret = mpm_database_add_pkg(NULL, NULL);
+	TEST_ASSERT((ret == 1), "Can't handle NULL pointer");
+	return TEST_SUCCESS;
+}
+
+TEST(database_get_pkg_by_id_1) {
+	mlist_t			*lst;
+	database_t		*ptr = NULL;
+	u8_t			ret = 0;
+
+	ptr = mpm_database_open(&ret, NULL);
+	TEST_ASSERT((ret == 0), "Can't open the database");
+	TEST_ASSERT((ptr != NULL), "Can't open the database");
+
+	ret = mpm_get_package_by_id(ptr, 1, &lst);
+	TEST_ASSERT((list_size(lst) == 1), "Can't find the package");
+	mpm_database_close(ptr);
+	list_free(lst, &mpm_package_free);
+	return TEST_SUCCESS;
+}
+
+TEST(database_get_pkg_by_id_2) {
+	mlist_t			*lst;
+	u8_t			ret = 0;
+
+	ret = mpm_get_package_by_id(NULL, 1, &lst);
+	TEST_ASSERT((ret == 1), "Can't handle NULL pointer");
+	return TEST_SUCCESS;
+}
+
+TEST(database_get_pkg_by_name_1) {
+	mlist_t			*lst;
+	database_t		*ptr = NULL;
+	u8_t			ret = 0;
+
+	ptr = mpm_database_open(&ret, NULL);
+	TEST_ASSERT((ret == 0), "Can't open the database");
+	TEST_ASSERT((ptr != NULL), "Can't open the database");
+
+	ret = mpm_get_package_by_name(ptr, "test", &lst);
+	TEST_ASSERT((list_size(lst) == 1), "Can't find the package");
+	mpm_database_close(ptr);
+	list_free(lst, &mpm_package_free);
+	return TEST_SUCCESS;
+}
+
+TEST(database_get_pkg_by_name_2) {
+	mlist_t			*lst;
+	u8_t			ret = 0;
+
+	ret = mpm_get_package_by_name(NULL, "test", &lst);
+	TEST_ASSERT((ret == 1), "Can't handle NULL pointer");
+	clean_db(DB_FN);
+	return TEST_SUCCESS;
+}
+
+TEST(database_sql_to_package) {
+	package_t	*ptr = NULL;
+
+	ptr = sql_to_package(NULL, NULL, NULL);
+	TEST_ASSERT((ptr == NULL), "Pointer is not NULL");
 	return TEST_SUCCESS;
 }
 
@@ -215,4 +313,11 @@ void		register_test_database(void) {
 	reg_test("database", database_init_2);
 	reg_test("database", database_init_test_pkg_table);
 	reg_test("database", database_init_3);
+	reg_test("database", database_add_pkg_1);
+	reg_test("database", database_add_pkg_2);
+	reg_test("database", database_get_pkg_by_id_1);
+	reg_test("database", database_get_pkg_by_id_2);
+	reg_test("database", database_get_pkg_by_name_1);
+	reg_test("database", database_get_pkg_by_name_2);
+	reg_test("database", database_sql_to_package);
 }

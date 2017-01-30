@@ -23,4 +23,6 @@ typedef struct		s_category {
 	char			*name;
 }					category_t;
 
+int		mpm_free_category(void *tmp);
+
 #endif /* CATEGORY_H */

@@ -14,47 +14,41 @@
 *                       limitations under the License.                         *
 \******************************************************************************/
 
-#ifndef PACKAGE_H
-# define PACKAGE_H
+# include <package.h>
 
-# include <morphux.h>
-# include <category.h>
-# include <files.h>
+/*!
+ * \brief Free a package entry
+ * \note Can be used as list_free callback
+ */
+int		mpm_package_free(void *tmp) {
+	package_t		*ptr = tmp;
 
-enum {
-	PACKAGE_STATE_USER_INSTALLED,
-	PACKAGE_STATE_DEPENDENCY,
-	PACKAGE_STATE_ORPHAN
-};
+	if (ptr) {
+		free(ptr->name);
+		free(ptr->version);
+		free(ptr->desc);
+		mpm_free_category(ptr->categ);
+		free(ptr->categ);
+		/*list_free(ptr->deps, &package_free);*/
+		/* TODO: Files free */
+	}
+	return 1;
+}
 
-# define PKG_TABLE			"pkgs"
-# define PKG_COL_ID			"id"
-# define PKG_COL_NAME		"name"
-# define PKG_COL_VERSION	"version"
-# define PKG_COL_CATEG		"categ"
-# define PKG_COL_DESC		"desc"
-# define PKG_COL_STATE		"state"
-# define PKG_COL_DEPS		"deps"
-# define PKG_COL_FILES		"files"
-# define PKG_COL_BINARIES	"binaries"
-# define PKG_COL_CONFIG		"config"
-# define PKG_COL_DOCS		"docs"
-
-typedef struct		s_package {
-	u64_t			id;
-	char			*name;
-	char			*version;
-	category_t		*categ;
-	char			*desc;
-	u8_t			state;
-	mlist_t			*deps;
-	mlist_t			*files;
-	mlist_t			*binaries;
-	mlist_t			*config;
-	mlist_t			*docs;
-}					package_t;
-
-int		mpm_package_free(void *tmp);
-void	mpm_package_init(package_t *ptr);
-
-#endif /* PACKAGE_H */
+/*!
+ * \brief Initialize a package entry
+ * \param ptr Pointer to an allocated ptr
+ */
+void	mpm_package_init(package_t *ptr) {
+	if (ptr) {
+		ptr->name = NULL;
+		ptr->version = NULL;
+		ptr->categ = NULL;
+		ptr->desc = NULL;
+		ptr->deps = NULL;
+		ptr->files = NULL;
+		ptr->binaries = NULL;
+		ptr->config = NULL;
+		ptr->docs = NULL;
+	}
+}
