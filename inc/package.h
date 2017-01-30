@@ -14,28 +14,43 @@
 *                       limitations under the License.                         *
 \******************************************************************************/
 
-#ifndef DATABASE_H
-# define DATABASE_H
-# include <sqlite3.h>
+#ifndef PACKAGE_H
+# define PACKAGE_H
+
 # include <morphux.h>
-# include <package.h>
+# include <category.h>
+# include <files.h>
 
-# define DB_FN "test.db"
-# define SQL_CALLBACK_PTR(name) int (*name)(void *, int, char**, char**)
-# define SQL_CALLBACK_DEF(name) int name(void *context, int col_num, char **col_txt, char **col_name)
-# define QUERY_GET_PACKAGE_BY_ID(id) "SELECT * FROM pkgs WHERE id = %lld", id
+enum {
+	PACKAGE_STATE_USER_INSTALLED,
+	PACKAGE_STATE_DEPENDENCY,
+	PACKAGE_STATE_ORPHAN
+};
 
-typedef struct s_database {
-	sqlite3		*sql;
-}				mdatabase_t;
+# define PKG_COL_ID			"id"
+# define PKG_COL_NAME		"name"
+# define PKG_COL_VERSION	"version"
+# define PKG_COL_CATEG		"categ"
+# define PKG_COL_DESC		"desc"
+# define PKG_COL_STATE		"state"
+# define PKG_COL_DEPS		"deps"
+# define PKG_COL_FILES		"files"
+# define PKG_COL_BINARIES	"binaries"
+# define PKG_COL_CONFIG		"config"
+# define PKG_COL_DOCS		"docs"
 
+typedef struct		s_package {
+	u64_t			id;
+	char			*name;
+	char			*version;
+	category_t		*categ;
+	char			*desc;
+	u8_t			state;
+	mlist_t			*deps;
+	mlist_t			*files;
+	mlist_t			*binaries;
+	mlist_t			*config;
+	mlist_t			*docs;
+}					package_t;
 
-mdatabase_t		*mpm_database_open(u8_t *ret, const char *fn);
-u8_t			mpm_database_close(mdatabase_t *ptr);
-u8_t			mpm_database_exec(mdatabase_t *ptr, const char *query,
-					SQL_CALLBACK_PTR(cl), void *ct, char **err);
-u8_t			mpm_get_package_by_id(mdatabase_t *ptr, u64_t id,
-					mlist_t **pkg);
-package_t		*sql_to_package(package_t *ptr, char *name, char *val);
-
-#endif /* DATABASE_H */
+#endif /* PACKAGE_H */

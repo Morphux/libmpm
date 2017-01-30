@@ -14,28 +14,26 @@
 *                       limitations under the License.                         *
 \******************************************************************************/
 
-#ifndef DATABASE_H
-# define DATABASE_H
-# include <sqlite3.h>
+#ifndef FILES_H
+# define FILES_H
+
 # include <morphux.h>
 # include <package.h>
 
-# define DB_FN "test.db"
-# define SQL_CALLBACK_PTR(name) int (*name)(void *, int, char**, char**)
-# define SQL_CALLBACK_DEF(name) int name(void *context, int col_num, char **col_txt, char **col_name)
-# define QUERY_GET_PACKAGE_BY_ID(id) "SELECT * FROM pkgs WHERE id = %lld", id
+typedef struct s_package package_t;
 
-typedef struct s_database {
-	sqlite3		*sql;
-}				mdatabase_t;
+enum {
+	FILE_TYPE_CONFIG,
+	FILE_TYPE_BIN,
+	FILE_TYPE_LIB,
+	FILE_TYPE_OTHER
+};
 
+typedef struct		s_file {
+	char			*path;
+	u8_t			type;
+	package_t		*parent;
+	char			*hash;
+}					file_t;
 
-mdatabase_t		*mpm_database_open(u8_t *ret, const char *fn);
-u8_t			mpm_database_close(mdatabase_t *ptr);
-u8_t			mpm_database_exec(mdatabase_t *ptr, const char *query,
-					SQL_CALLBACK_PTR(cl), void *ct, char **err);
-u8_t			mpm_get_package_by_id(mdatabase_t *ptr, u64_t id,
-					mlist_t **pkg);
-package_t		*sql_to_package(package_t *ptr, char *name, char *val);
-
-#endif /* DATABASE_H */
+#endif /* FILES_H */
