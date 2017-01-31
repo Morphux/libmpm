@@ -12,6 +12,8 @@
 
 void		register_flags_test(void);
 void		register_test_database(void);
+void		register_test_files(void);
+void		register_test_category(void);
 
 void		clean_db(const char *name);
 int			free_sql_results(void *ptr);
