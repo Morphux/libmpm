@@ -32,6 +32,10 @@
 *.dSYM/
 *.su
 
+# Completion
+*.py
+*.pyc
+
 # Coverage
 *.gcov
 *.gcno
