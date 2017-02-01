@@ -231,8 +231,8 @@ TEST(database_add_pkg_2) {
 TEST(database_add_file_1) {
 	file_t		*file = NULL;
 	package_t	*parent = NULL;
-	database_t	*ptr;
-	u8_t		ret;
+	database_t	*ptr = NULL;
+	u8_t		ret = 0;
 
 	(void)parent;
 	ptr = mpm_database_open(&ret, NULL);
