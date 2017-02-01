@@ -38,9 +38,11 @@ enum {
 };
 
 typedef struct		s_file {
+	u64_t			id;
 	char			*path;
 	u8_t			type;
 	package_t		*parent;
+	char			*parent_name;
 	char			*hash;
 }					file_t;
 

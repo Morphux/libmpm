@@ -185,7 +185,7 @@ u8_t			mpm_get_package_by_name(database_t *ptr, const char *name,
  *
  * This function will transform an SQL result, given through an sqlite callback,
  * and fill a package_t structure with it.
- * All the types conversion needed (strint -> *) are done in this function.
+ * All the types conversion needed (string -> *) are done in this function.
  *
  * \note If a unknown column is passed to this function, a panic will be throwed.
  */
@@ -294,6 +294,116 @@ u8_t		mpm_database_add_pkg(database_t *ptr, package_t *pkg) {
 			pkg->name, pkg->version, pkg->categ->name, pkg->desc, 
 			pkg->state, deps, files, binaries, config, docs);
 
+	ret = mpm_database_exec(ptr, query, NULL, NULL, &err);
+	free(query);
+	assert(ret == 0 && err == NULL);
+	sqlite3_free(err);
+	return ret;
+}
+
+/*!
+ * \brief Get a file by his Id
+ * \param ptr Opened Database connection
+ * \param id ID to search for
+ * \param files Pointer on a list, used to store the results
+ * \return Error code
+ *
+ * This function will search in an already opened database a file with a
+ * given id.
+ * A sql QUERY is constructed in this function, with the following content:
+ * SELECT * FROM files WHERE id = %d, where %d is the given id
+ * This function will call list_add to add results to the given list,
+ * caller should properly free this list.
+ *
+ * \note This function will set files to NULL before filling it with the results.
+ * You should not call this function with an existing files list.
+ */
+u8_t			mpm_get_file_by_id(database_t *ptr, u64_t id,
+						mlist_t **files) {
+	char	*query;
+	u8_t	ret;
+
+	if (ptr == NULL)
+		return 1;
+
+	*files = NULL;
+	asprintf(&query, QUERY_GET_FILES_BY_ID(id));
+	ret = sqlite3_exec(ptr->sql, query, &callback_files, files, NULL);
+	free(query);
+	return ret;
+}
+
+/**
+ * int name(void *context, int col_num, char **col_txt, char **col_name)
+ */
+SQL_CALLBACK_DEF(callback_files) {
+	mlist_t		**head = context;
+	file_t		*ptr;
+
+	ptr = malloc(sizeof(file_t));
+	assert(ptr != NULL);
+	mpm_file_init(ptr);
+
+	for (u8_t i = 0; i < col_num; i++)
+		sql_to_file(ptr, col_name[i], col_txt[i]);
+
+	list_add(*(head), ptr, sizeof(file_t));
+	free(ptr);
+	return 0;
+}
+
+/*!
+ * \brief Fill a file_t structure with a SQL result
+ * \param ptr Pointer to file_t. Must not be NULL.
+ * \param name Name of the column
+ * \param val Value of the column
+ *
+ * This function will transform an SQL result, given through an sqlite callback,
+ * and fill a file_t structure with it.
+ * All the types conversion needed (string -> *) are done in this function.
+ *
+ * \note If a unknown column is passed to this function, a panic will be throwed.
+ */
+file_t		*sql_to_file(file_t *ptr, char *name, char *val) {
+	if (ptr == NULL)
+		return ptr;
+
+	if (strcmp(name, FILE_COL_ID) == 0) {
+		ptr->id = strtoull(val, (char **)NULL, 10);
+	} else if (strcmp(name, FILE_COL_PATH) == 0) {
+		ptr->path = strdup(val);
+	} else if (strcmp(name, FILE_COL_TYPE) == 0) {
+		ptr->type = val[0] - '0';
+	} else if (strcmp(name, FILE_COL_PARENT) == 0) {
+		ptr->parent = NULL;
+	} else if (strcmp(name, FILE_COL_PARENT_NAME) == 0) {
+		ptr->parent_name = strdup(val);
+	} else if (strcmp(name, FILE_COL_HASH) == 0) {
+		ptr->hash = strdup(val);
+	} else {
+		m_panic("Unknown column '%s' in get_file\n", name);
+	}
+	return ptr;
+}
+
+/*!
+ * \brief Add a file entry to the database
+ * \param ptr Opened connection to a database
+ * \param file File to add
+ */
+u8_t		mpm_database_add_file(database_t *ptr, file_t *file) {
+	char	*query, *err;
+	u8_t	ret;
+
+	if (ptr == NULL || file == NULL)
+		return 1;
+
+	asprintf(&query, SQL_INSERT_TABLE FILE_TABLE \
+		" (%s, %s, %s, %s, %s) " \
+		"VALUES (\"%s\", \"%d\", \"%d\", \"%s\", \"%s\");",
+		FILE_COL_PATH, FILE_COL_TYPE, FILE_COL_PARENT, FILE_COL_PARENT_NAME,
+		FILE_COL_HASH,
+		file->path, file->type, /* TMP */0, file->parent_name, file->hash);
 	ret = mpm_database_exec(ptr, query, NULL, NULL, &err);
 	free(query);
 	assert(ret == 0 && err == NULL);

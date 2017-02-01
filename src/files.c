@@ -25,6 +25,7 @@ void	mpm_file_init(file_t *ptr) {
 		ptr->path = NULL;
 		ptr->parent = NULL;
 		ptr->hash = NULL;
+		ptr->parent_name = NULL;
 	}
 }
 
@@ -39,6 +40,7 @@ int		mpm_file_free(void *tmp) {
 		free(ptr->path);
 		free(ptr->hash);
 		mpm_package_free(ptr->parent);
+		free(ptr->parent_name);
 	}
 	return 1;
 }

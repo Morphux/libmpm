@@ -228,6 +228,46 @@ TEST(database_add_pkg_2) {
 	return TEST_SUCCESS;
 }
 
+TEST(database_add_file_1) {
+	file_t		*file = NULL;
+	package_t	*parent = NULL;
+	database_t	*ptr;
+	u8_t		ret;
+
+	(void)parent;
+	ptr = mpm_database_open(&ret, NULL);
+	TEST_ASSERT((ret == 0), "Can't open the database");
+	TEST_ASSERT((ptr != NULL), "Can't open the database");
+
+	ret = mpm_database_init(ptr);
+	TEST_ASSERT((ret == 0), "Can't init database");
+
+	file = malloc(sizeof(file_t));
+
+	assert(file != NULL);
+	mpm_file_init(file);
+	file->path = strdup("/tmp/test");
+	file->hash = strdup("Totally not a hash.");
+	file->parent_name = strdup("Some Star Wars joke");
+	file->type = FILE_TYPE_BIN;
+
+	ret = mpm_database_add_file(ptr, file);
+	TEST_ASSERT((ret == 0), "Can't add a file to the database");
+	mpm_database_close(ptr);
+	mpm_file_free(file);
+	free(file);
+	return TEST_SUCCESS;
+}
+
+TEST(database_add_file_2) {
+	u8_t	ret = 0;
+
+	ret = mpm_database_add_file(NULL, NULL);
+	TEST_ASSERT((ret == 1), "Can't handle NULL pointer");
+	return TEST_SUCCESS;
+}
+
+
 TEST(database_get_pkg_by_id_1) {
 	mlist_t			*lst;
 	database_t		*ptr = NULL;
@@ -284,6 +324,56 @@ TEST(database_sql_to_package) {
 
 	ptr = sql_to_package(NULL, NULL, NULL);
 	TEST_ASSERT((ptr == NULL), "Pointer is not NULL");
+	clean_db(DB_FN);
+	return TEST_SUCCESS;
+}
+
+TEST(database_get_file_by_id_1) {
+	mlist_t			*lst;
+	database_t		*ptr = NULL;
+	u8_t			ret = 0;
+
+	ptr = mpm_database_open(&ret, NULL);
+	TEST_ASSERT((ret == 0), "Can't open the database");
+	TEST_ASSERT((ptr != NULL), "Can't open the database");
+
+	ret = mpm_get_file_by_id(ptr, 1, &lst);
+	TEST_ASSERT((list_size(lst) == 1), "Can't find the package");
+	mpm_database_close(ptr);
+	list_free(lst, &mpm_file_free);
+	return TEST_SUCCESS;
+}
+
+TEST(database_get_file_by_id_2) {
+	mlist_t			*lst;
+	u8_t			ret = 0;
+
+	ret = mpm_get_file_by_id(NULL, 1, &lst);
+	TEST_ASSERT((ret == 1), "Can't handle NULL pointer");
+
+	return TEST_SUCCESS;
+}
+
+TEST(database_sql_to_file) {
+	file_t	*ptr = NULL;
+	int		st, fd[2];
+	pid_t	pid;
+
+	ptr = sql_to_file(NULL, NULL, NULL);
+	TEST_ASSERT((ptr == NULL), "Pointer is not NULL");
+
+	ptr = malloc(sizeof(file_t));
+
+	pipe(fd);
+	if ((pid = fork()) == 0) {
+		DUP_ALL_OUTPUTS(fd);
+		ptr = sql_to_file(ptr, "Unknown", "Nothing");
+	} else {
+		WAIT_AND_CLOSE(pid, st, fd);
+		TEST_ASSERT((WEXITSTATUS(st) == 1), "Exit code is wrong");
+	}
+	free(ptr);
+	clean_db(DB_FN);
 	return TEST_SUCCESS;
 }
 
@@ -352,4 +442,9 @@ void		register_test_database(void) {
 	reg_test("database", database_get_pkg_by_name_1);
 	reg_test("database", database_get_pkg_by_name_2);
 	reg_test("database", database_sql_to_package);
+	reg_test("database", database_add_file_1);
+	reg_test("database", database_add_file_2);
+	reg_test("database", database_get_file_by_id_1);
+	reg_test("database", database_get_file_by_id_2);
+	reg_test("database", database_sql_to_file);
 }

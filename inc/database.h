@@ -27,6 +27,7 @@
 
 # define QUERY_GET_PACKAGE_BY_ID(id) "SELECT * FROM " PKG_TABLE " WHERE id = %lld", id
 # define QUERY_GET_PACKAGE_BY_NAME(name) "SELECT * FROM " PKG_TABLE " WHERE name = \"%s\"", name
+# define QUERY_GET_FILES_BY_ID(id) "SELECT * FROM " FILE_TABLE " WHERE id = %lld", id
 
 # define SQL_CREATE_TABLE		"CREATE table "
 # define SQL_INSERT_TABLE		"INSERT INTO "
@@ -51,5 +52,10 @@ u8_t			mpm_get_package_by_name(database_t *ptr, const char *name,
 package_t		*sql_to_package(package_t *ptr, char *name, char *val);
 u8_t			mpm_database_init(database_t *ptr);
 u8_t			mpm_database_add_pkg(database_t *ptr, package_t *pkg);
+u8_t			mpm_get_file_by_id(database_t *ptr, u64_t id,
+						mlist_t **files);
+SQL_CALLBACK_DEF(callback_files);
+file_t			*sql_to_file(file_t *ptr, char *name, char *val);
+u8_t			mpm_database_add_file(database_t *ptr, file_t *file);
 
 #endif /* DATABASE_H */
