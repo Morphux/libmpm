@@ -20,6 +20,14 @@
 # include <morphux.h>
 # include <package.h>
 
+# define FILE_TABLE				"files"
+# define FILE_COL_ID			"id"
+# define FILE_COL_PATH			"path"
+# define FILE_COL_TYPE			"type"
+# define FILE_COL_PARENT		"parent"
+# define FILE_COL_PARENT_NAME	"parent_name"
+# define FILE_COL_HASH			"hash"
+
 typedef struct s_package package_t;
 
 enum {

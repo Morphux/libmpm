@@ -19,6 +19,7 @@
 # include <sqlite3.h>
 # include <morphux.h>
 # include <package.h>
+# include <files.h>
 
 # define DB_FN "test.db"
 # define SQL_CALLBACK_PTR(name) int (*name)(void *, int, char**, char**)
