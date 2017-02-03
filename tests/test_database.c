@@ -161,6 +161,35 @@ TEST(database_init_test_files_table) {
 	return TEST_SUCCESS;
 }
 
+TEST(database_init_test_categ_table) {
+	database_t		*ptr = NULL;
+	u8_t			ret = 0;
+	mlist_t			*res = NULL, *tmp, *tmp2, *tmp3, *test = NULL;
+	char			*err = NULL;
+	sql_result_t	*result;
+
+	ptr = mpm_database_open(&ret, NULL);
+	TEST_ASSERT((ret == 0), "Can't open the database");
+	TEST_ASSERT((ptr != NULL), "Can't open the database");
+	ret = mpm_database_exec(ptr, "PRAGMA table_info([" CAT_TABLE "])",
+		&exec_callback, &res, &err);
+	TEST_ASSERT((ret == 0), "An error happened");
+	TEST_ASSERT((err == NULL), "An error happened");
+	mpm_database_close(ptr);
+
+	list_for_each(res, tmp, tmp2) {
+		list_for_each(tmp2, tmp3, result) {
+			if (!strcmp(result->name, "name"))
+				list_add(test, result->value, strlen(result->value));
+		}
+	}
+	TEST_ASSERT((list_size(test) == 4), "Number of columns is wrong");
+	list_free(test, NULL);
+	free_sql_results(res);
+	return TEST_SUCCESS;
+}
+
+
 
 TEST(database_init_3) {
 	database_t		*ptr = NULL;
@@ -204,10 +233,11 @@ TEST(database_add_pkg_1) {
 
 	assert(pkg != NULL && cat != NULL);
 	mpm_package_init(pkg);
-	mpm_category_init(pkg->categ);
+	mpm_category_init(cat);
 	pkg->name = strdup("test");
 	pkg->version = strdup("1.0");
-	cat->name = strdup("test");
+	cat->name = strdup("test2");
+	cat->parent_name = strdup("test");
 	pkg->categ = cat;
 	pkg->desc = strdup("This a test package.");
 	pkg->state = PACKAGE_STATE_USER_INSTALLED;
@@ -434,6 +464,7 @@ void		register_test_database(void) {
 	reg_test("database", database_init_2);
 	reg_test("database", database_init_test_pkg_table);
 	reg_test("database", database_init_test_files_table);
+	reg_test("database", database_init_test_categ_table);
 	reg_test("database", database_init_3);
 	reg_test("database", database_add_pkg_1);
 	reg_test("database", database_add_pkg_2);

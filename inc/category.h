@@ -19,9 +19,23 @@
 
 # include <morphux.h>
 
+typedef struct		s_category category_t;
+# include <libmpm.h>
+
+
+# define CAT_TABLE				"categ"
+# define CAT_COL_ID				"id"
+# define CAT_COL_NAME			"name"
+# define CAT_COL_PARENT			"parent"
+# define CAT_COL_PARENT_NAME	"parent_name"
+
 typedef struct		s_category {
+	u64_t			id;
 	char			*name;
+	char			*parent_name;
+	package_t		*parent;
 }					category_t;
+
 
 int		mpm_category_free(void *tmp);
 void	mpm_category_init(category_t *ptr);

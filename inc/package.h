@@ -18,7 +18,6 @@
 # define PACKAGE_H
 
 # include <morphux.h>
-# include <category.h>
 # include <files.h>
 
 enum {
@@ -26,6 +25,8 @@ enum {
 	PACKAGE_STATE_DEPENDENCY,
 	PACKAGE_STATE_ORPHAN
 };
+
+typedef struct s_category	category_t;
 
 # define PKG_TABLE			"pkgs"
 # define PKG_COL_ID			"id"
@@ -57,4 +58,5 @@ typedef struct		s_package {
 int		mpm_package_free(void *tmp);
 void	mpm_package_init(package_t *ptr);
 
+# include <category.h>
 #endif /* PACKAGE_H */

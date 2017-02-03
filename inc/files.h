@@ -18,7 +18,6 @@
 # define FILES_H
 
 # include <morphux.h>
-# include <package.h>
 
 # define FILE_TABLE				"files"
 # define FILE_COL_ID			"id"
@@ -50,4 +49,5 @@ typedef struct		s_file {
 void	mpm_file_init(file_t *ptr);
 int		mpm_file_free(void *tmp);
 
+# include <package.h>
 #endif /* FILES_H */

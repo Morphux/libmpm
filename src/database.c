@@ -243,7 +243,14 @@ u8_t		mpm_database_init(database_t *ptr) {
 			FILE_COL_PARENT		SQL_TYPE_INT	SQL_TYPE_NOT_NULL		"," \
 			FILE_COL_PARENT_NAME SQL_TYPE_TEXT	SQL_TYPE_NOT_NULL		"," \
 			FILE_COL_HASH		SQL_TYPE_TEXT	SQL_TYPE_NOT_NULL			\
-		");"																\
+		");",																\
+		/* Category table */
+		SQL_CREATE_TABLE CAT_TABLE "("										\
+			CAT_COL_ID			SQL_TYPE_INT	SQL_TYPE_PRIMARY_KEY	"," \
+			CAT_COL_NAME		SQL_TYPE_TEXT	SQL_TYPE_NOT_NULL		"," \
+			CAT_COL_PARENT		SQL_TYPE_INT	SQL_TYPE_NOT_NULL		"," \
+			CAT_COL_PARENT_NAME	SQL_TYPE_TEXT	SQL_TYPE_NOT_NULL			\
+		");"
 	};
 	char	*err = NULL;
 	u8_t	ret = 0;
