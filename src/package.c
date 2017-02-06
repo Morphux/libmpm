@@ -41,6 +41,8 @@ int		mpm_package_free(void *tmp) {
  */
 void	mpm_package_init(package_t *ptr) {
 	if (ptr) {
+		ptr->id = 0;
+		ptr->state = PACKAGE_STATE_ORPHAN;
 		ptr->name = NULL;
 		ptr->version = NULL;
 		ptr->categ = NULL;
