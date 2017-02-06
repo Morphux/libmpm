@@ -38,6 +38,7 @@ following:
 - libcurl
 - json
 - sqlite
+
 The result is roughly ~20MB
 ```
 make
