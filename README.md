@@ -32,9 +32,22 @@ make init
 ```
 
 ### Compile
+By default, the Makefile will create a ready-to-use library, containing the
+following:
+- libmpm
+- libcurl
+- json
+- sqlite
+The result is roughly ~20MB
 ```
 make
 ```
+
+If you want to compile just the libmpm library:
+```
+make single
+```
+Single lib is about 74Ko
 
 # Test
 ```
@@ -59,7 +72,7 @@ make coverage
 # Use
 Compile with the following options
 ```
-gcc [...] -Llibmpm/ -lmpm -Ilibmpm/inc 
+gcc [...] -Llibmpm/ -lmpm -pthread -ldl -Ilibmpm/inc 
 ```
 Of course, ```libmpm``` directory must exist.
 

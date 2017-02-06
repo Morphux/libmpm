@@ -66,6 +66,10 @@ $(NAME): $(SQLITE) $(OBJS)
 	@$(LIB) $(ARFLAGS) $(NAME) objs/*.o
 	@rm -rf $(OBJ_DIR)
 
+single: $(SQLITE) $(OBJS)
+	@echo "LD\t\t$(NAME)"
+	@$(LIB) $(ARFLAGS) $(NAME) $(OBJS)
+
 init:
 	make -C lib/libmorphux
 	cd lib/curl/ && ./buildconf && ./configure --disable-shared --enable-debug --enable-maintainer-mode && make
