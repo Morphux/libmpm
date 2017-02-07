@@ -321,13 +321,12 @@ TEST(database_add_category_1) {
 	parent->name = strdup("test_package");
 	parent->id = 666;
 	cat->parent = parent;
+	parent->categ = cat;
 
 	ret = mpm_database_add_categ(ptr, cat);
 	TEST_ASSERT((ret == 0), "Cant' add the category");
 	mpm_database_close(ptr);
-	mpm_package_free(parent);
 	mpm_category_free(cat);
-	free(parent);
 	free(cat);
 	return TEST_SUCCESS;
 }

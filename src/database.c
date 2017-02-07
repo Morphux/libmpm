@@ -431,7 +431,7 @@ u8_t		mpm_database_add_categ(database_t *ptr, category_t *cat) {
 		return 1;
 
 	asprintf(&query, SQL_INSERT_TABLE CAT_TABLE \
-		"(%s %s %s) " \
+		"(%s, %s, %s) " \
 		"VALUES (\"%s\", \"%lld\", \"%s\");",
 		CAT_COL_NAME, CAT_COL_PARENT, CAT_COL_PARENT_NAME,
 		cat->name, cat->parent->id, cat->parent->name

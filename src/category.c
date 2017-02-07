@@ -26,7 +26,11 @@ int		mpm_category_free(void *tmp) {
 	if (ptr) {
 		free(ptr->name);
 		free(ptr->parent_name);
-		mpm_package_free(ptr->parent);
+		if (ptr->parent != NULL) {
+			ptr->parent->categ = NULL;
+			mpm_package_free(ptr->parent);
+			free(ptr->parent);
+		}
 	}
 	return 1;
 }
