@@ -28,7 +28,7 @@
 # define QUERY_GET_PACKAGE_BY_ID(id) "SELECT * FROM " PKG_TABLE " WHERE id = %lld", id
 # define QUERY_GET_PACKAGE_BY_NAME(name) "SELECT * FROM " PKG_TABLE " WHERE name = \"%s\"", name
 # define QUERY_GET_FILES_BY_ID(id) "SELECT * FROM " FILE_TABLE " WHERE id = %lld", id
-# define QUERY_GET_CATEG_BY_ID(id) "SELECT * FROM" CAT_TABLE " WHERE id = %lld", id
+# define QUERY_GET_CATEG_BY_ID(id) "SELECT * FROM " CAT_TABLE " WHERE id = %lld", id
 
 # define SQL_CREATE_TABLE		"CREATE table "
 # define SQL_INSERT_TABLE		"INSERT INTO "

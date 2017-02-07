@@ -331,6 +331,14 @@ TEST(database_add_category_1) {
 	return TEST_SUCCESS;
 }
 
+TEST(database_add_category_2) {
+	u8_t	ret = 0;
+
+	ret = mpm_database_add_categ(NULL, NULL);
+	TEST_ASSERT((ret == 1), "Can't handle NULL pointer");
+	return TEST_SUCCESS;
+}
+
 TEST(database_get_pkg_by_id_1) {
 	mlist_t			*lst;
 	database_t		*ptr = NULL;
@@ -417,6 +425,31 @@ TEST(database_get_file_by_id_2) {
 	return TEST_SUCCESS;
 }
 
+TEST(database_get_category_by_id_1) {
+	mlist_t		*lst;
+	database_t	*ptr = NULL;
+	u8_t		ret = 0;
+
+	ptr = mpm_database_open(&ret, NULL);
+	TEST_ASSERT((ret == 0), "Can't open the database");
+	TEST_ASSERT((ptr != NULL), "Can't open the database");
+
+	ret = mpm_get_categ_by_id(ptr, 1, &lst);
+	TEST_ASSERT((list_size(lst) == 1), "Can't find the package");
+	mpm_database_close(ptr);
+	list_free(lst, &mpm_category_free);
+	return TEST_SUCCESS;
+}
+
+TEST(database_get_category_by_id_2) {
+	mlist_t			*lst;
+	u8_t			ret = 0;
+
+	ret = mpm_get_categ_by_id(NULL, 1, &lst);
+	TEST_ASSERT((ret == 1), "Can't handle NULL pointer");
+	return TEST_SUCCESS;
+}
+
 TEST(database_sql_to_file) {
 	file_t	*ptr = NULL;
 	int		st, fd[2];
@@ -431,6 +464,29 @@ TEST(database_sql_to_file) {
 	if ((pid = fork()) == 0) {
 		DUP_ALL_OUTPUTS(fd);
 		ptr = sql_to_file(ptr, "Unknown", "Nothing");
+	} else {
+		WAIT_AND_CLOSE(pid, st, fd);
+		TEST_ASSERT((WEXITSTATUS(st) == 1), "Exit code is wrong");
+	}
+	free(ptr);
+	clean_db(DB_FN);
+	return TEST_SUCCESS;
+}
+
+TEST(database_sql_to_categ) {
+	category_t	*ptr = NULL;
+	int		st, fd[2];
+	pid_t	pid;
+
+	ptr = sql_to_category(NULL, NULL, NULL);
+	TEST_ASSERT((ptr == NULL), "Pointer is not NULL");
+
+	ptr = malloc(sizeof(file_t));
+
+	pipe(fd);
+	if ((pid = fork()) == 0) {
+		DUP_ALL_OUTPUTS(fd);
+		ptr = sql_to_category(ptr, "Unknown", "Nothing");
 	} else {
 		WAIT_AND_CLOSE(pid, st, fd);
 		TEST_ASSERT((WEXITSTATUS(st) == 1), "Exit code is wrong");
@@ -512,4 +568,8 @@ void		register_test_database(void) {
 	reg_test("database", database_get_file_by_id_2);
 	reg_test("database", database_sql_to_file);
 	reg_test("database", database_add_category_1);
+	reg_test("database", database_add_category_2);
+	reg_test("database", database_get_category_by_id_1);
+	reg_test("database", database_get_category_by_id_2);
+	reg_test("database", database_sql_to_categ);
 }
