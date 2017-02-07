@@ -417,3 +417,108 @@ u8_t		mpm_database_add_file(database_t *ptr, file_t *file) {
 	sqlite3_free(err);
 	return ret;
 }
+
+/*!
+ * \brief Add a category in the database
+ * \param ptr Opened connection to a database
+ * \param cat Category to add
+ */
+u8_t		mpm_database_add_categ(database_t *ptr, category_t *cat) {
+	char	*query, *err;
+	u8_t	ret;
+
+	if (ptr == NULL || cat == NULL)
+		return 1;
+
+	asprintf(&query, SQL_INSERT_TABLE CAT_TABLE \
+		"(%s %s %s) " \
+		"VALUES (\"%s\", \"%lld\", \"%s\");",
+		CAT_COL_NAME, CAT_COL_PARENT, CAT_COL_PARENT_NAME,
+		cat->name, cat->parent->id, cat->parent->name
+	);
+	ret = mpm_database_exec(ptr, query, NULL, NULL, &err);
+	free(query);
+	assert(ret == 0 && err == NULL);
+	sqlite3_free(err);
+	return ret;
+}
+
+/*!
+ * \brief Get a category by his Id
+ * \param ptr Opened Database connection
+ * \param id ID to search for
+ * \param files Pointer on a list, used to store the results
+ * \return Error code
+ *
+ * This function will search in an already opened database a category with a
+ * given id.
+ * A sql QUERY is constructed in this function, with the following content:
+ * SELECT * FROM categ WHERE id = %d, where %d is the given id
+ * This function will call list_add to add results to the given list,
+ * caller should properly free this list.
+ *
+ * \note This function will set files to NULL before filling it with the results.
+ * You should not call this function with an existing files list.
+ */
+u8_t		mpm_get_categ_by_id(database_t *ptr, u64_t id, mlist_t **cat) {
+	char	*query;
+	u8_t	ret;
+
+	if (ptr == NULL)
+		return 1;
+
+	*cat = NULL;
+	asprintf(&query, QUERY_GET_CATEG_BY_ID(id));
+	ret = sqlite3_exec(ptr->sql, query, &callback_categ, cat, NULL);
+	free(query);
+	return ret;
+}
+
+/**
+ * int name(void *context, int col_num, char **col_txt, char **col_name)
+ */
+SQL_CALLBACK_DEF(callback_categ) {
+	mlist_t		**head = context;
+	category_t	*ptr;
+
+	ptr = malloc(sizeof(category_t));
+	assert(ptr != NULL);
+	mpm_category_init(ptr);
+
+	for (u8_t i = 0; i < col_num; i++)
+		ptr = sql_to_category(ptr, col_name[i], col_txt[i]);
+
+	list_add(*(head), ptr, sizeof(category_t));
+	free(ptr);
+	return 0;
+}
+
+/*!
+ * \brief Fill a category_t structure with a SQL result
+ * \param ptr Pointer to category_t. Must not be NULL.
+ * \param name Name of the column
+ * \param val Value of the column
+ *
+ * This function will transform an SQL result, given through an sqlite callback,
+ * and fill a category_t structure with it.
+ * All the types conversion needed (string -> *) are done in this function.
+ *
+ * \note If a unknown column is passed to this function, a panic will be throwed.
+ */
+category_t	*sql_to_category(category_t *ptr, char *name, char *val) {
+	if (ptr == NULL)
+		return ptr;
+
+	if (strcmp(name, CAT_COL_ID) == 0) {
+		ptr->id = strtoull(val, (char **)NULL, 10);
+	} else if (strcmp(name, CAT_COL_NAME) == 0) {
+		ptr->name = strdup(val);
+	} else if (strcmp(name, CAT_COL_PARENT) == 0) {
+		ptr->parent = NULL; /* TODO */
+	} else if (strcmp(name, CAT_COL_PARENT_NAME) == 0) {
+		ptr->parent_name = strdup(val);
+	} else {
+		m_panic("Unknown column '%s' in get_category\n", name);
+	}
+	return ptr;
+}
