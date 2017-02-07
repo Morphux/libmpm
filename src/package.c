@@ -27,8 +27,11 @@ int		mpm_package_free(void *tmp) {
 		free(ptr->name);
 		free(ptr->version);
 		free(ptr->desc);
-		mpm_category_free(ptr->categ);
-		free(ptr->categ);
+		if (ptr->categ != NULL) {
+			ptr->categ->parent = NULL;
+			mpm_category_free(ptr->categ);
+			free(ptr->categ);
+		}
 		/*list_free(ptr->deps, &package_free);*/
 		/* TODO: Files free */
 	}
