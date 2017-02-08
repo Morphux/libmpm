@@ -22,13 +22,31 @@
 # include <package.h>
 
 # define DB_FN "test.db"
-# define SQL_CALLBACK_PTR(name) int (*name)(void *, int, char**, char**)
-# define SQL_CALLBACK_DEF(name) int name(void *context, int col_num, char **col_txt, char **col_name)
+# define SQL_CALLBACK_PTR(name)		int (*name)(void *, int, char**, char**)
+# define SQL_CALLBACK_DEF(name)		int name(void *context, int col_num, \
+										char **col_txt, char **col_name)
 
-# define QUERY_GET_PACKAGE_BY_ID(id) "SELECT * FROM " PKG_TABLE " WHERE id = %lld", id
-# define QUERY_GET_PACKAGE_BY_NAME(name) "SELECT * FROM " PKG_TABLE " WHERE name = \"%s\"", name
-# define QUERY_GET_FILES_BY_ID(id) "SELECT * FROM " FILE_TABLE " WHERE id = %lld", id
-# define QUERY_GET_CATEG_BY_ID(id) "SELECT * FROM " CAT_TABLE " WHERE id = %lld", id
+/* Package Search queries */
+# define QUERY_GET_PACKAGE_BY_ID(id)		"SELECT * FROM " PKG_TABLE \
+												" WHERE id = %lld", id
+# define QUERY_GET_PACKAGE_BY_NAME(name)	"SELECT * FROM " PKG_TABLE \
+												" WHERE name = \"%s\"", name
+
+/* File search queries */
+# define QUERY_GET_FILES_BY_ID(id)			"SELECT * FROM " FILE_TABLE \
+												" WHERE id = %lld", id
+# define QUERY_GET_FILES_BY_PATH(path)		"SELECT * FROM " FILE_TABLE \
+												" WHERE path = \"%s\"", path
+# define QUERY_GET_FILES_BY_PARENT_ID(id)	"SELECT * FROM " FILE_TABLE \
+												" WHERE parent = %lld", id
+# define QUERY_GET_FILES_BY_PARENT_NAME(name)	"SELECT * FROM " FILE_TABLE \
+												" WHERE parent_name = \"%s\"", \
+												name
+/* TODO: type */
+
+/* Category search queries */
+# define QUERY_GET_CATEG_BY_ID(id)			"SELECT * FROM " CAT_TABLE \
+												" WHERE id = %lld", id
 
 # define SQL_CREATE_TABLE		"CREATE table "
 # define SQL_INSERT_TABLE		"INSERT INTO "
