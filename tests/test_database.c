@@ -481,12 +481,13 @@ TEST(database_sql_to_categ) {
 	ptr = sql_to_category(NULL, NULL, NULL);
 	TEST_ASSERT((ptr == NULL), "Pointer is not NULL");
 
-	ptr = malloc(sizeof(file_t));
+	ptr = malloc(sizeof(category_t));
 
 	pipe(fd);
 	if ((pid = fork()) == 0) {
 		DUP_ALL_OUTPUTS(fd);
-		ptr = sql_to_category(ptr, "Unknown", "Nothing");
+		sql_to_category(ptr, "Unknown", "Nothing");
+                exit(0);
 	} else {
 		WAIT_AND_CLOSE(pid, st, fd);
 		TEST_ASSERT((WEXITSTATUS(st) == 1), "Exit code is wrong");
