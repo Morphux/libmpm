@@ -61,6 +61,7 @@ typedef struct	s_database {
 
 
 /* SQL callbacks */
+SQL_CALLBACK_DEF(callback_package);
 SQL_CALLBACK_DEF(callback_files);
 SQL_CALLBACK_DEF(callback_categ);
 
@@ -76,6 +77,12 @@ package_t		*sql_to_package(package_t *ptr, char *name, char *val);
 u8_t			mpm_database_init(database_t *ptr);
 u8_t			mpm_database_add_pkg(database_t *ptr, package_t *pkg);
 u8_t			mpm_get_file_by_id(database_t *ptr, u64_t id,
+						mlist_t **files);
+u8_t			mpm_get_file_by_path(database_t *ptr, const char *path,
+						mlist_t **files);
+u8_t			mpm_get_file_by_parent_id(database_t *ptr, u64_t id,
+						mlist_t **files);
+u8_t			mpm_get_file_by_parent_name(database_t *ptr, const char *name,
 						mlist_t **files);
 file_t			*sql_to_file(file_t *ptr, char *name, char *val);
 u8_t			mpm_database_add_file(database_t *ptr, file_t *file);

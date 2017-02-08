@@ -273,13 +273,17 @@ TEST(database_add_file_1) {
 	TEST_ASSERT((ret == 0), "Can't init database");
 
 	file = malloc(sizeof(file_t));
+	parent = malloc(sizeof(package_t));
 
-	assert(file != NULL);
+	assert(file != NULL && parent != NULL);
 	mpm_file_init(file);
+	mpm_package_init(parent);
 	file->path = strdup("/tmp/test");
 	file->hash = strdup("Totally not a hash.");
 	file->parent_name = strdup("Some Star Wars joke");
 	file->type = FILE_TYPE_BIN;
+	parent->id = 1;
+	file->parent = parent;
 
 	ret = mpm_database_add_file(ptr, file);
 	TEST_ASSERT((ret == 0), "Can't add a file to the database");
@@ -425,6 +429,107 @@ TEST(database_get_file_by_id_2) {
 	return TEST_SUCCESS;
 }
 
+TEST(database_get_file_by_id_3) {
+	mlist_t			*lst;
+	database_t		*ptr = NULL;
+	u8_t			ret = 0;
+
+	ptr = mpm_database_open(&ret, NULL);
+	TEST_ASSERT((ret == 0), "Can't open the database");
+	TEST_ASSERT((ptr != NULL), "Can't open the database");
+
+	ret = mpm_get_file_by_id(ptr, 999, &lst);
+	TEST_ASSERT((list_size(lst) == 0), "Found the package ?!");
+	mpm_database_close(ptr);
+	return TEST_SUCCESS;
+}
+
+TEST(database_get_file_by_parent_id_1) {
+	mlist_t			*lst;
+	database_t		*ptr = NULL;
+	u8_t			ret = 0;
+
+	ptr = mpm_database_open(&ret, NULL);
+	TEST_ASSERT((ret == 0), "Can't open the database");
+	TEST_ASSERT((ptr != NULL), "Can't open the database");
+
+	ret = mpm_get_file_by_parent_id(ptr, 1, &lst);
+	TEST_ASSERT((list_size(lst) == 1), "Can't find the package");
+	mpm_database_close(ptr);
+	list_free(lst, &mpm_file_free);
+	return TEST_SUCCESS;
+}
+
+TEST(database_get_file_by_parent_id_2) {
+	mlist_t			*lst;
+	u8_t			ret = 0;
+
+	ret = mpm_get_file_by_parent_id(NULL, 1, &lst);
+	TEST_ASSERT((ret == 1), "Can't handle NULL pointer");
+
+	return TEST_SUCCESS;
+}
+
+TEST(database_get_file_by_parent_id_3) {
+	mlist_t			*lst;
+	database_t		*ptr = NULL;
+	u8_t			ret = 0;
+
+	ptr = mpm_database_open(&ret, NULL);
+	TEST_ASSERT((ret == 0), "Can't open the database");
+	TEST_ASSERT((ptr != NULL), "Can't open the database");
+
+	ret = mpm_get_file_by_parent_id(ptr, 999, &lst);
+	TEST_ASSERT((list_size(lst) == 0), "Found the package ?!");
+	mpm_database_close(ptr);
+	return TEST_SUCCESS;
+}
+
+
+
+TEST(database_get_file_by_path_1) {
+	mlist_t			*lst;
+	database_t		*ptr = NULL;
+	u8_t			ret = 0;
+
+	ptr = mpm_database_open(&ret, NULL);
+	TEST_ASSERT((ret == 0), "Can't open the database");
+	TEST_ASSERT((ptr != NULL), "Can't open the database");
+
+	ret = mpm_get_file_by_path(ptr, "/tmp/test", &lst);
+	TEST_ASSERT((list_size(lst) == 1), "Can't find the package");
+	mpm_database_close(ptr);
+	list_free(lst, &mpm_file_free);
+	return TEST_SUCCESS;
+}
+
+TEST(database_get_file_by_path_2) {
+	mlist_t			*lst;
+	u8_t			ret = 0;
+
+	ret = mpm_get_file_by_path(NULL, NULL, &lst);
+	TEST_ASSERT((ret == 1), "Can't handle NULL pointer");
+
+	return TEST_SUCCESS;
+}
+
+TEST(database_get_file_by_path_3) {
+	mlist_t			*lst;
+	database_t		*ptr = NULL;
+	u8_t			ret = 0;
+
+	ptr = mpm_database_open(&ret, NULL);
+	TEST_ASSERT((ret == 0), "Can't open the database");
+	TEST_ASSERT((ptr != NULL), "Can't open the database");
+
+	ret = mpm_get_file_by_path(ptr, "/non/sense", &lst);
+	TEST_ASSERT((list_size(lst) == 0), "Found the package ?!");
+	mpm_database_close(ptr);
+	return TEST_SUCCESS;
+}
+
+
+
 TEST(database_get_category_by_id_1) {
 	mlist_t		*lst;
 	database_t	*ptr = NULL;
@@ -567,6 +672,13 @@ void		register_test_database(void) {
 	reg_test("database", database_add_file_2);
 	reg_test("database", database_get_file_by_id_1);
 	reg_test("database", database_get_file_by_id_2);
+	reg_test("database", database_get_file_by_id_3);
+	reg_test("database", database_get_file_by_path_1);
+	reg_test("database", database_get_file_by_path_2);
+	reg_test("database", database_get_file_by_path_3);
+	reg_test("database", database_get_file_by_parent_id_1);
+	reg_test("database", database_get_file_by_parent_id_2);
+	reg_test("database", database_get_file_by_parent_id_3);
 	reg_test("database", database_sql_to_file);
 	reg_test("database", database_add_category_1);
 	reg_test("database", database_add_category_2);

@@ -39,8 +39,11 @@ int		mpm_file_free(void *tmp) {
 	if (ptr) {
 		free(ptr->path);
 		free(ptr->hash);
-		mpm_package_free(ptr->parent);
 		free(ptr->parent_name);
+		if (ptr->parent != NULL) {
+			mpm_package_free(ptr->parent);
+			free(ptr->parent);
+		}
 	}
 	return 1;
 }

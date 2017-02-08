@@ -340,6 +340,103 @@ u8_t			mpm_get_file_by_id(database_t *ptr, u64_t id,
 	return ret;
 }
 
+/*!
+ * \brief Get a file by his path
+ * \param ptr Opened Database connection
+ * \param path Path to search for
+ * \param files Pointer on a list, used to store the results
+ * \return Error code
+ *
+ * This function will search in an already opened database a file with a
+ * given path.
+ * A sql QUERY is constructed in this function, with the following content:
+ * SELECT * FROM files WHERE path = "%s", where %s is the given path
+ * This function will call list_add to add results to the given list,
+ * caller should properly free this list.
+ *
+ * \note This function will set files to NULL before filling it with the results.
+ * You should not call this function with an existing files list.
+ */
+u8_t			mpm_get_file_by_path(database_t *ptr, const char *path,
+						mlist_t **files) {
+	char	*query;
+	u8_t	ret;
+
+	if (ptr == NULL || path == NULL)
+		return 1;
+
+	*files = NULL;
+	asprintf(&query, QUERY_GET_FILES_BY_PATH(path));
+	ret = sqlite3_exec(ptr->sql, query, &callback_files, files, NULL);
+	free(query);
+	return ret;
+}
+
+/*!
+ * \brief Get a file by his parent id
+ * \param ptr Opened Database connection
+ * \param id Parent ID to search for
+ * \param files Pointer on a list, used to store the results
+ * \return Error code
+ *
+ * This function will search in an already opened database a file with a
+ * given parent id.
+ * A sql QUERY is constructed in this function, with the following content:
+ * SELECT * FROM files WHERE parent_id = %d, where %d is the given id
+ * This function will call list_add to add results to the given list,
+ * caller should properly free this list.
+ *
+ * \note This function will set files to NULL before filling it with the results.
+ * You should not call this function with an existing files list.
+ */
+u8_t			mpm_get_file_by_parent_id(database_t *ptr, u64_t id,
+						mlist_t **files) {
+	char	*query;
+	u8_t	ret;
+
+	if (ptr == NULL)
+		return 1;
+
+	*files = NULL;
+	asprintf(&query, QUERY_GET_FILES_BY_PARENT_ID(id));
+	ret = sqlite3_exec(ptr->sql, query, &callback_files, files, NULL);
+	free(query);
+	return ret;
+}
+
+/*!
+ * \brief Get a file by his parent name
+ * \param ptr Opened Database connection
+ * \param name Parent name
+ * \param files Pointer on a list, used to store the results
+ * \return Error code
+ *
+ * This function will search in an already opened database a file with a
+ * given parent name.
+ * A sql QUERY is constructed in this function, with the following content:
+ * SELECT * FROM files WHERE parent_name = "%s", where %s is the given parent name
+ * This function will call list_add to add results to the given list,
+ * caller should properly free this list.
+ *
+ * \note This function will set files to NULL before filling it with the results.
+ * You should not call this function with an existing files list.
+ */
+u8_t			mpm_get_file_by_parent_name(database_t *ptr, const char *name,
+						mlist_t **files) {
+	char	*query;
+	u8_t	ret;
+
+	if (ptr == NULL || name == NULL)
+		return 1;
+
+	*files = NULL;
+	asprintf(&query, QUERY_GET_FILES_BY_PARENT_NAME(name));
+	ret = sqlite3_exec(ptr->sql, query, &callback_files, files, NULL);
+	free(query);
+	return ret;
+}
+
+
 /**
  * int name(void *context, int col_num, char **col_txt, char **col_name)
  */
@@ -407,10 +504,10 @@ u8_t		mpm_database_add_file(database_t *ptr, file_t *file) {
 
 	asprintf(&query, SQL_INSERT_TABLE FILE_TABLE \
 		" (%s, %s, %s, %s, %s) " \
-		"VALUES (\"%s\", \"%d\", \"%d\", \"%s\", \"%s\");",
+		"VALUES (\"%s\", \"%d\", \"%lld\", \"%s\", \"%s\");",
 		FILE_COL_PATH, FILE_COL_TYPE, FILE_COL_PARENT, FILE_COL_PARENT_NAME,
 		FILE_COL_HASH,
-		file->path, file->type, /* TMP */0, file->parent_name, file->hash);
+		file->path, file->type, file->parent->id, file->parent_name, file->hash);
 	ret = mpm_database_exec(ptr, query, NULL, NULL, &err);
 	free(query);
 	assert(ret == 0 && err == NULL);
