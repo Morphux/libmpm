@@ -24,33 +24,33 @@
 # define DB_FN "test.db"
 # define SQL_CALLBACK_PTR(name)		int (*name)(void *, int, char**, char**)
 # define SQL_CALLBACK_DEF(name)		int name(void *context, int col_num, \
-										char **col_txt, char **col_name)
+					char **col_txt, char **col_name)
 
 /* Package Search queries */
 # define QUERY_GET_PACKAGE_BY_ID(id)		"SELECT * FROM " PKG_TABLE \
-												" WHERE id = %lld", id
+							" WHERE id = %lld", id
 # define QUERY_GET_PACKAGE_BY_NAME(name)	"SELECT * FROM " PKG_TABLE \
-												" WHERE name = \"%s\"", name
+						" WHERE name = \"%s\"", name
 
 /* File search queries */
-# define QUERY_GET_FILES_BY_ID(id)			"SELECT * FROM " FILE_TABLE \
-												" WHERE id = %lld", id
+# define QUERY_GET_FILES_BY_ID(id)		"SELECT * FROM " FILE_TABLE \
+						" WHERE id = %lld", id
 # define QUERY_GET_FILES_BY_PATH(path)		"SELECT * FROM " FILE_TABLE \
-												" WHERE path = \"%s\"", path
+						" WHERE path = \"%s\"", path
 # define QUERY_GET_FILES_BY_PARENT_ID(id)	"SELECT * FROM " FILE_TABLE \
-												" WHERE parent = %lld", id
+						" WHERE parent = %lld", id
 # define QUERY_GET_FILES_BY_PARENT_NAME(name)	"SELECT * FROM " FILE_TABLE \
-												" WHERE parent_name = \"%s\"", \
-												name
+						" WHERE parent_name = \"%s\"", \
+						name
 /* TODO: type */
 
 /* Category search queries */
-# define QUERY_GET_CATEG_BY_ID(id)			"SELECT * FROM " CAT_TABLE \
-												" WHERE id = %lld", id
+# define QUERY_GET_CATEG_BY_ID(id)		"SELECT * FROM " CAT_TABLE \
+						" WHERE id = %lld", id
 
 # define SQL_CREATE_TABLE		"CREATE table "
 # define SQL_INSERT_TABLE		"INSERT INTO "
-# define SQL_TYPE_PRIMARY_KEY	" primary key "
+# define SQL_TYPE_PRIMARY_KEY	        " primary key "
 # define SQL_TYPE_NOT_NULL		" not null "
 # define SQL_TYPE_INT			" integer "
 # define SQL_TYPE_TEXT			" text "
