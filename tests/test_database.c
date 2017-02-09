@@ -486,7 +486,6 @@ TEST(database_get_file_by_parent_id_3) {
 }
 
 
-
 TEST(database_get_file_by_path_1) {
 	mlist_t			*lst;
 	database_t		*ptr = NULL;
@@ -528,6 +527,46 @@ TEST(database_get_file_by_path_3) {
 	return TEST_SUCCESS;
 }
 
+TEST(database_get_file_by_parent_name_1) {
+	mlist_t			*lst;
+	database_t		*ptr = NULL;
+	u8_t			ret = 0;
+
+	ptr = mpm_database_open(&ret, NULL);
+	TEST_ASSERT((ret == 0), "Can't open the database");
+	TEST_ASSERT((ptr != NULL), "Can't open the database");
+
+	ret = mpm_get_file_by_parent_name(ptr, "Some Star Wars joke", &lst);
+	TEST_ASSERT((list_size(lst) == 1), "Can't find the package");
+	mpm_database_close(ptr);
+	list_free(lst, &mpm_file_free);
+	return TEST_SUCCESS;
+}
+
+TEST(database_get_file_by_parent_name_2) {
+	mlist_t			*lst;
+	u8_t			ret = 0;
+
+	ret = mpm_get_file_by_parent_name(NULL, NULL, &lst);
+	TEST_ASSERT((ret == 1), "Can't handle NULL pointer");
+
+	return TEST_SUCCESS;
+}
+
+TEST(database_get_file_by_parent_name_3) {
+	mlist_t			*lst;
+	database_t		*ptr = NULL;
+	u8_t			ret = 0;
+
+	ptr = mpm_database_open(&ret, NULL);
+	TEST_ASSERT((ret == 0), "Can't open the database");
+	TEST_ASSERT((ptr != NULL), "Can't open the database");
+
+	ret = mpm_get_file_by_parent_name(ptr, "non_sense", &lst);
+	TEST_ASSERT((list_size(lst) == 0), "Found the package ?!");
+	mpm_database_close(ptr);
+	return TEST_SUCCESS;
+}
 
 
 TEST(database_get_category_by_id_1) {
@@ -679,6 +718,9 @@ void		register_test_database(void) {
 	reg_test("database", database_get_file_by_parent_id_1);
 	reg_test("database", database_get_file_by_parent_id_2);
 	reg_test("database", database_get_file_by_parent_id_3);
+	reg_test("database", database_get_file_by_parent_name_1);
+	reg_test("database", database_get_file_by_parent_name_2);
+	reg_test("database", database_get_file_by_parent_name_3);
 	reg_test("database", database_sql_to_file);
 	reg_test("database", database_add_category_1);
 	reg_test("database", database_add_category_2);
