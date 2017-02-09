@@ -588,7 +588,6 @@ u8_t		mpm_get_categ_by_id(database_t *ptr, u64_t id, mlist_t **cat) {
  * \note This function will set files to NULL before filling it with the results.
  * You should not call this function with an existing files list.
  */
-
 u8_t	mpm_get_categ_by_name(database_t *ptr, const char *name, mlist_t **cat) {
 	char	*query;
 	u8_t	ret;
