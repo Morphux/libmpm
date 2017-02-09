@@ -42,11 +42,12 @@
 # define QUERY_GET_FILES_BY_PARENT_NAME(name)	"SELECT * FROM " FILE_TABLE \
 						" WHERE parent_name = \"%s\"", \
 						name
-/* TODO: type */
 
 /* Category search queries */
 # define QUERY_GET_CATEG_BY_ID(id)		"SELECT * FROM " CAT_TABLE \
 						" WHERE id = %lld", id
+# define QUERY_GET_CATEG_BY_NAME(name)	"SELECT * FROM " CAT_TABLE \
+						" WHERE name = \"%s\"", name
 
 # define SQL_CREATE_TABLE		"CREATE table "
 # define SQL_INSERT_TABLE		"INSERT INTO "
@@ -88,6 +89,7 @@ file_t			*sql_to_file(file_t *ptr, char *name, char *val);
 u8_t			mpm_database_add_file(database_t *ptr, file_t *file);
 category_t		*sql_to_category(category_t *ptr, char *name, char *val);
 u8_t			mpm_get_categ_by_id(database_t *ptr, u64_t id, mlist_t **cat);
+u8_t			mpm_get_categ_by_name(database_t *ptr, const char *name, mlist_t **cat);
 u8_t			mpm_database_add_categ(database_t *ptr, category_t *cat);
 
 #endif /* DATABASE_H */

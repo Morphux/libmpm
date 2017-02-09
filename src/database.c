@@ -571,6 +571,37 @@ u8_t		mpm_get_categ_by_id(database_t *ptr, u64_t id, mlist_t **cat) {
 	return ret;
 }
 
+/*!
+ * \brief Get a category by his name
+ * \param ptr Opened Database connection
+ * \param name Name to search for
+ * \param files Pointer on a list, used to store the results
+ * \return Error code
+ *
+ * This function will search in an already opened database a category with a
+ * given name.
+ * A sql QUERY is constructed in this function, with the following content:
+ * SELECT * FROM categ WHERE name = %s, where %s is the given name
+ * This function will call list_add to add results to the given list,
+ * caller should properly free this list.
+ *
+ * \note This function will set files to NULL before filling it with the results.
+ * You should not call this function with an existing files list.
+ */
+
+u8_t	mpm_get_categ_by_name(database_t *ptr, const char *name, mlist_t **cat) {
+	char	*query;
+	u8_t	ret;
+
+	if (ptr == NULL)
+		return 1;
+	*cat = NULL;
+	asprintf(&query, QUERY_GET_CATEG_BY_NAME(name));
+	ret = sqlite3_exec(ptr->sql, query, &callback_categ, cat, NULL);
+	free(query);
+	return ret;
+}
+
 /**
  * int name(void *context, int col_num, char **col_txt, char **col_name)
  */

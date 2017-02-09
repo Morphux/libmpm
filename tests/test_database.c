@@ -368,6 +368,47 @@ TEST(database_get_pkg_by_id_2) {
 	return TEST_SUCCESS;
 }
 
+TEST(database_get_category_by_name_1) {
+	mlist_t		*lst;
+	database_t	*ptr = NULL;
+	u8_t		ret = 0;
+
+	ptr = mpm_database_open(&ret, NULL);
+	TEST_ASSERT((ret == 0), "Can't open the database");
+	TEST_ASSERT((ptr != NULL), "Can't open the database");
+
+	ret = mpm_get_categ_by_name(ptr, "test", &lst);
+	TEST_ASSERT((list_size(lst) == 1), "Can't find the category");
+	mpm_database_close(ptr);
+	list_free(lst, &mpm_category_free);
+	return TEST_SUCCESS;
+}
+
+TEST(database_get_category_by_name_2) {
+	mlist_t		*lst;
+	u8_t		ret;
+
+	ret = mpm_get_categ_by_name(NULL, NULL, &lst);
+	TEST_ASSERT((ret == 1), "Can't handle NULL pointer");
+	return TEST_SUCCESS;
+}
+
+TEST(database_get_category_by_name_3) {
+	mlist_t		*lst;
+	database_t	*ptr = NULL;
+	u8_t		ret = 0;
+
+	ptr = mpm_database_open(&ret, NULL);
+	TEST_ASSERT((ret == 0), "Can't open the database");
+	TEST_ASSERT((ptr != NULL), "Can't open the database");
+
+	ret = mpm_get_categ_by_name(ptr, "non sense", &lst);
+	TEST_ASSERT((list_size(lst) == 0), "Find the category !?");
+	mpm_database_close(ptr);
+	return TEST_SUCCESS;
+}
+
+
 TEST(database_get_pkg_by_name_1) {
 	mlist_t			*lst;
 	database_t		*ptr = NULL;
@@ -726,5 +767,8 @@ void		register_test_database(void) {
 	reg_test("database", database_add_category_2);
 	reg_test("database", database_get_category_by_id_1);
 	reg_test("database", database_get_category_by_id_2);
+	reg_test("database", database_get_category_by_name_1);
+	reg_test("database", database_get_category_by_name_2);
+	reg_test("database", database_get_category_by_name_3);
 	reg_test("database", database_sql_to_categ);
 }
