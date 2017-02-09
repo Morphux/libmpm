@@ -28,26 +28,26 @@
 
 /* Package Search queries */
 # define QUERY_GET_PACKAGE_BY_ID(id)		"SELECT * FROM " PKG_TABLE \
-							" WHERE id = %lld", id
+							" WHERE " PKG_COL_ID "= %lld", id
 # define QUERY_GET_PACKAGE_BY_NAME(name)	"SELECT * FROM " PKG_TABLE \
-						" WHERE name = \"%s\"", name
+						" WHERE " PKG_COL_NAME " = \"%s\"", name
 
 /* File search queries */
 # define QUERY_GET_FILES_BY_ID(id)		"SELECT * FROM " FILE_TABLE \
-						" WHERE id = %lld", id
+						" WHERE " FILE_COL_ID " = %lld", id
 # define QUERY_GET_FILES_BY_PATH(path)		"SELECT * FROM " FILE_TABLE \
-						" WHERE path = \"%s\"", path
+						" WHERE " FILE_COL_PATH " = \"%s\"", path
 # define QUERY_GET_FILES_BY_PARENT_ID(id)	"SELECT * FROM " FILE_TABLE \
-						" WHERE parent = %lld", id
+						" WHERE " FILE_COL_PARENT " = %lld", id
 # define QUERY_GET_FILES_BY_PARENT_NAME(name)	"SELECT * FROM " FILE_TABLE \
-						" WHERE parent_name = \"%s\"", \
+						" WHERE " FILE_COL_PARENT_NAME " = \"%s\"", \
 						name
 
 /* Category search queries */
 # define QUERY_GET_CATEG_BY_ID(id)		"SELECT * FROM " CAT_TABLE \
-						" WHERE id = %lld", id
+						" WHERE " CAT_COL_ID " = %lld", id
 # define QUERY_GET_CATEG_BY_NAME(name)	"SELECT * FROM " CAT_TABLE \
-						" WHERE name = \"%s\"", name
+						" WHERE " CAT_COL_NAME " = \"%s\"", name
 
 # define SQL_CREATE_TABLE		"CREATE table "
 # define SQL_INSERT_TABLE		"INSERT INTO "
