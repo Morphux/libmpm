@@ -20,40 +20,40 @@
  * \brief Free a package entry
  * \note Can be used as list_free callback
  */
-int		mpm_package_free(void *tmp) {
-	package_t		*ptr = tmp;
+int             mpm_package_free(void *tmp) {
+    package_t   *ptr = tmp;
 
-	if (ptr) {
-		free(ptr->name);
-		free(ptr->version);
-		free(ptr->desc);
-		if (ptr->categ != NULL) {
-			ptr->categ->parent = NULL;
-			mpm_category_free(ptr->categ);
-			free(ptr->categ);
-		}
-		/*list_free(ptr->deps, &package_free);*/
-		/* TODO: Files free */
-	}
-	return 1;
+    if (ptr) {
+        free(ptr->name);
+        free(ptr->version);
+        free(ptr->desc);
+        if (ptr->categ != NULL) {
+            ptr->categ->parent = NULL;
+            mpm_category_free(ptr->categ);
+            free(ptr->categ);
+        }
+        /*list_free(ptr->deps, &package_free);*/
+        /* TODO: Files free */
+    }
+    return 1;
 }
 
 /*!
  * \brief Initialize a package entry
  * \param ptr Pointer to an allocated ptr
  */
-void	mpm_package_init(package_t *ptr) {
-	if (ptr) {
-		ptr->id = 0;
-		ptr->state = PACKAGE_STATE_ORPHAN;
-		ptr->name = NULL;
-		ptr->version = NULL;
-		ptr->categ = NULL;
-		ptr->desc = NULL;
-		ptr->deps = NULL;
-		ptr->files = NULL;
-		ptr->binaries = NULL;
-		ptr->config = NULL;
-		ptr->docs = NULL;
-	}
+void    mpm_package_init(package_t *ptr) {
+    if (ptr) {
+        ptr->id = 0;
+        ptr->state = PACKAGE_STATE_ORPHAN;
+        ptr->name = NULL;
+        ptr->version = NULL;
+        ptr->categ = NULL;
+        ptr->desc = NULL;
+        ptr->deps = NULL;
+        ptr->files = NULL;
+        ptr->binaries = NULL;
+        ptr->config = NULL;
+        ptr->docs = NULL;
+    }
 }

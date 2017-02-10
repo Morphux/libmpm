@@ -20,30 +20,30 @@
  * \brief Initialize a file_t structure
  * \param ptr Structure to initialize
  */
-void	mpm_file_init(file_t *ptr) {
-	if (ptr) {
-		ptr->path = NULL;
-		ptr->parent = NULL;
-		ptr->hash = NULL;
-		ptr->parent_name = NULL;
-	}
+void    mpm_file_init(file_t *ptr) {
+    if (ptr) {
+        ptr->path = NULL;
+        ptr->parent = NULL;
+        ptr->hash = NULL;
+        ptr->parent_name = NULL;
+    }
 }
 
 /*!
  * \brief Free a file_t entry
  * \note Can be called as a callback of list_free
  */
-int		mpm_file_free(void *tmp) {
-	file_t *ptr = tmp;
+int     mpm_file_free(void *tmp) {
+    file_t *ptr = tmp;
 
-	if (ptr) {
-		free(ptr->path);
-		free(ptr->hash);
-		free(ptr->parent_name);
-		if (ptr->parent != NULL) {
-			mpm_package_free(ptr->parent);
-			free(ptr->parent);
-		}
-	}
-	return 1;
+    if (ptr) {
+        free(ptr->path);
+        free(ptr->hash);
+        free(ptr->parent_name);
+        if (ptr->parent != NULL) {
+            mpm_package_free(ptr->parent);
+            free(ptr->parent);
+        }
+    }
+    return 1;
 }

@@ -19,35 +19,35 @@
 
 # include <morphux.h>
 
-# define FILE_TABLE				"files"
-# define FILE_COL_ID			"id"
-# define FILE_COL_PATH			"path"
-# define FILE_COL_TYPE			"type"
-# define FILE_COL_PARENT		"parent"
-# define FILE_COL_PARENT_NAME	"parent_name"
-# define FILE_COL_HASH			"hash"
+# define FILE_TABLE             "files"
+# define FILE_COL_ID            "id"
+# define FILE_COL_PATH          "path"
+# define FILE_COL_TYPE          "type"
+# define FILE_COL_PARENT        "parent"
+# define FILE_COL_PARENT_NAME   "parent_name"
+# define FILE_COL_HASH          "hash"
 
 typedef struct s_package package_t;
 
 enum {
-	FILE_TYPE_CONFIG,
-	FILE_TYPE_BIN,
-	FILE_TYPE_LIB,
-	FILE_TYPE_OTHER
+    FILE_TYPE_CONFIG,
+    FILE_TYPE_BIN,
+    FILE_TYPE_LIB,
+    FILE_TYPE_OTHER
 };
 
-typedef struct		s_file {
-	u64_t			id;
-	char			*path;
-	u8_t			type;
-	package_t		*parent;
-	char			*parent_name;
-	char			*hash;
-}					file_t;
+typedef struct          s_file {
+    u64_t       id;
+    char        *path;
+    u8_t        type;
+    package_t   *parent;
+    char        *parent_name;
+    char        *hash;
+}                       file_t;
 
 
-void	mpm_file_init(file_t *ptr);
-int		mpm_file_free(void *tmp);
+void    mpm_file_init(file_t *ptr);
+int     mpm_file_free(void *tmp);
 
 # include <package.h>
 #endif /* FILES_H */

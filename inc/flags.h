@@ -19,11 +19,11 @@
 # include <morphux.h>
 
 enum {
-	MPM_VERBOSE_LEVEL = 0,
-	MPM_LAST /* Always keep this one last */
+    MPM_VERBOSE_LEVEL = 0,
+    MPM_LAST /* Always keep this one last */
 };
 
-void		mpm_set_flag(u8_t flag, u8_t val);
-u8_t		mpm_get_flag(u8_t flag);
+void    mpm_set_flag(u8_t flag, u8_t val);
+u8_t    mpm_get_flag(u8_t flag);
 
 #endif /* FLAGS_H */
