@@ -221,7 +221,7 @@ package_t               *sql_to_package(package_t *ptr, char *name, char *val) {
  */
 u8_t		mpm_database_init(database_t *ptr) {
     static const char	*query_table[] = {\
-        /* Package table */
+            /* Package table */
         SQL_CREATE_TABLE PKG_TABLE "("                                      \
             PKG_COL_ID          SQL_TYPE_INT    SQL_TYPE_PRIMARY_KEY    "," \
             PKG_COL_NAME        SQL_TYPE_TEXT   SQL_TYPE_NOT_NULL       "," \
