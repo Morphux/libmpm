@@ -35,7 +35,8 @@ SFLAGS =	-Wall -Wextra -Werror -Wno-unused-result
 # Library Flags
 LFLAGS =	-L lib/libmorphux -lmorphux \
 			-L ./lib/curl/lib/.libs/ -lcurl \
-			-L ./lib/json-c/.libs -ljson-c
+			-L ./lib/json-c/.libs -ljson-c \
+			-L ./lib/libconfuse/.libs -lconfuse
 CFLAGS =	$(SFLAGS) $(IFLAGS) $(OFLAGS) $(LFLAGS)
 ARFLAGS =	-cq
 
@@ -49,6 +50,7 @@ OBJ_DIR =	objs/
 L_MORPHUX =	../lib/libmorphux/libmorphux.a
 L_CURL = 	../lib/curl/lib/.libs/libcurl.a
 L_JSON = 	../lib/json-c/.libs/libjson-c.a
+L_CONF =	../lib/libconfuse/src/.libs/libconfuse.a
 
 all: $(NAME)
 
@@ -60,8 +62,8 @@ $(NAME): $(SQLITE) $(OBJS)
 	@if [ ! -d "$(OBJ_DIR)" ]; then mkdir $(OBJ_DIR); fi
 	@cp $(OBJS) $(OBJ_DIR)
 	@cp $(SQLITE) $(OBJ_DIR)
-	@echo "AR\t\t$(L_MORPHUX) $(L_CURL) $(L_JSON)"
-	@cd $(OBJ_DIR) && ar -x $(L_MORPHUX) && ar -x $(L_CURL) && ar -x $(L_JSON)
+	@echo "AR\t\t$(L_MORPHUX) $(L_CURL) $(L_JSON) $(L_CONF)"
+	@cd $(OBJ_DIR) && ar -x $(L_MORPHUX) && ar -x $(L_CURL) && ar -x $(L_JSON) && ar -x $(L_CONF)
 	@echo "CCLD\t\t$(NAME)"
 	@$(LIB) $(ARFLAGS) $(NAME) objs/*.o
 	@rm -rf $(OBJ_DIR)
@@ -74,6 +76,7 @@ init:
 	make -C lib/libmorphux
 	cd lib/curl/ && ./buildconf && ./configure --disable-shared --enable-debug --enable-maintainer-mode && make
 	cd lib/json-c/ && sh autogen.sh && ./configure --disable-shared && make
+	cd lib/libconfuse/ && sh autogen.sh && ./configure && make
 
 docs:
 	doxygen docs/doxyfile
