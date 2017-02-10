@@ -39,8 +39,6 @@ SQL_CALLBACK_DEF(exec_callback) {
 	sql_result_t		*ptr = NULL;
 	mlist_t				**head = context, *new = NULL;
 
-	if (col_num == 0)
-		return 0;
 	for (u8_t i = 0; i < col_num; i++) {
 		ptr = malloc(sizeof(sql_result_t));
 		assert(ptr != NULL);
