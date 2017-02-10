@@ -366,6 +366,23 @@ TEST(database_get_pkg_by_id_2) {
 	return TEST_SUCCESS;
 }
 
+TEST(database_get_pkg_by_id_3) {
+	mlist_t			*lst;
+	database_t		*ptr = NULL;
+	u8_t			ret = 0;
+
+	ptr = mpm_database_open(&ret, NULL);
+	TEST_ASSERT((ret == 0), "Can't open the database");
+	TEST_ASSERT((ptr != NULL), "Can't open the database");
+
+	ret = mpm_get_package_by_id(ptr, 100, &lst);
+	TEST_ASSERT((list_size(lst) == 0), "Found the package ?!");
+	mpm_database_close(ptr);
+	list_free(lst, &mpm_package_free);
+	return TEST_SUCCESS;
+}
+
+
 TEST(database_get_category_by_name_1) {
 	mlist_t		*lst;
 	database_t	*ptr = NULL;
@@ -430,6 +447,22 @@ TEST(database_get_pkg_by_name_2) {
 	ret = mpm_get_package_by_name(NULL, "test", &lst);
 	TEST_ASSERT((ret == 1), "Can't handle NULL pointer");
 	clean_db(DB_FN);
+	return TEST_SUCCESS;
+}
+
+TEST(database_get_pkg_by_name_3) {
+	mlist_t			*lst;
+	database_t		*ptr = NULL;
+	u8_t			ret = 0;
+
+	ptr = mpm_database_open(&ret, NULL);
+	TEST_ASSERT((ret == 0), "Can't open the database");
+	TEST_ASSERT((ptr != NULL), "Can't open the database");
+
+	ret = mpm_get_package_by_name(ptr, "nonsense", &lst);
+	TEST_ASSERT((list_size(lst) == 0), "Found the package ?!");
+	mpm_database_close(ptr);
+	list_free(lst, &mpm_package_free);
 	return TEST_SUCCESS;
 }
 
@@ -633,6 +666,23 @@ TEST(database_get_category_by_id_2) {
 	return TEST_SUCCESS;
 }
 
+TEST(database_get_category_by_id_3) {
+	mlist_t		*lst;
+	database_t	*ptr = NULL;
+	u8_t		ret = 0;
+
+	ptr = mpm_database_open(&ret, NULL);
+	TEST_ASSERT((ret == 0), "Can't open the database");
+	TEST_ASSERT((ptr != NULL), "Can't open the database");
+
+	ret = mpm_get_categ_by_id(ptr, 100, &lst);
+	TEST_ASSERT((list_size(lst) == 0), "Found the package ?!");
+	mpm_database_close(ptr);
+	list_free(lst, &mpm_category_free);
+	return TEST_SUCCESS;
+}
+
+
 TEST(database_sql_to_file) {
 	file_t	*ptr = NULL;
 	int		st, fd[2];
@@ -743,8 +793,10 @@ void		register_test_database(void) {
 	reg_test("database", database_add_pkg_2);
 	reg_test("database", database_get_pkg_by_id_1);
 	reg_test("database", database_get_pkg_by_id_2);
+	reg_test("database", database_get_pkg_by_id_3);
 	reg_test("database", database_get_pkg_by_name_1);
 	reg_test("database", database_get_pkg_by_name_2);
+	reg_test("database", database_get_pkg_by_name_3);
 	reg_test("database", database_sql_to_package);
 	reg_test("database", database_add_file_1);
 	reg_test("database", database_add_file_2);
@@ -765,6 +817,7 @@ void		register_test_database(void) {
 	reg_test("database", database_add_category_2);
 	reg_test("database", database_get_category_by_id_1);
 	reg_test("database", database_get_category_by_id_2);
+	reg_test("database", database_get_category_by_id_3);
 	reg_test("database", database_get_category_by_name_1);
 	reg_test("database", database_get_category_by_name_2);
 	reg_test("database", database_get_category_by_name_3);
