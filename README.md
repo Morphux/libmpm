@@ -38,6 +38,7 @@ following:
 - libcurl
 - json
 - sqlite
+- libconfuse
 
 The result is roughly ~20MB
 ```
