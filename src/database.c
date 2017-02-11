@@ -193,6 +193,7 @@ package_t               *sql_to_package(package_t *ptr, char *name, char *val) {
     if (ptr == NULL)
         return ptr;
 
+    /* TODO: Get all columns */
     if (strcmp(name, PKG_COL_ID) == 0) {
         ptr->id = strtoull(val, (char **)NULL, 10);
     } else if (strcmp(name, PKG_COL_NAME) == 0) {
