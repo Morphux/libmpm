@@ -7,6 +7,7 @@ int		main(void) {
 	register_test_database();
 	register_test_files();
 	register_test_category();
+	register_test_config();
 	ret = test_all();
 	test_free();
 	return ret;

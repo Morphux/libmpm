@@ -6,7 +6,8 @@ IFLAGS =	-I ../inc/ \
 			-I ../lib/libmorphux/inc/ \
 			-I ../lib/curl/lib/ \
 			-I ../lib/json-c/ \
-			-I ../lib/sqlite
+			-I ../lib/sqlite \
+			-I ../lib/libconfuse/src/
 
 # Optimisation Flags
 OFLAGS =	-std=c99 -g -O3
