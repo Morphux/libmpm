@@ -2,11 +2,11 @@
 
 TEST(config_basic) {
 	u8_t		ret;
-	cfg_t		*conf = NULL;
+	config_t		*conf = NULL;
 
-	ret = parse_config("base.conf", &conf);
+	conf = parse_config("base.conf", &ret);
 	TEST_ASSERT((ret == 0), "Can't open configuration file");
-	cfg_free(conf);
+	config_free(conf);
 	return TEST_SUCCESS;
 }
 
