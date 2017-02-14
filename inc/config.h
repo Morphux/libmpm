@@ -75,13 +75,17 @@
 # define CONFIG_BOOT_GRUB_DIR           "grub-dir"
 # define CONFIG_BOOT_GRUB_DIR_DEF       "/boot/grub"
 
+# define ERROR_MAX_LEN					250
+
 typedef struct          s_config {
     cfg_t       *ptr;
     char        *fn;
+	u8_t		ret;
 }                       config_t;
 
 config_t        *parse_config(const char *path, u8_t *ret);
 void            config_free(config_t *ptr);
 void            config_error_cb(cfg_t *ptr, const char *fmt, va_list ap);
+const char      *config_get_error_string(void);
 
 #endif /* CONFIG_H */

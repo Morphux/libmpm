@@ -16,6 +16,8 @@
 
 #include "config.h"
 
+static char		g_error[ERROR_MAX_LEN] = "";
+
 /*!
  * \brief Initialize a new config_t structure and read a config file
  * \param path Path of the config file. If null, the default PATH is used
@@ -97,6 +99,7 @@ config_t        *parse_config(const char *path, u8_t *ret) {
     config->ptr = cfg_init(opts, CFGF_NONE);
     cfg_set_error_function(config->ptr, &config_error_cb);
     *ret = cfg_parse(config->ptr, path != NULL ? path : CONFIG_DEF_PATH);
+	config->ret = *ret;
 
     if (*ret != 0) {
         config_free(config);
@@ -115,12 +118,28 @@ void            config_free(config_t *ptr) {
     if (ptr != NULL) {
         cfg_free(ptr->ptr);
         free(ptr);
+        free(ptr->fn);
     }
 }
 
 void            config_error_cb(cfg_t *ptr, const char *fmt, va_list ap) {
     char        err[250];
-    /* TODO: get error through call */
-    vsprintf(err, fmt, ap);
-    printf("\n%s - %d: %s\n", ptr->filename, ptr->line, err);
+
+    (void)ptr;
+    vsnprintf(err, 250, fmt, ap);
+    if (strlen(err) < 250)
+        strcpy(g_error, err);
+}
+
+const char      *config_get_error_string(void) {
+    char    *ret;
+    size_t  len;
+
+    len = strlen(g_error);
+    if (len == 0)
+        return NULL;
+    ret = malloc(len + 1);
+    strcpy(ret, g_error);
+    strcpy(g_error, "");
+    return (const char *)ret;
 }
