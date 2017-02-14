@@ -17,8 +17,11 @@
 #ifndef CONFIG_H
 # define CONFIG_H
 
+# define _GNU_SOURCE         /* See feature_test_macros(7) */
+# include <stdio.h>
 # include <confuse.h>
 # include <morphux.h>
+
 
 # define CONFIG_DEF_PATH                "/etc/mpm/mpm.conf"
 
@@ -86,6 +89,6 @@ typedef struct          s_config {
 config_t        *parse_config(const char *path, u8_t *ret);
 void            config_free(config_t *ptr);
 void            config_error_cb(cfg_t *ptr, const char *fmt, va_list ap);
-const char      *config_get_error_string(void);
+const char      *config_get_error_string(config_t *ptr);
 
 #endif /* CONFIG_H */

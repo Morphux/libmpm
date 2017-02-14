@@ -96,17 +96,15 @@ config_t        *parse_config(const char *path, u8_t *ret) {
 
     config = malloc(sizeof(config_t));
     assert(config != NULL);
+    config->fn = NULL;
     config->ptr = cfg_init(opts, CFGF_NONE);
     cfg_set_error_function(config->ptr, &config_error_cb);
     *ret = cfg_parse(config->ptr, path != NULL ? path : CONFIG_DEF_PATH);
 	config->ret = *ret;
 
-    if (*ret != 0) {
-        config_free(config);
-        return NULL;
-    }
     config->fn = malloc(strlen(path != NULL ? path : CONFIG_DEF_PATH));
     strcpy(config->fn, path != NULL ? path : CONFIG_DEF_PATH);
+
     return config;
 }
 
@@ -131,15 +129,16 @@ void            config_error_cb(cfg_t *ptr, const char *fmt, va_list ap) {
         strcpy(g_error, err);
 }
 
-const char      *config_get_error_string(void) {
-    char    *ret;
+const char      *config_get_error_string(config_t *ptr) {
+    char    *ret = NULL;
     size_t  len;
 
     len = strlen(g_error);
     if (len == 0)
         return NULL;
-    ret = malloc(len + 1);
-    strcpy(ret, g_error);
+    asprintf(&ret, "%s:%d: %s", ptr->fn, ptr->ptr->line, g_error);
+
+clean:
     strcpy(g_error, "");
     return (const char *)ret;
 }
