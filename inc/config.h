@@ -21,6 +21,7 @@
 # include <stdio.h>
 # include <confuse.h>
 # include <morphux.h>
+# include <fcntl.h>
 
 
 # define CONFIG_DEF_PATH                "/etc/mpm/mpm.conf"
@@ -83,12 +84,12 @@
 typedef struct          s_config {
     cfg_t       *ptr;
     char        *fn;
-	u8_t		ret;
+    char        *err;
 }                       config_t;
 
 config_t        *parse_config(const char *path, u8_t *ret);
 void            config_free(config_t *ptr);
 void            config_error_cb(cfg_t *ptr, const char *fmt, va_list ap);
-const char      *config_get_error_string(config_t *ptr);
+void			config_get_error_string(config_t *ptr);
 
 #endif /* CONFIG_H */

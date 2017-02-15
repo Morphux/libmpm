@@ -6,7 +6,7 @@ TEST(config_basic) {
 
 	conf = parse_config("base.conf", &ret);
 	if (ret != 0) {
-		m_panic("Error: %s\n", config_get_error_string(conf));
+		m_panic("%s\n", conf->err);
 	}
 	TEST_ASSERT((ret == 0), "Can't open configuration file");
 	config_free(conf);
