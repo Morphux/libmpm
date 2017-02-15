@@ -89,6 +89,7 @@ coverage:
 	$(MAKE) fclean all OFLAGS="-std=c99 -g -O0 -coverage -lcov"
 	make -C tests coverage check
 	gcov -o src/ $(SRCS)
+	make -C tests fclean
 
 clean:
 	rm -f $(OBJS)
