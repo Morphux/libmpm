@@ -88,8 +88,8 @@ typedef struct          s_config {
 }                       config_t;
 
 config_t        *parse_config(const char *path, u8_t *ret);
-void            config_free(config_t *ptr);
+void            config_free(config_t **ptr);
 void            config_error_cb(cfg_t *ptr, const char *fmt, va_list ap);
-void			config_get_error_string(config_t *ptr);
+void            config_get_error_string(config_t *ptr);
 
 #endif /* CONFIG_H */

@@ -9,7 +9,7 @@ TEST(config_basic) {
 		m_panic("%s\n", conf->err);
 	}
 	TEST_ASSERT((ret == 0), "Can't open configuration file");
-	config_free(conf);
+	config_free(&conf);
 	return TEST_SUCCESS;
 }
 
@@ -20,7 +20,7 @@ TEST(config_error) {
 	conf = parse_config("conf/bad.conf", &ret);
 	TEST_ASSERT((ret != 0), "No parsing error ?");
         TEST_ASSERT((strcmp(conf->err, "conf/bad.conf:1: no such option 'nonsense'") == 0), "Error is bad.");
-	config_free(conf);
+	config_free(&conf);
 	return TEST_SUCCESS;
 
 }

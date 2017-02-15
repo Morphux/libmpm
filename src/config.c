@@ -115,12 +115,13 @@ config_t        *parse_config(const char *path, u8_t *ret) {
  * \brief Free a config_t pointer
  * \param ptr Pointer to free
  */
-void            config_free(config_t *ptr) {
-    if (ptr != NULL) {
-        cfg_free(ptr->ptr);
-        free(ptr->fn);
-        free(ptr->err);
-        free(ptr);
+void            config_free(config_t **ptr) {
+    if (ptr != NULL && *ptr != NULL) {
+        cfg_free((*ptr)->ptr);
+        free((*ptr)->fn);
+        free((*ptr)->err);
+        free(*ptr);
+        *ptr = NULL;
     }
 }
 
