@@ -97,11 +97,12 @@ config_t        *parse_config(const char *path, u8_t *ret) {
     config = malloc(sizeof(config_t));
     assert(config != NULL);
     config->fn = NULL;
+    config->err = NULL;
     config->ptr = cfg_init(opts, CFGF_NONE);
     cfg_set_error_function(config->ptr, &config_error_cb);
     *ret = cfg_parse(config->ptr, path != NULL ? path : CONFIG_DEF_PATH);
 
-    config->fn = malloc(strlen(path != NULL ? path : CONFIG_DEF_PATH));
+    config->fn = malloc(strlen(path != NULL ? path : CONFIG_DEF_PATH) + 1);
     strcpy(config->fn, path != NULL ? path : CONFIG_DEF_PATH);
     if (ret != 0)
         config_get_error_string(config);
@@ -116,9 +117,9 @@ config_t        *parse_config(const char *path, u8_t *ret) {
 void            config_free(config_t *ptr) {
     if (ptr != NULL) {
         cfg_free(ptr->ptr);
-        free(ptr);
         free(ptr->fn);
         free(ptr->err);
+        free(ptr);
     }
 }
 
