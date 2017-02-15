@@ -94,6 +94,7 @@ config_t        *parse_config(const char *path, u8_t *ret) {
         CFG_END()
     };
 
+    assert(ret != NULL);
     config = malloc(sizeof(config_t));
     assert(config != NULL);
     config->fn = NULL;
