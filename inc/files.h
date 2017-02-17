@@ -30,7 +30,7 @@
 typedef struct s_package package_t;
 
 enum {
-    FILE_TYPE_CONFIG,
+    FILE_TYPE_CONFIG = 1,
     FILE_TYPE_BIN,
     FILE_TYPE_LIB,
     FILE_TYPE_OTHER
