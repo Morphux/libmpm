@@ -16,6 +16,55 @@
 
 #include <database.h>
 
+SQL_CALLBACK_DEF(callback_files) {
+    mlist_t		**head = context;
+    file_t		*ptr;
+
+    ptr = malloc(sizeof(file_t));
+    assert(ptr != NULL);
+    mpm_file_init(ptr);
+
+    for (u8_t i = 0; i < col_num; i++)
+        sql_to_file(ptr, col_name[i], col_txt[i]);
+
+    list_add(*(head), ptr, sizeof(file_t));
+    free(ptr);
+    return 0;
+}
+
+SQL_CALLBACK_DEF(callback_package) {
+    mlist_t             **head = context;
+    package_t           *ptr;
+
+    ptr = malloc(sizeof(package_t));
+    assert(ptr != NULL);
+    mpm_package_init(ptr);
+
+    for (u8_t i = 0; i < col_num; i++)
+        sql_to_package(ptr, col_name[i], col_txt[i]);
+
+    list_add(*(head), ptr, sizeof(package_t));
+    free(ptr);
+    return 0;
+}
+
+SQL_CALLBACK_DEF(callback_categ) {
+    mlist_t		**head = context;
+    category_t	*ptr;
+
+    ptr = malloc(sizeof(category_t));
+    assert(ptr != NULL);
+    mpm_category_init(ptr);
+
+    for (u8_t i = 0; i < col_num; i++)
+        ptr = sql_to_category(ptr, col_name[i], col_txt[i]);
+
+    list_add(*(head), ptr, sizeof(category_t));
+    free(ptr);
+    return 0;
+}
+
+
 database_t              *mpm_database_open(u8_t *ret, const char *fn) {
     database_t          *ptr;
     u8_t                error = 0;
@@ -56,24 +105,6 @@ u8_t            mpm_database_exec(database_t *ptr, const char *query,
     return sqlite3_exec(ptr->sql, query, cl, ct, err);
 }
 
-/**
- * int name(void *context, int col_num, char **col_txt, char **col_name)
- */
-SQL_CALLBACK_DEF(callback_package) {
-    mlist_t             **head = context;
-    package_t           *ptr;
-
-    ptr = malloc(sizeof(package_t));
-    assert(ptr != NULL);
-    mpm_package_init(ptr);
-
-    for (u8_t i = 0; i < col_num; i++)
-        sql_to_package(ptr, col_name[i], col_txt[i]);
-
-    list_add(*(head), ptr, sizeof(package_t));
-    free(ptr);
-    return 0;
-}
 
 u8_t            mpm_get_package_by_id(database_t *ptr, u64_t id,
                     mlist_t **pkg) {
@@ -274,24 +305,6 @@ u8_t            mpm_get_file_by_parent_name(database_t *ptr, const char *name,
 }
 
 
-/**
- * int name(void *context, int col_num, char **col_txt, char **col_name)
- */
-SQL_CALLBACK_DEF(callback_files) {
-    mlist_t		**head = context;
-    file_t		*ptr;
-
-    ptr = malloc(sizeof(file_t));
-    assert(ptr != NULL);
-    mpm_file_init(ptr);
-
-    for (u8_t i = 0; i < col_num; i++)
-        sql_to_file(ptr, col_name[i], col_txt[i]);
-
-    list_add(*(head), ptr, sizeof(file_t));
-    free(ptr);
-    return 0;
-}
 
 
 file_t          *sql_to_file(file_t *ptr, char *name, char *val) {
@@ -399,24 +412,6 @@ u8_t    mpm_get_categ_by_name(database_t *ptr, const char *name, mlist_t **cat) 
     return ret;
 }
 
-/**
- * int name(void *context, int col_num, char **col_txt, char **col_name)
- */
-SQL_CALLBACK_DEF(callback_categ) {
-    mlist_t		**head = context;
-    category_t	*ptr;
-
-    ptr = malloc(sizeof(category_t));
-    assert(ptr != NULL);
-    mpm_category_init(ptr);
-
-    for (u8_t i = 0; i < col_num; i++)
-        ptr = sql_to_category(ptr, col_name[i], col_txt[i]);
-
-    list_add(*(head), ptr, sizeof(category_t));
-    free(ptr);
-    return 0;
-}
 
 category_t      *sql_to_category(category_t *ptr, char *name, char *val) {
     if (ptr == NULL)

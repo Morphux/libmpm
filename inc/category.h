@@ -19,7 +19,7 @@
 
 # include <morphux.h>
 
-typedef struct          s_category category_t;
+typedef struct          category_s category_t;
 # include <libmpm.h>
 
 

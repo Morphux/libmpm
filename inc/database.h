@@ -81,11 +81,6 @@ typedef struct  database_s {
 }               database_t;
 
 
-/* SQL callbacks */
-SQL_CALLBACK_DEF(callback_package);
-SQL_CALLBACK_DEF(callback_files);
-SQL_CALLBACK_DEF(callback_categ);
-
 /*!
  * \brief Open a connection to a database
  * \param ret Return code, if any error
