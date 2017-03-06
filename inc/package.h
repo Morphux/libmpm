@@ -20,13 +20,13 @@
 # include <morphux.h>
 # include <files.h>
 
-enum {
+typedef enum    package_state_e {
     PACKAGE_STATE_USER_INSTALLED,
     PACKAGE_STATE_DEPENDENCY,
     PACKAGE_STATE_ORPHAN
-};
+}               package_state_t;
 
-typedef struct s_category       category_t;
+typedef struct category_s       category_t;
 
 # define PKG_TABLE              "pkgs"
 # define PKG_COL_ID             "id"
@@ -42,17 +42,17 @@ typedef struct s_category       category_t;
 # define PKG_COL_DOCS           "docs"
 
 typedef struct		s_package {
-    u64_t       id;
-    char        *name;
-    char        *version;
-    category_t  *categ;
-    char        *desc;
-    u8_t        state;
-    mlist_t     *deps;
-    mlist_t     *files;
-    mlist_t     *binaries;
-    mlist_t     *config;
-    mlist_t     *docs;
+    u64_t           id;
+    char            *name;
+    char            *version;
+    category_t      *categ;
+    char            *desc;
+    package_state_t state;
+    mlist_t         *deps;
+    mlist_t         *files;
+    mlist_t         *binaries;
+    mlist_t         *config;
+    mlist_t         *docs;
 }                       package_t;
 
 int     mpm_package_free(void *tmp);

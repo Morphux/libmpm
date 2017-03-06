@@ -23,11 +23,13 @@
 int             mpm_package_free(void *tmp) {
     package_t   *ptr = tmp;
 
-    if (ptr) {
+    if (ptr)
+    {
         free(ptr->name);
         free(ptr->version);
         free(ptr->desc);
-        if (ptr->categ != NULL) {
+        if (ptr->categ != NULL)
+        {
             ptr->categ->parent = NULL;
             mpm_category_free(ptr->categ);
             free(ptr->categ);
@@ -43,7 +45,8 @@ int             mpm_package_free(void *tmp) {
  * \param ptr Pointer to an allocated ptr
  */
 void    mpm_package_init(package_t *ptr) {
-    if (ptr) {
+    if (ptr)
+    {
         ptr->id = 0;
         ptr->state = PACKAGE_STATE_ORPHAN;
         ptr->name = NULL;
