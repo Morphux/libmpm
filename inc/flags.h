@@ -18,12 +18,12 @@
 # define FLAGS_H
 # include <morphux.h>
 
-enum {
+typedef enum    flag_index_e {
     MPM_VERBOSE_LEVEL = 0,
     MPM_LAST /* Always keep this one last */
-};
+}               flag_index_t;
 
-void    mpm_set_flag(u8_t flag, u8_t val);
-u8_t    mpm_get_flag(u8_t flag);
+void    mpm_set_flag(flag_index_t flag, u8_t val);
+u8_t    mpm_get_flag(flag_index_t flag);
 
 #endif /* FLAGS_H */

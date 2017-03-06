@@ -25,7 +25,7 @@ static u8_t     mpm_flags[MPM_LAST] = {0};
  * \note If the flag is greater than MPM_LAST value this function won't do
  * anything
  */
-void    mpm_set_flag(u8_t flag, u8_t val) {
+void    mpm_set_flag(flag_index_t flag, u8_t val) {
     if (flag < MPM_LAST)
         mpm_flags[flag] = val;
 }
@@ -37,7 +37,7 @@ void    mpm_set_flag(u8_t flag, u8_t val) {
  * \note If the value asked by the caller is higher than MPM_LAST, this function
  * will raiser an assertion.
  */
-u8_t    mpm_get_flag(u8_t flag) {
+u8_t    mpm_get_flag(flag_index_t flag) {
     assert(flag < MPM_LAST);
     return mpm_flags[flag];
 }
