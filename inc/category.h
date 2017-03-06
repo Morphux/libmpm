@@ -38,13 +38,14 @@ typedef struct          category_s {
 
 /*!
  * \brief Free a category
+ * \param[in] tmp Pointer to free
  * \note This function can be used as a list_free callback
  */
 int     mpm_category_free(void *tmp);
 
 /*!
  * \brief Initialize a category_t
- * \param ptr Structure to initialize
+ * \param[in,out] ptr Structure to initialize
  */
 void    mpm_category_init(category_t *ptr);
 
