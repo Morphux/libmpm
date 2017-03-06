@@ -45,8 +45,16 @@ typedef struct          file_s {
     char        *hash;
 }                       file_t;
 
-
+/*!
+ * \brief Initialize a file_t structure
+ * \param ptr Structure to initialize
+ */
 void    mpm_file_init(file_t *ptr);
+
+/*!
+ * \brief Free a file_t entry
+ * \note Can be called as a callback of list_free
+ */
 int     mpm_file_free(void *tmp);
 
 # include <package.h>

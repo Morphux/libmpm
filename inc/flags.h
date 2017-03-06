@@ -23,7 +23,22 @@ typedef enum    flag_index_e {
     MPM_LAST /* Always keep this one last */
 }               flag_index_t;
 
+/*!
+ * \brief Set an internal flag
+ * \param flag Flag number (see enum in flags.h)
+ * \param val Value to assign
+ * \note If the flag is greater than MPM_LAST value this function won't do
+ * anything
+ */
 void    mpm_set_flag(flag_index_t flag, u8_t val);
+
+/*!
+ * \brief Get an internal flag
+ * \param flag Flag number (see enum in flags.h)
+ * \return The flag value
+ * \note If the value asked by the caller is higher than MPM_LAST, this function
+ * will raiser an assertion.
+ */
 u8_t    mpm_get_flag(flag_index_t flag);
 
 #endif /* FLAGS_H */
