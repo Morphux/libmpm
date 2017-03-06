@@ -21,7 +21,8 @@
  * \param ptr Structure to initialize
  */
 void    mpm_file_init(file_t *ptr) {
-    if (ptr) {
+    if (ptr)
+    {
         ptr->path = NULL;
         ptr->parent = NULL;
         ptr->hash = NULL;
@@ -36,11 +37,13 @@ void    mpm_file_init(file_t *ptr) {
 int     mpm_file_free(void *tmp) {
     file_t *ptr = tmp;
 
-    if (ptr) {
+    if (ptr)
+    {
         free(ptr->path);
         free(ptr->hash);
         free(ptr->parent_name);
-        if (ptr->parent != NULL) {
+        if (ptr->parent != NULL)
+        {
             mpm_package_free(ptr->parent);
             free(ptr->parent);
         }

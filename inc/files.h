@@ -29,17 +29,17 @@
 
 typedef struct s_package package_t;
 
-enum {
+typedef enum    file_type_e {
     FILE_TYPE_CONFIG = 1,
     FILE_TYPE_BIN,
     FILE_TYPE_LIB,
     FILE_TYPE_OTHER
-};
+}               file_type_t;
 
-typedef struct          s_file {
+typedef struct          file_s {
     u64_t       id;
     char        *path;
-    u8_t        type;
+    file_type_t type;
     package_t   *parent;
     char        *parent_name;
     char        *hash;
