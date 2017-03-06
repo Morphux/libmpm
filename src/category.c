@@ -23,10 +23,12 @@
 int     mpm_category_free(void *tmp) {
     category_t	*ptr = tmp;
 
-    if (ptr) {
+    if (ptr)
+    {
         free(ptr->name);
         free(ptr->parent_name);
-        if (ptr->parent != NULL) {
+        if (ptr->parent != NULL)
+        {
             ptr->parent->categ = NULL;
             mpm_package_free(ptr->parent);
             free(ptr->parent);
@@ -40,7 +42,8 @@ int     mpm_category_free(void *tmp) {
  * \param ptr Structure to initialize
  */
 void    mpm_category_init(category_t *ptr) {
-    if (ptr) {
+    if (ptr)
+    {
         ptr->name = NULL;
         ptr->parent_name = NULL;
         ptr->parent = NULL;
