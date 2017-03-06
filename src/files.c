@@ -16,10 +16,6 @@
 
 #include <files.h>
 
-/*!
- * \brief Initialize a file_t structure
- * \param ptr Structure to initialize
- */
 void    mpm_file_init(file_t *ptr) {
     if (ptr)
     {
@@ -30,10 +26,6 @@ void    mpm_file_init(file_t *ptr) {
     }
 }
 
-/*!
- * \brief Free a file_t entry
- * \note Can be called as a callback of list_free
- */
 int     mpm_file_free(void *tmp) {
     file_t *ptr = tmp;
 
