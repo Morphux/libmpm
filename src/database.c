@@ -16,18 +16,6 @@
 
 #include <database.h>
 
-/*!
- * \brief Open a connection to a database
- * \param ret Return code, if any error
- * \param fn Database path
- * \return A fresh database_t structure
- *
- * This function will create a new database_t struct, allocate it, and open
- * a new database connection. In case of any error, the return value will be
- * NULL, and the ret pointer set to an error code.
- * If a value is passed to the param fn, the library will use this value as a 
- * database file path.
- */
 database_t              *mpm_database_open(u8_t *ret, const char *fn) {
     database_t          *ptr;
     u8_t                error = 0;
@@ -49,14 +37,6 @@ error:
     return NULL;
 }
 
-/*!
- * \brief Close a connection to an existing database
- * \param ptr An open database
- * \return The error code
- *
- * This function will close a database connection and free the passed struct.
- * On any error, this function will return the error code.
- */
 u8_t                    mpm_database_close(database_t *ptr) {
     u8_t        error = 1;
 
@@ -68,24 +48,6 @@ u8_t                    mpm_database_close(database_t *ptr) {
     return error;
 }
 
-/*!
- * \brief Execute a SQL query on an already opened database
- * \param ptr Opened database
- * \param query SQL Query
- * \param cl Query callback
- * \param ct First parameter of the callback (Context)
- * \param err Pointer on a string, to be filled with a string error.
- *
- * This function will execute an SQL query on an already opened database.
- * If the ptr or query parameter is NULL, the function will not do anything
- * and return 1.
- * The callback is used to get the result of a query.
- * The callback is defined and used trough defines, for readibilty purposes.
- * see SQL_CALLBACK_PTR and SQL_CALLBACK_DEF for more information.
- * If an SQL error happens, the err pointer is filled with a text error.
- * This string is allocated by the sqlite library, and should be freed by the
- * caller.
- */
 u8_t            mpm_database_exec(database_t *ptr, const char *query,
                     SQL_CALLBACK_PTR(cl), void *ct, char **err) {
     if (ptr == NULL || query == NULL)
@@ -113,23 +75,6 @@ SQL_CALLBACK_DEF(callback_package) {
     return 0;
 }
 
-/*!
- * \brief Get a package by his Id
- * \param ptr Opened Database connection
- * \param id ID to search for
- * \param pkg Pointer on a list, used to store the results
- * \return Error code
- *
- * This function will search in an already opened database a package with a
- * given id.
- * A sql QUERY is constructed in this function, with the following content:
- * SELECT * FROM pkgs WHERE id = %d, where %d is the given id
- * This function will call list_add to add results to the given list,
- * caller should properly free this list.
- *
- * \note This function will set pkg to NULL before filling it with the results.
- * You should not call this function with an existing package list.
- */
 u8_t            mpm_get_package_by_id(database_t *ptr, u64_t id,
                     mlist_t **pkg) {
     char        *query;
@@ -145,23 +90,6 @@ u8_t            mpm_get_package_by_id(database_t *ptr, u64_t id,
     return ret;
 }
 
-/*!
- * \brief Get a package by his name
- * \param ptr Opened Database connection
- * \param name Name to search for
- * \param pkg Pointer on a list, used to store the results
- * \return Error code
- *
- * This function will search in an already opened database package(s) with a
- * given name.
- * A sql QUERY is constructed in this function, with the following content:
- * SELECT * FROM pkgs WHERE name = %s, where %s is the given name
- * This function will call list_add to add results to the given list,
- * caller should properly free this list.
- *
- * \note This function will set pkg to NULL before filling it with the results.
- * You should not call this function with an existing package list.
- */
 u8_t            mpm_get_package_by_name(database_t *ptr, const char *name,
                     mlist_t **pkg) {
     char        *query;
@@ -177,19 +105,6 @@ u8_t            mpm_get_package_by_name(database_t *ptr, const char *name,
     return ret;
 }
 
-
-/*!
- * \brief Fill a package_t structure with a SQL result
- * \param ptr Pointer to package_t. Must not be NULL.
- * \param name Name of the column
- * \param val Value of the column
- *
- * This function will transform an SQL result, given through an sqlite callback,
- * and fill a package_t structure with it.
- * All the types conversion needed (string -> *) are done in this function.
- *
- * \note If a unknown column is passed to this function, a panic will be throwed.
- */
 package_t               *sql_to_package(package_t *ptr, char *name, char *val) {
     if (ptr == NULL)
         return ptr;
@@ -214,18 +129,7 @@ package_t               *sql_to_package(package_t *ptr, char *name, char *val) {
     return ptr;
 }
 
-/*!
- * \brief Init an empty database
- * \param ptr Open connection to a database
- *
- * This function will create tables in an empty database.
- * Careful, this function do not check if a database is empty before making
- * requests.
- * If an error happens, m_error is called, and an appropriate return code is
- * returned.
- *
- * \return Status code
- */
+
 u8_t		mpm_database_init(database_t *ptr) {
     static const char	*query_table[] = {\
             /* Package table */
@@ -279,13 +183,7 @@ error:
     return ret;
 }
 
-/*!
- * \brief Add a package entry in the database
- * \param ptr Opened connection to a database
- * \param pkg Package to add
- *
- * This function will add a package entry to an already opened connection.
- */
+
 u8_t            mpm_database_add_pkg(database_t *ptr, package_t *pkg) {
     char        *query, *err;
     char        *deps, *files, *binaries, *config, *docs;
@@ -315,23 +213,6 @@ u8_t            mpm_database_add_pkg(database_t *ptr, package_t *pkg) {
     return ret;
 }
 
-/*!
- * \brief Get a file by his Id
- * \param ptr Opened Database connection
- * \param id ID to search for
- * \param files Pointer on a list, used to store the results
- * \return Error code
- *
- * This function will search in an already opened database a file with a
- * given id.
- * A sql QUERY is constructed in this function, with the following content:
- * SELECT * FROM files WHERE id = %d, where %d is the given id
- * This function will call list_add to add results to the given list,
- * caller should properly free this list.
- *
- * \note This function will set files to NULL before filling it with the results.
- * You should not call this function with an existing files list.
- */
 u8_t            mpm_get_file_by_id(database_t *ptr, u64_t id,
                     mlist_t **files) {
     char        *query;
@@ -347,23 +228,6 @@ u8_t            mpm_get_file_by_id(database_t *ptr, u64_t id,
     return ret;
 }
 
-/*!
- * \brief Get a file by his path
- * \param ptr Opened Database connection
- * \param path Path to search for
- * \param files Pointer on a list, used to store the results
- * \return Error code
- *
- * This function will search in an already opened database a file with a
- * given path.
- * A sql QUERY is constructed in this function, with the following content:
- * SELECT * FROM files WHERE path = "%s", where %s is the given path
- * This function will call list_add to add results to the given list,
- * caller should properly free this list.
- *
- * \note This function will set files to NULL before filling it with the results.
- * You should not call this function with an existing files list.
- */
 u8_t            mpm_get_file_by_path(database_t *ptr, const char *path,
                     mlist_t **files) {
     char	*query;
@@ -379,23 +243,6 @@ u8_t            mpm_get_file_by_path(database_t *ptr, const char *path,
     return ret;
 }
 
-/*!
- * \brief Get a file by his parent id
- * \param ptr Opened Database connection
- * \param id Parent ID to search for
- * \param files Pointer on a list, used to store the results
- * \return Error code
- *
- * This function will search in an already opened database a file with a
- * given parent id.
- * A sql QUERY is constructed in this function, with the following content:
- * SELECT * FROM files WHERE parent_id = %d, where %d is the given id
- * This function will call list_add to add results to the given list,
- * caller should properly free this list.
- *
- * \note This function will set files to NULL before filling it with the results.
- * You should not call this function with an existing files list.
- */
 u8_t            mpm_get_file_by_parent_id(database_t *ptr, u64_t id,
                     mlist_t **files) {
     char	*query;
@@ -411,23 +258,6 @@ u8_t            mpm_get_file_by_parent_id(database_t *ptr, u64_t id,
     return ret;
 }
 
-/*!
- * \brief Get a file by his parent name
- * \param ptr Opened Database connection
- * \param name Parent name
- * \param files Pointer on a list, used to store the results
- * \return Error code
- *
- * This function will search in an already opened database a file with a
- * given parent name.
- * A sql QUERY is constructed in this function, with the following content:
- * SELECT * FROM files WHERE parent_name = "%s", where %s is the given parent name
- * This function will call list_add to add results to the given list,
- * caller should properly free this list.
- *
- * \note This function will set files to NULL before filling it with the results.
- * You should not call this function with an existing files list.
- */
 u8_t            mpm_get_file_by_parent_name(database_t *ptr, const char *name,
         mlist_t **files) {
     char	*query;
@@ -463,18 +293,7 @@ SQL_CALLBACK_DEF(callback_files) {
     return 0;
 }
 
-/*!
- * \brief Fill a file_t structure with a SQL result
- * \param ptr Pointer to file_t. Must not be NULL.
- * \param name Name of the column
- * \param val Value of the column
- *
- * This function will transform an SQL result, given through an sqlite callback,
- * and fill a file_t structure with it.
- * All the types conversion needed (string -> *) are done in this function.
- *
- * \note If a unknown column is passed to this function, a panic will be throwed.
- */
+
 file_t          *sql_to_file(file_t *ptr, char *name, char *val) {
     if (ptr == NULL)
         return ptr;
@@ -510,11 +329,6 @@ file_t          *sql_to_file(file_t *ptr, char *name, char *val) {
     return ptr;
 }
 
-/*!
- * \brief Add a file entry to the database
- * \param ptr Opened connection to a database
- * \param file File to add
- */
 u8_t            mpm_database_add_file(database_t *ptr, file_t *file) {
     char	*query, *err;
     u8_t	ret;
@@ -536,11 +350,6 @@ u8_t            mpm_database_add_file(database_t *ptr, file_t *file) {
     return ret;
 }
 
-/*!
- * \brief Add a category in the database
- * \param ptr Opened connection to a database
- * \param cat Category to add
- */
 u8_t            mpm_database_add_categ(database_t *ptr, category_t *cat) {
     char	*query, *err;
     u8_t	ret;
@@ -561,23 +370,7 @@ u8_t            mpm_database_add_categ(database_t *ptr, category_t *cat) {
     return ret;
 }
 
-/*!
- * \brief Get a category by his Id
- * \param ptr Opened Database connection
- * \param id ID to search for
- * \param files Pointer on a list, used to store the results
- * \return Error code
- *
- * This function will search in an already opened database a category with a
- * given id.
- * A sql QUERY is constructed in this function, with the following content:
- * SELECT * FROM categ WHERE id = %d, where %d is the given id
- * This function will call list_add to add results to the given list,
- * caller should properly free this list.
- *
- * \note This function will set files to NULL before filling it with the results.
- * You should not call this function with an existing files list.
- */
+
 u8_t            mpm_get_categ_by_id(database_t *ptr, u64_t id, mlist_t **cat) {
     char	*query;
     u8_t	ret;
@@ -592,23 +385,7 @@ u8_t            mpm_get_categ_by_id(database_t *ptr, u64_t id, mlist_t **cat) {
     return ret;
 }
 
-/*!
- * \brief Get a category by his name
- * \param ptr Opened Database connection
- * \param name Name to search for
- * \param files Pointer on a list, used to store the results
- * \return Error code
- *
- * This function will search in an already opened database a category with a
- * given name.
- * A sql QUERY is constructed in this function, with the following content:
- * SELECT * FROM categ WHERE name = %s, where %s is the given name
- * This function will call list_add to add results to the given list,
- * caller should properly free this list.
- *
- * \note This function will set files to NULL before filling it with the results.
- * You should not call this function with an existing files list.
- */
+
 u8_t    mpm_get_categ_by_name(database_t *ptr, const char *name, mlist_t **cat) {
     char	*query;
     u8_t	ret;
@@ -641,18 +418,6 @@ SQL_CALLBACK_DEF(callback_categ) {
     return 0;
 }
 
-/*!
- * \brief Fill a category_t structure with a SQL result
- * \param ptr Pointer to category_t. Must not be NULL.
- * \param name Name of the column
- * \param val Value of the column
- *
- * This function will transform an SQL result, given through an sqlite callback,
- * and fill a category_t structure with it.
- * All the types conversion needed (string -> *) are done in this function.
- *
- * \note If a unknown column is passed to this function, a panic will be throwed.
- */
 category_t      *sql_to_category(category_t *ptr, char *name, char *val) {
     if (ptr == NULL)
         return ptr;
