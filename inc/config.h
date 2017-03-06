@@ -87,9 +87,28 @@ typedef struct          config_s {
     char        *err;
 }                       config_t;
 
+/*!
+ * \brief Initialize a new config_t structure and read a config file
+ * \param path Path of the config file. If null, the default PATH is used
+ * \param ret Return code of the parse function
+ *
+ * This function will open a file, read a configuration in it.
+ * If anything is wrong, the ret variable will be set to the proper error value.
+ *
+ * \return A freshly allocated structure
+ */
 config_t        *parse_config(const char *path, u8_t *ret);
+
+/*!
+ * \brief Free a config_t pointer
+ * \param ptr Pointer to free
+ */
 void            config_free(config_t **ptr);
-void            config_error_cb(cfg_t *ptr, const char *fmt, va_list ap);
+
+/*!
+ * \brief Get the parsing error string
+ * \paran[in] ptr Config context
+ */
 void            config_get_error_string(config_t *ptr);
 
 #endif /* CONFIG_H */

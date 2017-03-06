@@ -18,16 +18,15 @@
 
 static char		g_error[ERROR_MAX_LEN] = "";
 
-/*!
- * \brief Initialize a new config_t structure and read a config file
- * \param path Path of the config file. If null, the default PATH is used
- * \param ret Return code of the parse function
- *
- * This function will open a file, read a configuration in it.
- * If anything is wrong, the ret variable will be set to the proper error value.
- *
- * \return A freshly allocated structure
- */
+static void            config_error_cb(cfg_t *ptr, const char *fmt, va_list ap) {
+    char        err[250];
+
+    (void)ptr;
+    vsnprintf(err, 250, fmt, ap);
+    if (strlen(err) < 250)
+        strcpy(g_error, err);
+}
+
 config_t        *parse_config(const char *path, u8_t *ret) {
     config_t    *config = NULL;
 
@@ -111,10 +110,6 @@ config_t        *parse_config(const char *path, u8_t *ret) {
     return config;
 }
 
-/*!
- * \brief Free a config_t pointer
- * \param ptr Pointer to free
- */
 void            config_free(config_t **ptr) {
     if (ptr != NULL && *ptr != NULL)
     {
@@ -124,15 +119,6 @@ void            config_free(config_t **ptr) {
         free(*ptr);
         *ptr = NULL;
     }
-}
-
-void            config_error_cb(cfg_t *ptr, const char *fmt, va_list ap) {
-    char        err[250];
-
-    (void)ptr;
-    vsnprintf(err, 250, fmt, ap);
-    if (strlen(err) < 250)
-        strcpy(g_error, err);
 }
 
 void    config_get_error_string(config_t *ptr) {
