@@ -16,10 +16,6 @@
 
 # include <category.h>
 
-/*!
- * \brief Free a category
- * \note This function can be used as a list_free callback
- */
 int     mpm_category_free(void *tmp) {
     category_t	*ptr = tmp;
 
@@ -37,10 +33,6 @@ int     mpm_category_free(void *tmp) {
     return 1;
 }
 
-/*!
- * \brief Initialize a category_t
- * \param ptr Structure to initialize
- */
 void    mpm_category_init(category_t *ptr) {
     if (ptr)
     {
