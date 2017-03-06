@@ -16,10 +16,6 @@
 
 # include <package.h>
 
-/*!
- * \brief Free a package entry
- * \note Can be used as list_free callback
- */
 int             mpm_package_free(void *tmp) {
     package_t   *ptr = tmp;
 
@@ -40,10 +36,6 @@ int             mpm_package_free(void *tmp) {
     return 1;
 }
 
-/*!
- * \brief Initialize a package entry
- * \param ptr Pointer to an allocated ptr
- */
 void    mpm_package_init(package_t *ptr) {
     if (ptr)
     {

@@ -55,7 +55,16 @@ typedef struct		s_package {
     mlist_t         *docs;
 }                       package_t;
 
+/*!
+ * \brief Free a package entry
+ * \note Can be used as list_free callback
+ */
 int     mpm_package_free(void *tmp);
+
+/*!
+ * \brief Initialize a package entry
+ * \param ptr Pointer to an allocated ptr
+ */
 void    mpm_package_init(package_t *ptr);
 
 # include <category.h>
