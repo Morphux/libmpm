@@ -47,12 +47,13 @@ typedef struct          file_s {
 
 /*!
  * \brief Initialize a file_t structure
- * \param ptr Structure to initialize
+ * \param[in,out] ptr Structure to initialize
  */
 void    mpm_file_init(file_t *ptr);
 
 /*!
  * \brief Free a file_t entry
+ * \param[in] tmp Pointer to free
  * \note Can be called as a callback of list_free
  */
 int     mpm_file_free(void *tmp);
