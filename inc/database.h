@@ -32,7 +32,7 @@
                                                     " WHERE " PKG_COL_ID \
                                                     " = %lld", id
 
-# define QUERY_GET_PACKAGE_BY_NAME(name)	"SELECT * FROM " \
+# define QUERY_GET_PACKAGE_BY_NAME(name)        "SELECT * FROM " \
                                                     PKG_TABLE \
                                                     " WHERE " PKG_COL_NAME \
                                                     " = \"%s\"", name
@@ -76,7 +76,7 @@
 # define SQL_TYPE_INT                   " integer "
 # define SQL_TYPE_TEXT                  " text "
 
-typedef struct  s_database {
+typedef struct  database_s {
     sqlite3     *sql;
 }               database_t;
 

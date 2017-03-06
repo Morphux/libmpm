@@ -81,7 +81,7 @@
 
 # define ERROR_MAX_LEN                  250
 
-typedef struct          s_config {
+typedef struct          config_s {
     cfg_t       *ptr;
     char        *fn;
     char        *err;

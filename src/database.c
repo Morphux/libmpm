@@ -60,7 +60,8 @@ error:
 u8_t                    mpm_database_close(database_t *ptr) {
     u8_t        error = 1;
 
-    if (ptr != NULL) {
+    if (ptr != NULL)
+    {
         error = sqlite3_close(ptr->sql);
         free(ptr);
     }
@@ -194,13 +195,18 @@ package_t               *sql_to_package(package_t *ptr, char *name, char *val) {
         return ptr;
 
     /* TODO: Get all columns */
-    if (strcmp(name, PKG_COL_ID) == 0) {
+    if (strcmp(name, PKG_COL_ID) == 0)
+    {
         ptr->id = strtoull(val, (char **)NULL, 10);
-    } else if (strcmp(name, PKG_COL_NAME) == 0) {
+    }
+    else if (strcmp(name, PKG_COL_NAME) == 0)
+    {
         /*strcmp(name, PKG_COL_VERSION) == 0 ||*/
         /*strcmp(name, PKG_COL_DESC) == 0) {*/
         ptr->name = strdup(val);
-    } else if (strcmp(name, PKG_COL_STATE) == 0) {
+    }
+    else if (strcmp(name, PKG_COL_STATE) == 0)
+    {
         ptr->state = val[0] - '0';
     } /*else {*/
     /*m_panic("Unknown column '%s' in get_package\n", name);*/
@@ -259,7 +265,8 @@ u8_t		mpm_database_init(database_t *ptr) {
     if (ptr == NULL)
      return 1;
 
-    for (u8_t i = 0; i < sizeof(query_table) / sizeof(query_table[0]); i++) {
+    for (u8_t i = 0; i < sizeof(query_table) / sizeof(query_table[0]); i++)
+    {
         ret = mpm_database_exec(ptr, query_table[i], NULL, NULL, &err);
         if (ret != 0 || err != NULL)
             goto error;
@@ -472,19 +479,32 @@ file_t          *sql_to_file(file_t *ptr, char *name, char *val) {
     if (ptr == NULL)
         return ptr;
 
-    if (strcmp(name, FILE_COL_ID) == 0) {
+    if (strcmp(name, FILE_COL_ID) == 0)
+    {
         ptr->id = strtoull(val, (char **)NULL, 10);
-    } else if (strcmp(name, FILE_COL_PATH) == 0) {
+    }
+    else if (strcmp(name, FILE_COL_PATH) == 0)
+    {
         ptr->path = strdup(val);
-    } else if (strcmp(name, FILE_COL_TYPE) == 0) {
+    }
+    else if (strcmp(name, FILE_COL_TYPE) == 0)
+    {
         ptr->type = val[0] - '0';
-    } else if (strcmp(name, FILE_COL_PARENT) == 0) {
+    }
+    else if (strcmp(name, FILE_COL_PARENT) == 0)
+    {
         ptr->parent = NULL;
-    } else if (strcmp(name, FILE_COL_PARENT_NAME) == 0) {
+    }
+    else if (strcmp(name, FILE_COL_PARENT_NAME) == 0)
+    {
         ptr->parent_name = strdup(val);
-    } else if (strcmp(name, FILE_COL_HASH) == 0) {
+    }
+    else if (strcmp(name, FILE_COL_HASH) == 0)
+    {
         ptr->hash = strdup(val);
-    } else {
+    }
+    else
+    {
         m_panic("Unknown column '%s' in get_file\n", name);
     }
     return ptr;
@@ -637,15 +657,24 @@ category_t      *sql_to_category(category_t *ptr, char *name, char *val) {
     if (ptr == NULL)
         return ptr;
 
-    if (strcmp(name, CAT_COL_ID) == 0) {
+    if (strcmp(name, CAT_COL_ID) == 0)
+    {
         ptr->id = strtoull(val, (char **)NULL, 10);
-    } else if (strcmp(name, CAT_COL_NAME) == 0) {
+    }
+    else if (strcmp(name, CAT_COL_NAME) == 0)
+    {
         ptr->name = strdup(val);
-    } else if (strcmp(name, CAT_COL_PARENT) == 0) {
+    }
+    else if (strcmp(name, CAT_COL_PARENT) == 0)
+    {
         ptr->parent = NULL; /* TODO */
-    } else if (strcmp(name, CAT_COL_PARENT_NAME) == 0) {
+    }
+    else if (strcmp(name, CAT_COL_PARENT_NAME) == 0)
+    {
         ptr->parent_name = strdup(val);
-    } else {
+    }
+    else
+    {
         m_panic("Unknown column '%s' in get_category\n", name);
     }
     return ptr;

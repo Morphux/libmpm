@@ -29,7 +29,7 @@ typedef struct          s_category category_t;
 # define CAT_COL_PARENT                 "parent"
 # define CAT_COL_PARENT_NAME            "parent_name"
 
-typedef struct          s_category {
+typedef struct          category_s {
     u64_t       id;
     char        *name;
     char        *parent_name;
