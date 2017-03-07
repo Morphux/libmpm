@@ -41,7 +41,7 @@ typedef struct category_s       category_t;
 # define PKG_COL_CONFIG         "config"
 # define PKG_COL_DOCS           "docs"
 
-typedef struct		s_package {
+typedef struct          package_s {
     u64_t           id;
     char            *name;
     char            *version;
@@ -63,7 +63,7 @@ int     mpm_package_free(void *tmp);
 
 /*!
  * \brief Initialize a package entry
- * \param ptr Pointer to an allocated ptr
+ * \param ptr[in,out] Pointer to an allocated ptr
  */
 void    mpm_package_init(package_t *ptr);
 
