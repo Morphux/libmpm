@@ -122,7 +122,7 @@ void            config_free(config_t **ptr) {
 }
 
 void    config_get_error_string(config_t *ptr) {
-    if (strlen(g_error) == 0)
+    if (strlen(g_error) == 0 || ptr == NULL)
         return ;
 
     asprintf(&ptr->err, "%s:%d: %s", ptr->fn, ptr->ptr->line, g_error);

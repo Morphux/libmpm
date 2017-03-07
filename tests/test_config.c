@@ -22,10 +22,15 @@ TEST(config_error) {
         TEST_ASSERT((strcmp(conf->err, "conf/bad.conf:1: no such option 'nonsense'") == 0), "Error is bad.");
 	config_free(&conf);
 	return TEST_SUCCESS;
+}
 
+TEST(config_get_error_string) {
+    config_get_error_string(NULL);
+    return TEST_SUCCESS;
 }
 
 void		register_test_config(void) {
 	reg_test("config", config_basic);
 	reg_test("config", config_error);
+    reg_test("config", config_get_error_string);
 }
