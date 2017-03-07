@@ -27,7 +27,7 @@
 # define FILE_COL_PARENT_NAME   "parent_name"
 # define FILE_COL_HASH          "hash"
 
-typedef struct s_package package_t;
+typedef struct package_s package_t;
 
 typedef enum    file_type_e {
     FILE_TYPE_CONFIG = 1,
