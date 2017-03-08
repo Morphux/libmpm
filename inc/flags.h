@@ -18,10 +18,10 @@
 # define FLAGS_H
 # include <morphux.h>
 
-typedef enum    flag_index_e {
+typedef enum flag_index_e {
     MPM_VERBOSE_LEVEL = 0,
     MPM_LAST /* Always keep this one last */
-}               flag_index_t;
+} flag_index_t;
 
 /*!
  * \brief Set an internal flag
@@ -30,7 +30,7 @@ typedef enum    flag_index_e {
  * \note If the flag is greater than MPM_LAST value this function won't do
  * anything
  */
-void    mpm_set_flag(flag_index_t flag, u8_t val);
+void mpm_set_flag(flag_index_t flag, u8_t val);
 
 /*!
  * \brief Get an internal flag
@@ -39,6 +39,6 @@ void    mpm_set_flag(flag_index_t flag, u8_t val);
  * \note If the value asked by the caller is higher than MPM_LAST, this function
  * will raiser an assertion.
  */
-u8_t    mpm_get_flag(flag_index_t flag);
+u8_t mpm_get_flag(flag_index_t flag);
 
 #endif /* FLAGS_H */
