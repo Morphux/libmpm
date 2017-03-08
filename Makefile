@@ -79,7 +79,7 @@ init:
 	cd lib/json-c/ && sh autogen.sh && ./configure --disable-shared && make
 	cd lib/libconfuse/ && sh autogen.sh && ./configure && make
 
-docs:
+doc:
 	doxygen docs/doxyfile
 
 check: all
