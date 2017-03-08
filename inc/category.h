@@ -19,7 +19,7 @@
 
 # include <morphux.h>
 
-typedef struct          category_s category_t;
+typedef struct category_s category_t;
 # include <libmpm.h>
 
 
@@ -29,24 +29,24 @@ typedef struct          category_s category_t;
 # define CAT_COL_PARENT                 "parent"
 # define CAT_COL_PARENT_NAME            "parent_name"
 
-typedef struct          category_s {
+typedef struct category_s {
     u64_t       id;
     char        *name;
     char        *parent_name;
     package_t   *parent;
-}                       category_t;
+} category_t;
 
 /*!
  * \brief Free a category
  * \param[in] tmp Pointer to free
  * \note This function can be used as a list_free callback
  */
-int     mpm_category_free(void *tmp);
+int mpm_category_free(void *tmp);
 
 /*!
  * \brief Initialize a category_t
  * \param[in,out] ptr Structure to initialize
  */
-void    mpm_category_init(category_t *ptr);
+void mpm_category_init(category_t *ptr);
 
 #endif /* CATEGORY_H */

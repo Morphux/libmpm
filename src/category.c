@@ -14,9 +14,9 @@
 *                       limitations under the License.                         *
 \******************************************************************************/
 
-# include <category.h>
+#include <category.h>
 
-int     mpm_category_free(void *tmp) {
+int mpm_category_free(void *tmp) {
     category_t	*ptr = tmp;
 
     if (ptr)
@@ -33,7 +33,7 @@ int     mpm_category_free(void *tmp) {
     return 1;
 }
 
-void    mpm_category_init(category_t *ptr) {
+void mpm_category_init(category_t *ptr) {
     if (ptr)
     {
         ptr->name = NULL;
