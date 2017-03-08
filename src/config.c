@@ -16,9 +16,9 @@
 
 #include "config.h"
 
-static char		g_error[ERROR_MAX_LEN] = "";
+static char g_error[ERROR_MAX_LEN] = "";
 
-static void            config_error_cb(cfg_t *ptr, const char *fmt, va_list ap) {
+static void config_error_cb(cfg_t *ptr, const char *fmt, va_list ap) {
     char        err[250];
 
     (void)ptr;
@@ -27,7 +27,7 @@ static void            config_error_cb(cfg_t *ptr, const char *fmt, va_list ap) 
         strcpy(g_error, err);
 }
 
-config_t        *parse_config(const char *path, u8_t *ret) {
+config_t *parse_config(const char *path, u8_t *ret) {
     config_t    *config = NULL;
 
     /* Main section */
@@ -110,7 +110,7 @@ config_t        *parse_config(const char *path, u8_t *ret) {
     return config;
 }
 
-void            config_free(config_t **ptr) {
+void config_free(config_t **ptr) {
     if (ptr != NULL && *ptr != NULL)
     {
         cfg_free((*ptr)->ptr);
@@ -121,7 +121,7 @@ void            config_free(config_t **ptr) {
     }
 }
 
-void    config_get_error_string(config_t *ptr) {
+void config_get_error_string(config_t *ptr) {
     if (strlen(g_error) == 0 || ptr == NULL)
         return ;
 
