@@ -63,7 +63,7 @@ int     mpm_package_free(void *tmp);
 
 /*!
  * \brief Initialize a package entry
- * \param ptr[in,out] Pointer to an allocated ptr
+ * \param[in,out] ptr Pointer to an allocated ptr
  */
 void    mpm_package_init(package_t *ptr);
 

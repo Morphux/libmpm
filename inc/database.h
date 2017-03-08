@@ -165,9 +165,9 @@ u8_t            mpm_get_package_by_name(database_t *ptr, const char *name,
                     mlist_t **pkg);
 /*!
  * \brief Fill a package_t structure with a SQL result
- * \param ptr[in] Pointer to package_t. Must not be NULL.
- * \param name[in] Name of the column
- * \param val[in] Value of the column
+ * \param[in] ptr Pointer to package_t. Must not be NULL.
+ * \param[in] name Name of the column
+ * \param[in] val Value of the column
  *
  * This function will transform an SQL result, given through an sqlite callback,
  * and fill a package_t structure with it.
@@ -179,7 +179,7 @@ package_t       *sql_to_package(package_t *ptr, char *name, char *val);
 
 /*!
  * \brief Init an empty database
- * \param ptr[in] Open connection to a database
+ * \param[in] ptr Open connection to a database
  *
  * This function will create tables in an empty database.
  * Careful, this function do not check if a database is empty before making
@@ -193,8 +193,8 @@ u8_t            mpm_database_init(database_t *ptr);
 
 /*!
  * \brief Add a package entry in the database
- * \param ptr[in] Opened connection to a database
- * \param pkg[in] Package to add
+ * \param[in] ptr Opened connection to a database
+ * \param[in] pkg Package to add
  *
  * This function will add a package entry to an already opened connection.
  */
@@ -319,7 +319,7 @@ category_t      *sql_to_category(category_t *ptr, char *name, char *val);
  * \brief Get a category by his Id
  * \param[in] ptr Opened Database connection
  * \param[in] id ID to search for
- * \param[out] files Pointer on a list, used to store the results
+ * \param[out] cat Pointer on a list, used to store the results
  *
  * This function will search in an already opened database a category with a
  * given id.
@@ -338,7 +338,7 @@ u8_t            mpm_get_categ_by_id(database_t *ptr, u64_t id, mlist_t **cat);
  * \brief Get a category by his name
  * \param[in] ptr Opened Database connection
  * \param[in] name Name to search for
- * \param[out] files Pointer on a list, used to store the results
+ * \param[out] cat Pointer on a list, used to store the results
  *
  * This function will search in an already opened database a category with a
  * given name.
