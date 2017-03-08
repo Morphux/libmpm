@@ -76,9 +76,9 @@
 # define SQL_TYPE_INT                   " integer "
 # define SQL_TYPE_TEXT                  " text "
 
-typedef struct  database_s {
+typedef struct database_s {
     sqlite3     *sql;
-}               database_t;
+} database_t;
 
 
 /*!
@@ -93,7 +93,7 @@ typedef struct  database_s {
  * database file path.
  * \return A fresh database_t structure
  */
-database_t      *mpm_database_open(u8_t *ret, const char *fn);
+database_t *mpm_database_open(u8_t *ret, const char *fn);
 
 /*!
  * \brief Close a connection to an existing database
@@ -103,7 +103,7 @@ database_t      *mpm_database_open(u8_t *ret, const char *fn);
  * On any error, this function will return the error code.
  * \return The error code
  */
-u8_t            mpm_database_close(database_t *ptr);
+u8_t mpm_database_close(database_t *ptr);
 
 /*!
  * \brief Execute a SQL query on an already opened database
@@ -123,7 +123,7 @@ u8_t            mpm_database_close(database_t *ptr);
  * This string is allocated by the sqlite library, and should be freed by the
  * caller.
  */
-u8_t            mpm_database_exec(database_t *ptr, const char *query,
+u8_t mpm_database_exec(database_t *ptr, const char *query,
                     SQL_CALLBACK_PTR(cl), void *ct, char **err);
 /*!
  * \brief Get a package by his Id
@@ -142,8 +142,7 @@ u8_t            mpm_database_exec(database_t *ptr, const char *query,
  * \note This function will set pkg to NULL before filling it with the results.
  * You should not call this function with an existing package list.
  */
-u8_t            mpm_get_package_by_id(database_t *ptr, u64_t id,
-                    mlist_t **pkg);
+u8_t mpm_get_package_by_id(database_t *ptr, u64_t id, mlist_t **pkg);
 /*!
  * \brief Get a package by his name
  * \param[in] ptr Opened Database connection
@@ -161,8 +160,7 @@ u8_t            mpm_get_package_by_id(database_t *ptr, u64_t id,
  * \note This function will set pkg to NULL before filling it with the results.
  * You should not call this function with an existing package list.
  */
-u8_t            mpm_get_package_by_name(database_t *ptr, const char *name,
-                    mlist_t **pkg);
+u8_t mpm_get_package_by_name(database_t *ptr, const char *name, mlist_t **pkg);
 /*!
  * \brief Fill a package_t structure with a SQL result
  * \param[in] ptr Pointer to package_t. Must not be NULL.
@@ -175,7 +173,7 @@ u8_t            mpm_get_package_by_name(database_t *ptr, const char *name,
  *
  * \note If a unknown column is passed to this function, a panic will be throwed.
  */
-package_t       *sql_to_package(package_t *ptr, char *name, char *val);
+package_t *sql_to_package(package_t *ptr, char *name, char *val);
 
 /*!
  * \brief Init an empty database
@@ -189,7 +187,7 @@ package_t       *sql_to_package(package_t *ptr, char *name, char *val);
  *
  * \return Status code
  */
-u8_t            mpm_database_init(database_t *ptr);
+u8_t mpm_database_init(database_t *ptr);
 
 /*!
  * \brief Add a package entry in the database
@@ -198,7 +196,7 @@ u8_t            mpm_database_init(database_t *ptr);
  *
  * This function will add a package entry to an already opened connection.
  */
-u8_t            mpm_database_add_pkg(database_t *ptr, package_t *pkg);
+u8_t mpm_database_add_pkg(database_t *ptr, package_t *pkg);
 
 /*!
  * \brief Get a file by his Id
@@ -217,8 +215,7 @@ u8_t            mpm_database_add_pkg(database_t *ptr, package_t *pkg);
  * You should not call this function with an existing files list.
  * \return Error code
  */
-u8_t            mpm_get_file_by_id(database_t *ptr, u64_t id,
-                    mlist_t **files);
+u8_t mpm_get_file_by_id(database_t *ptr, u64_t id, mlist_t **files);
 
 /*!
  * \brief Get a file by his path
@@ -237,8 +234,7 @@ u8_t            mpm_get_file_by_id(database_t *ptr, u64_t id,
  * You should not call this function with an existing files list.
  * \return Error code
  */
-u8_t            mpm_get_file_by_path(database_t *ptr, const char *path,
-                    mlist_t **files);
+u8_t mpm_get_file_by_path(database_t *ptr, const char *path, mlist_t **files);
 
 /*!
  * \brief Get a file by his parent id
@@ -257,8 +253,7 @@ u8_t            mpm_get_file_by_path(database_t *ptr, const char *path,
  * You should not call this function with an existing files list.
  * \return Error code
  */
-u8_t            mpm_get_file_by_parent_id(database_t *ptr, u64_t id,
-                    mlist_t **files);
+u8_t mpm_get_file_by_parent_id(database_t *ptr, u64_t id, mlist_t **files);
 
 /*!
  * \brief Get a file by his parent name
@@ -277,8 +272,7 @@ u8_t            mpm_get_file_by_parent_id(database_t *ptr, u64_t id,
  * You should not call this function with an existing files list.
  * \return Error code
  */
-u8_t            mpm_get_file_by_parent_name(database_t *ptr, const char *name,
-                    mlist_t **files);
+u8_t mpm_get_file_by_parent_name(database_t *ptr, const char *name, mlist_t **files);
 
 /*!
  * \brief Fill a file_t structure with a SQL result
@@ -292,14 +286,14 @@ u8_t            mpm_get_file_by_parent_name(database_t *ptr, const char *name,
  *
  * \note If a unknown column is passed to this function, a panic will be throwed.
  */
-file_t          *sql_to_file(file_t *ptr, char *name, char *val);
+file_t *sql_to_file(file_t *ptr, char *name, char *val);
 
 /*!
  * \brief Add a file entry to the database
  * \param[in] ptr Opened connection to a database
  * \param[in] file File to add
  */
-u8_t            mpm_database_add_file(database_t *ptr, file_t *file);
+u8_t mpm_database_add_file(database_t *ptr, file_t *file);
 
 /*!
  * \brief Fill a category_t structure with a SQL result
@@ -313,7 +307,7 @@ u8_t            mpm_database_add_file(database_t *ptr, file_t *file);
  *
  * \note If a unknown column is passed to this function, a panic will be throwed.
  */
-category_t      *sql_to_category(category_t *ptr, char *name, char *val);
+category_t *sql_to_category(category_t *ptr, char *name, char *val);
 
 /*!
  * \brief Get a category by his Id
@@ -332,7 +326,7 @@ category_t      *sql_to_category(category_t *ptr, char *name, char *val);
  * You should not call this function with an existing files list.
  * \return Error code
  */
-u8_t            mpm_get_categ_by_id(database_t *ptr, u64_t id, mlist_t **cat);
+u8_t mpm_get_categ_by_id(database_t *ptr, u64_t id, mlist_t **cat);
 
 /*!
  * \brief Get a category by his name
@@ -351,14 +345,13 @@ u8_t            mpm_get_categ_by_id(database_t *ptr, u64_t id, mlist_t **cat);
  * You should not call this function with an existing files list.
  * \return Error code
  */
-u8_t            mpm_get_categ_by_name(database_t *ptr, const char *name,
-                    mlist_t **cat);
+u8_t mpm_get_categ_by_name(database_t *ptr, const char *name, mlist_t **cat);
 
 /*!
  * \brief Add a category in the database
  * \param[in] ptr Opened connection to a database
  * \param[in] cat Category to add
  */
-u8_t            mpm_database_add_categ(database_t *ptr, category_t *cat);
+u8_t mpm_database_add_categ(database_t *ptr, category_t *cat);
 
 #endif /* DATABASE_H */

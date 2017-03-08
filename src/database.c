@@ -17,8 +17,8 @@
 #include <database.h>
 
 SQL_CALLBACK_DEF(callback_files) {
-    mlist_t		**head = context;
-    file_t		*ptr;
+    mlist_t     **head = context;
+    file_t      *ptr;
 
     ptr = malloc(sizeof(file_t));
     assert(ptr != NULL);
@@ -49,8 +49,8 @@ SQL_CALLBACK_DEF(callback_package) {
 }
 
 SQL_CALLBACK_DEF(callback_categ) {
-    mlist_t		**head = context;
-    category_t	*ptr;
+    mlist_t     **head = context;
+    category_t  *ptr;
 
     ptr = malloc(sizeof(category_t));
     assert(ptr != NULL);
@@ -65,7 +65,7 @@ SQL_CALLBACK_DEF(callback_categ) {
 }
 
 
-database_t              *mpm_database_open(u8_t *ret, const char *fn) {
+database_t *mpm_database_open(u8_t *ret, const char *fn) {
     database_t          *ptr;
     u8_t                error = 0;
 
@@ -86,7 +86,7 @@ error:
     return NULL;
 }
 
-u8_t                    mpm_database_close(database_t *ptr) {
+u8_t mpm_database_close(database_t *ptr) {
     u8_t        error = 1;
 
     if (ptr != NULL)
@@ -97,8 +97,8 @@ u8_t                    mpm_database_close(database_t *ptr) {
     return error;
 }
 
-u8_t            mpm_database_exec(database_t *ptr, const char *query,
-                    SQL_CALLBACK_PTR(cl), void *ct, char **err) {
+u8_t mpm_database_exec(database_t *ptr, const char *query, SQL_CALLBACK_PTR(cl),
+                            void *ct, char **err) {
     if (ptr == NULL || query == NULL)
         return 1;
 
@@ -106,8 +106,7 @@ u8_t            mpm_database_exec(database_t *ptr, const char *query,
 }
 
 
-u8_t            mpm_get_package_by_id(database_t *ptr, u64_t id,
-                    mlist_t **pkg) {
+u8_t mpm_get_package_by_id(database_t *ptr, u64_t id, mlist_t **pkg) {
     char        *query;
     u8_t        ret;
 
@@ -121,8 +120,7 @@ u8_t            mpm_get_package_by_id(database_t *ptr, u64_t id,
     return ret;
 }
 
-u8_t            mpm_get_package_by_name(database_t *ptr, const char *name,
-                    mlist_t **pkg) {
+u8_t mpm_get_package_by_name(database_t *ptr, const char *name, mlist_t **pkg) {
     char        *query;
     u8_t        ret;
 
@@ -136,7 +134,7 @@ u8_t            mpm_get_package_by_name(database_t *ptr, const char *name,
     return ret;
 }
 
-package_t               *sql_to_package(package_t *ptr, char *name, char *val) {
+package_t *sql_to_package(package_t *ptr, char *name, char *val) {
     if (ptr == NULL)
         return ptr;
 
@@ -161,8 +159,8 @@ package_t               *sql_to_package(package_t *ptr, char *name, char *val) {
 }
 
 
-u8_t		mpm_database_init(database_t *ptr) {
-    static const char	*query_table[] = {\
+u8_t mpm_database_init(database_t *ptr) {
+    static const char   *query_table[] = {\
             /* Package table */
         SQL_CREATE_TABLE PKG_TABLE "("                                      \
             PKG_COL_ID          SQL_TYPE_INT    SQL_TYPE_PRIMARY_KEY    "," \
@@ -215,7 +213,7 @@ error:
 }
 
 
-u8_t            mpm_database_add_pkg(database_t *ptr, package_t *pkg) {
+u8_t mpm_database_add_pkg(database_t *ptr, package_t *pkg) {
     char        *query, *err;
     char        *deps, *files, *binaries, *config, *docs;
     u8_t        ret;
@@ -244,8 +242,7 @@ u8_t            mpm_database_add_pkg(database_t *ptr, package_t *pkg) {
     return ret;
 }
 
-u8_t            mpm_get_file_by_id(database_t *ptr, u64_t id,
-                    mlist_t **files) {
+u8_t mpm_get_file_by_id(database_t *ptr, u64_t id, mlist_t **files) {
     char        *query;
     u8_t        ret;
 
@@ -259,10 +256,9 @@ u8_t            mpm_get_file_by_id(database_t *ptr, u64_t id,
     return ret;
 }
 
-u8_t            mpm_get_file_by_path(database_t *ptr, const char *path,
-                    mlist_t **files) {
-    char	*query;
-    u8_t	ret;
+u8_t mpm_get_file_by_path(database_t *ptr, const char *path, mlist_t **files) {
+    char    *query;
+    u8_t    ret;
 
     if (ptr == NULL || path == NULL)
         return 1;
@@ -274,10 +270,10 @@ u8_t            mpm_get_file_by_path(database_t *ptr, const char *path,
     return ret;
 }
 
-u8_t            mpm_get_file_by_parent_id(database_t *ptr, u64_t id,
+u8_t mpm_get_file_by_parent_id(database_t *ptr, u64_t id,
                     mlist_t **files) {
-    char	*query;
-    u8_t	ret;
+    char    *query;
+    u8_t    ret;
 
     if (ptr == NULL)
         return 1;
@@ -289,10 +285,9 @@ u8_t            mpm_get_file_by_parent_id(database_t *ptr, u64_t id,
     return ret;
 }
 
-u8_t            mpm_get_file_by_parent_name(database_t *ptr, const char *name,
-        mlist_t **files) {
-    char	*query;
-    u8_t	ret;
+u8_t mpm_get_file_by_parent_name(database_t *ptr, const char *name, mlist_t **files) {
+    char    *query;
+    u8_t    ret;
 
     if (ptr == NULL || name == NULL)
         return 1;
@@ -342,9 +337,9 @@ file_t          *sql_to_file(file_t *ptr, char *name, char *val) {
     return ptr;
 }
 
-u8_t            mpm_database_add_file(database_t *ptr, file_t *file) {
-    char	*query, *err;
-    u8_t	ret;
+u8_t mpm_database_add_file(database_t *ptr, file_t *file) {
+    char    *query, *err;
+    u8_t    ret;
 
     if (ptr == NULL || file == NULL)
         return 1;
@@ -363,9 +358,9 @@ u8_t            mpm_database_add_file(database_t *ptr, file_t *file) {
     return ret;
 }
 
-u8_t            mpm_database_add_categ(database_t *ptr, category_t *cat) {
-    char	*query, *err;
-    u8_t	ret;
+u8_t mpm_database_add_categ(database_t *ptr, category_t *cat) {
+    char    *query, *err;
+    u8_t    ret;
 
     if (ptr == NULL || cat == NULL)
         return 1;
@@ -384,9 +379,9 @@ u8_t            mpm_database_add_categ(database_t *ptr, category_t *cat) {
 }
 
 
-u8_t            mpm_get_categ_by_id(database_t *ptr, u64_t id, mlist_t **cat) {
-    char	*query;
-    u8_t	ret;
+u8_t mpm_get_categ_by_id(database_t *ptr, u64_t id, mlist_t **cat) {
+    char    *query;
+    u8_t    ret;
 
     if (ptr == NULL)
         return 1;
@@ -399,9 +394,9 @@ u8_t            mpm_get_categ_by_id(database_t *ptr, u64_t id, mlist_t **cat) {
 }
 
 
-u8_t    mpm_get_categ_by_name(database_t *ptr, const char *name, mlist_t **cat) {
-    char	*query;
-    u8_t	ret;
+u8_t mpm_get_categ_by_name(database_t *ptr, const char *name, mlist_t **cat) {
+    char    *query;
+    u8_t    ret;
 
     if (ptr == NULL)
         return 1;
@@ -413,7 +408,7 @@ u8_t    mpm_get_categ_by_name(database_t *ptr, const char *name, mlist_t **cat) 
 }
 
 
-category_t      *sql_to_category(category_t *ptr, char *name, char *val) {
+category_t *sql_to_category(category_t *ptr, char *name, char *val) {
     if (ptr == NULL)
         return ptr;
 
