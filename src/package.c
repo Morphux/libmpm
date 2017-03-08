@@ -14,9 +14,9 @@
 *                       limitations under the License.                         *
 \******************************************************************************/
 
-# include <package.h>
+#include <package.h>
 
-int             mpm_package_free(void *tmp) {
+int mpm_package_free(void *tmp) {
     package_t   *ptr = tmp;
 
     if (ptr)
@@ -36,7 +36,7 @@ int             mpm_package_free(void *tmp) {
     return 1;
 }
 
-void    mpm_package_init(package_t *ptr) {
+void mpm_package_init(package_t *ptr) {
     if (ptr)
     {
         ptr->id = 0;

@@ -20,13 +20,13 @@
 # include <morphux.h>
 # include <files.h>
 
-typedef enum    package_state_e {
+typedef enum package_state_e {
     PACKAGE_STATE_USER_INSTALLED,
     PACKAGE_STATE_DEPENDENCY,
     PACKAGE_STATE_ORPHAN
-}               package_state_t;
+} package_state_t;
 
-typedef struct category_s       category_t;
+typedef struct category_s category_t;
 
 # define PKG_TABLE              "pkgs"
 # define PKG_COL_ID             "id"
@@ -41,7 +41,7 @@ typedef struct category_s       category_t;
 # define PKG_COL_CONFIG         "config"
 # define PKG_COL_DOCS           "docs"
 
-typedef struct          package_s {
+typedef struct package_s {
     u64_t           id;
     char            *name;
     char            *version;
@@ -53,19 +53,19 @@ typedef struct          package_s {
     mlist_t         *binaries;
     mlist_t         *config;
     mlist_t         *docs;
-}                       package_t;
+} package_t;
 
 /*!
  * \brief Free a package entry
  * \note Can be used as list_free callback
  */
-int     mpm_package_free(void *tmp);
+int mpm_package_free(void *tmp);
 
 /*!
  * \brief Initialize a package entry
  * \param[in,out] ptr Pointer to an allocated ptr
  */
-void    mpm_package_init(package_t *ptr);
+void mpm_package_init(package_t *ptr);
 
 # include <category.h>
 #endif /* PACKAGE_H */
