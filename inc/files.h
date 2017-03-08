@@ -29,34 +29,34 @@
 
 typedef struct package_s package_t;
 
-typedef enum    file_type_e {
+typedef enum file_type_e {
     FILE_TYPE_CONFIG = 1,
     FILE_TYPE_BIN,
     FILE_TYPE_LIB,
     FILE_TYPE_OTHER
-}               file_type_t;
+} file_type_t;
 
-typedef struct          file_s {
+typedef struct file_s {
     u64_t       id;
     char        *path;
     file_type_t type;
     package_t   *parent;
     char        *parent_name;
     char        *hash;
-}                       file_t;
+} file_t;
 
 /*!
  * \brief Initialize a file_t structure
  * \param[in,out] ptr Structure to initialize
  */
-void    mpm_file_init(file_t *ptr);
+void mpm_file_init(file_t *ptr);
 
 /*!
  * \brief Free a file_t entry
  * \param[in] tmp Pointer to free
  * \note Can be called as a callback of list_free
  */
-int     mpm_file_free(void *tmp);
+int mpm_file_free(void *tmp);
 
 # include <package.h>
 #endif /* FILES_H */

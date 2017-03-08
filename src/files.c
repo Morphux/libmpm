@@ -16,7 +16,7 @@
 
 #include <files.h>
 
-void    mpm_file_init(file_t *ptr) {
+void mpm_file_init(file_t *ptr) {
     if (ptr)
     {
         ptr->path = NULL;
@@ -26,7 +26,7 @@ void    mpm_file_init(file_t *ptr) {
     }
 }
 
-int     mpm_file_free(void *tmp) {
+int mpm_file_free(void *tmp) {
     file_t *ptr = tmp;
 
     if (ptr)
