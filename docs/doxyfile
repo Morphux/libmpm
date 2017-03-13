@@ -108,9 +108,10 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 # Configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = src
+INPUT                  = inc
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.c \
+                         *.h \
                          *.cc \
                          *.cxx \
                          *.cpp \

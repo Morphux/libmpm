@@ -16,14 +16,14 @@
 
 #include <flags.h>
 
-static u8_t     mpm_flags[MPM_LAST] = {0};
+static u8_t mpm_flags[MPM_LAST] = {0};
 
-void    mpm_set_flag(flag_index_t flag, u8_t val) {
+void mpm_set_flag(flag_index_t flag, u8_t val) {
     if (flag < MPM_LAST)
         mpm_flags[flag] = val;
 }
 
-u8_t    mpm_get_flag(flag_index_t flag) {
+u8_t mpm_get_flag(flag_index_t flag) {
     assert(flag < MPM_LAST);
     return mpm_flags[flag];
 }

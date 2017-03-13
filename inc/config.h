@@ -81,11 +81,11 @@
 
 # define ERROR_MAX_LEN                  250
 
-typedef struct          config_s {
+typedef struct config_s {
     cfg_t       *ptr;
     char        *fn;
     char        *err;
-}                       config_t;
+} config_t;
 
 /*!
  * \brief Initialize a new config_t structure and read a config file
@@ -97,18 +97,18 @@ typedef struct          config_s {
  *
  * \return A freshly allocated structure
  */
-config_t        *parse_config(const char *path, u8_t *ret);
+config_t *parse_config(const char *path, u8_t *ret);
 
 /*!
  * \brief Free a config_t pointer
  * \param[in,out] ptr Pointer to free
  */
-void            config_free(config_t **ptr);
+void config_free(config_t **ptr);
 
 /*!
  * \brief Get the parsing error string
  * \param[in] ptr Config context
  */
-void            config_get_error_string(config_t *ptr);
+void config_get_error_string(config_t *ptr);
 
 #endif /* CONFIG_H */
