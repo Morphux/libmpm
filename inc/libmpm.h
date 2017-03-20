@@ -21,5 +21,6 @@
 # include <flags.h>
 # include <database.h>
 # include <config.h>
+# include <package.h>
 
 #endif /* LIBMPM_H */
