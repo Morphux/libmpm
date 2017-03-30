@@ -40,3 +40,39 @@ void packer_free(packer_t *ptr) {
         free(ptr);
     }
 }
+
+bool packer_read(packer_t *ctx) {
+    struct stat st;
+    int         fd;
+    char        *fn = strcat(ctx->dir, PACKER_DEF_CONF_FN);
+    char        *file_c = NULL;
+
+    assert(fn != NULL);
+    fd = open(fn, O_RDONLY);
+    if (fd == -1)
+        goto error;
+    if (fstat(fd, &st) == -1)
+        goto error;
+
+    file_c = malloc(st.st_size);
+    if (file_c == NULL)
+        goto error;
+    if (read(fd, file_c, st.st_size) == -1)
+        goto error;
+    ctx->json = json_tokener_parse(file_c);
+
+    if (ctx->json == NULL)
+        goto error;
+
+    free(fn);
+    free(file_c);
+    close(fd);
+    return true;
+
+error:
+    free(fn);
+    if (file_c != NULL)
+        free(file_c);
+    close(fd);
+    return false;
+}

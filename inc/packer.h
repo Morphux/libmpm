@@ -18,9 +18,16 @@
 # define PACKER_H
 
 # include <libmpm.h>
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <json.h>
+
+
+# define PACKER_DEF_CONF_FN     "/package.json"
 
 typedef struct packer_s {
-    char    *dir; /*!< Directory of the package */
+    char        *dir;  /*!< Directory of the package */
+    json_object *json; /*!< JSON object */
 } packer_t;
 
 /*!
@@ -38,5 +45,14 @@ packer_t *packer_init(const char *dir);
  * \param[in,out] ptr Pointer to free
  */
 void packer_free(packer_t *ptr);
+
+/*!
+ * \brief Read a directory and prepare the packer
+ *
+ * \param[in,out] ctx Already initialized packer_t struct
+ *
+ * \return true on success, false on failure
+ */
+bool packer_read(packer_t *ctx);
 
 #endif /* PACKER_H */
