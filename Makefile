@@ -82,11 +82,13 @@ init:
 doc:
 	doxygen docs/doxyfile
 
-check: all
+check:
+	make -C lib/libmorphux/ test
 	$(MAKE) fclean all OFLAGS="-DCOMPILE_WITH_TEST -Wno-error"
-	make -C tests check
+	make -C tests clean check
 
 coverage:
+	make -C lib/libmorphux/ test
 	$(MAKE) fclean all OFLAGS="-std=gnu99 -g -O0 -coverage -lcov -DCOMPILE_WITH_TEST"
 	make -C tests coverage check
 	gcov -o src/ $(SRCS)
