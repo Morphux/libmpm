@@ -10,8 +10,7 @@ before_install:
 script:
     - make init
     - make
-    - make -C tests
-    - make -C tests check
+    - make check
     - make -C tests valgrind
     - make coverage
 
