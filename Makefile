@@ -84,7 +84,7 @@ doc:
 
 check:
 	make -C lib/libmorphux/ test
-	$(MAKE) fclean all OFLAGS="-DCOMPILE_WITH_TEST -Wno-error"
+	$(MAKE) fclean all OFLAGS="-DCOMPILE_WITH_TEST -Wno-error -std=gnu99 -g"
 	make -C tests clean check
 
 coverage:
