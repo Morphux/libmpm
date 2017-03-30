@@ -10,10 +10,10 @@ IFLAGS =	-I ../inc/ \
 			-I ../lib/libconfuse/src/
 
 # Optimisation Flags
-OFLAGS =	-std=c99 -g -O3
+OFLAGS =	-std=gnu99 -g -O3
 
 # Severity Flags
-SFLAGS =	-Wall -Wextra -Werror -Wno-unused-result
+SFLAGS =	-Wall -Wextra -Wno-unused-result -DCOMPILE_WITH_TEST
 
 # Library Flags
 #LFLAGS =	-L ../lib/libmorphux -lmorphux \

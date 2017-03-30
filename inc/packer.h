@@ -14,13 +14,29 @@
 *                       limitations under the License.                         *
 \******************************************************************************/
 
-#ifndef LIBMPM_H
-# define LIBMPM_H
+#ifndef PACKER_H
+# define PACKER_H
 
-# include <morphux.h>
-# include <flags.h>
-# include <database.h>
-# include <config.h>
-# include <packer.h>
+# include <libmpm.h>
 
-#endif /* LIBMPM_H */
+typedef struct packer_s {
+    char    *dir; /*!< Directory of the package */
+} packer_t;
+
+/*!
+ * \brief Allocate, fill and init a packer_t structure
+ *
+ * \param[in] dir Directory of the package
+ *
+ * \return A freshly allocated pointer on success, NULL on failure
+ */
+packer_t *packer_init(const char *dir);
+
+/*!
+ * \brief Free a packer_t structure
+ *
+ * \param[in,out] ptr Pointer to free
+ */
+void packer_free(packer_t *ptr);
+
+#endif /* PACKER_H */

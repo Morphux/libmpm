@@ -14,13 +14,29 @@
 *                       limitations under the License.                         *
 \******************************************************************************/
 
-#ifndef LIBMPM_H
-# define LIBMPM_H
+#include <packer.h>
 
-# include <morphux.h>
-# include <flags.h>
-# include <database.h>
-# include <config.h>
-# include <packer.h>
+packer_t *packer_init(const char *dir) {
+    packer_t    *ret;
 
-#endif /* LIBMPM_H */
+    ret = malloc(sizeof(*ret));
+    if (ret == NULL)
+        return NULL;
+
+    ret->dir = strdup(dir);
+    if (ret->dir == NULL)
+        goto cleanup;
+    return ret;
+
+cleanup:
+    free(ret);
+    return NULL;
+}
+
+void packer_free(packer_t *ptr) {
+    if (ptr != NULL)
+    {
+        free(ptr->dir);
+        free(ptr);
+    }
+}

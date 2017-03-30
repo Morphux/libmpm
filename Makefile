@@ -28,7 +28,7 @@ IFLAGS =	-I inc/ \
 			-I lib/libconfuse/src/
 
 # Optimisation Flags
-OFLAGS =	-std=c99 -g -O3
+OFLAGS =	-std=gnu99 -g -O3
 
 # Severity Flags
 SFLAGS =	-Wall -Wextra -Werror -Wno-unused-result
@@ -83,10 +83,11 @@ doc:
 	doxygen docs/doxyfile
 
 check: all
+	$(MAKE) fclean all OFLAGS="-DCOMPILE_WITH_TEST -Wno-error"
 	make -C tests check
 
 coverage:
-	$(MAKE) fclean all OFLAGS="-std=c99 -g -O0 -coverage -lcov"
+	$(MAKE) fclean all OFLAGS="-std=gnu99 -g -O0 -coverage -lcov -DCOMPILE_WITH_TEST"
 	make -C tests coverage check
 	gcov -o src/ $(SRCS)
 	make -C tests fclean
