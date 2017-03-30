@@ -69,6 +69,7 @@ database_t *mpm_database_open(u8_t *ret, const char *fn) {
     database_t          *ptr;
     u8_t                error = 0;
 
+    *ret = 0;
     ptr = malloc(sizeof(database_t));
     assert(ptr != NULL);
     if (fn != NULL)
@@ -298,9 +299,6 @@ u8_t mpm_get_file_by_parent_name(database_t *ptr, const char *name, mlist_t **fi
     free(query);
     return ret;
 }
-
-
-
 
 file_t          *sql_to_file(file_t *ptr, char *name, char *val) {
     if (ptr == NULL)

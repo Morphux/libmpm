@@ -10,3 +10,6 @@
 [submodule "lib/libconfuse"]
 	path = lib/libconfuse
 	url = https://github.com/martinh/libconfuse.git
+[submodule "docs/doxygen-theme"]
+	path = docs/doxygen-theme
+	url = https://github.com/Ne02ptzero/doxygen-theme

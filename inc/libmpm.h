@@ -22,5 +22,6 @@
 # include <database.h>
 # include <config.h>
 # include <packer.h>
+# include <package.h>
 
 #endif /* LIBMPM_H */
