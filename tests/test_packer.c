@@ -50,9 +50,19 @@ TEST(packer_read_dir_wrong_dir) {
     return TEST_SUCCESS;
 }
 
+TEST(packer_read_dir_no_configuration) {
+    packer_t    *ptr;
+
+    ptr = packer_init_dir("packer/wrong/");
+    TEST_ASSERT(packer_read_dir(ptr) == false, "Error not raised");
+    packer_free(ptr);
+    return TEST_SUCCESS;
+}
+
 void register_test_packer(void) {
     reg_test("packer", packer_init_dir);
     reg_test("packer", packer_init_archive);
     reg_test("packer", packer_read_dir_wrong_type);
     reg_test("packer", packer_read_dir_wrong_dir);
+    reg_test("packer", packer_read_dir_no_configuration);
 }
