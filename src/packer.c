@@ -16,39 +16,67 @@
 
 #include <packer.h>
 
-packer_t *packer_init(const char *dir) {
+static packer_t *packer_init(const char *str) {
     packer_t    *ret;
 
     ret = malloc(sizeof(*ret));
     if (ret == NULL)
         return NULL;
 
-    ret->dir = strdup(dir);
-    if (ret->dir == NULL)
+    ret->str = strdup(str);
+    if (ret->str == NULL)
         goto cleanup;
+
     return ret;
 
 cleanup:
     free(ret);
     return NULL;
+
+}
+
+packer_t *packer_init_dir(const char *dir) {
+    packer_t    *ret;
+
+    ret = packer_init(dir);
+    if (ret == NULL)
+        return NULL;
+    ret->type = PACKER_TYPE_DIRECTORY;
+    return ret;
+}
+
+packer_t *packer_init_archive(const char *path) {
+    packer_t    *ret;
+
+    ret = packer_init(path);
+    if (ret == NULL)
+        return NULL;
+    ret->type = PACKER_TYPE_ARCHIVE;
+    return ret;
 }
 
 void packer_free(packer_t *ptr) {
     if (ptr != NULL)
     {
-        free(ptr->dir);
+        free(ptr->str);
         free(ptr);
     }
 }
 
-bool packer_read(packer_t *ctx) {
+bool packer_read_dir(packer_t *ctx) {
     struct stat st;
     int         fd;
-    char        *fn = strcat(ctx->dir, PACKER_DEF_CONF_FN);
     char        *file_c = NULL;
 
-    assert(fn != NULL);
-    fd = open(fn, O_RDONLY);
+    assert(ctx != NULL);
+
+    if (ctx->type != PACKER_TYPE_DIRECTORY)
+        return false;
+
+    if (chdir(ctx->str) == -1)
+        return false;
+
+    fd = open(PACKER_DEF_CONF_FN, O_RDONLY);
     if (fd == -1)
         goto error;
     if (fstat(fd, &st) == -1)
@@ -64,13 +92,11 @@ bool packer_read(packer_t *ctx) {
     if (ctx->json == NULL)
         goto error;
 
-    free(fn);
     free(file_c);
     close(fd);
     return true;
 
 error:
-    free(fn);
     if (file_c != NULL)
         free(file_c);
     close(fd);

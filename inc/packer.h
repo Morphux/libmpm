@@ -23,11 +23,17 @@
 # include <json.h>
 
 
-# define PACKER_DEF_CONF_FN     "/package.json"
+# define PACKER_DEF_CONF_FN     "package.json"
+
+typedef enum packer_type_e {
+    PACKER_TYPE_DIRECTORY,
+    PACKER_TYPE_ARCHIVE
+} packer_type_t;
 
 typedef struct packer_s {
-    char        *dir;  /*!< Directory of the package */
-    json_object *json; /*!< JSON object */
+    char          *str;  /*!< Directory, or path of the package */
+    json_object   *json; /*!< JSON object */
+    packer_type_t type;  /*!< Type of packer */
 } packer_t;
 
 /*!
@@ -37,7 +43,16 @@ typedef struct packer_s {
  *
  * \return A freshly allocated pointer on success, NULL on failure
  */
-packer_t *packer_init(const char *dir);
+packer_t *packer_init_dir(const char *dir);
+
+/*!
+ * \brief Allocate, fill an init a packer_t structure
+ *
+ * \param[in] path Path of the archive
+ *
+ * \return A freshly allocated pointer on success, NULL on failure
+ */
+packer_t *packer_init_archive(const char *path);
 
 /*!
  * \brief Free a packer_t structure
@@ -51,8 +66,11 @@ void packer_free(packer_t *ptr);
  *
  * \param[in,out] ctx Already initialized packer_t struct
  *
+ * \note This function is only for directory TO pack
+ * \note Throw an assertion if the passed pointer is NULL
+ *
  * \return true on success, false on failure
  */
-bool packer_read(packer_t *ctx);
+bool packer_read_dir(packer_t *ctx);
 
 #endif /* PACKER_H */
