@@ -85,12 +85,14 @@ doc:
 check:
 	make -C lib/libmorphux/ test
 	$(MAKE) fclean all OFLAGS="-DCOMPILE_WITH_TEST -Wno-error -std=gnu99 -g"
-	make -C tests clean check
+	make -C tests fclean all
+	cd tests && ./test
 
 coverage:
 	make -C lib/libmorphux/ test
 	$(MAKE) fclean all OFLAGS="-std=gnu99 -g -O0 -coverage -lcov -DCOMPILE_WITH_TEST"
-	make -C tests coverage check
+	make -C tests coverage
+	cd tests && ./test
 	gcov -o src/ $(SRCS)
 	make -C tests fclean
 
