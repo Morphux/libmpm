@@ -22,7 +22,6 @@
 # include <sys/stat.h>
 # include <json.h>
 
-
 # define PACKER_DEF_CONF_FN     "package.json"
 
 typedef enum packer_type_e {
@@ -30,10 +29,27 @@ typedef enum packer_type_e {
     PACKER_TYPE_ARCHIVE
 } packer_type_t;
 
+# define PACKER_CONF_PACKAGE_TOKEN             "package"
+# define PACKER_CONF_PACKAGE_NAME_TOKEN        "name"
+# define PACKER_CONF_PACKAGE_VERSION_TOKEN     "version"
+# define PACKER_CONF_PACKAGE_DESC_TOKEN        "description"
+
+
+typedef struct packer_header_package_s {
+    char    *name;        /*!< Name of the package */
+    char    *version;     /*!< Version of the package */
+    char    *description; /*!< Description of the package */
+} packer_header_package_t;
+
+typedef struct packer_header_s {
+    packer_header_package_t *package; /*!< Package header section */
+} packer_header_t;
+
 typedef struct packer_s {
-    char          *str;  /*!< Directory, or path of the package */
-    json_object   *json; /*!< JSON object */
-    packer_type_t type;  /*!< Type of packer */
+    char            *str;    /*!< Directory, or path of the package */
+    json_object     *json;   /*!< JSON object */
+    packer_type_t   type;    /*!< Type of packer */
+    packer_header_t *header; /*!< Header of the MPX format */
 } packer_t;
 
 /*!
