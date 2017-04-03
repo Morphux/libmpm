@@ -59,6 +59,53 @@ static void packer_header_package_free(packer_header_package_t *ptr) {
     }
 }
 
+static packer_conf_opt_t *packer_conf_opt_init(const char *str, const char *value) {
+    packer_conf_opt_t       *ret;
+
+    ret = malloc(sizeof(*ret));
+    if (ret == NULL)
+        return NULL;
+
+    ret->name = (char *)str;
+    ret->value = (char *)value;
+    return ret;
+}
+
+static int packer_conf_opt_free(void *magic) {
+    packer_conf_opt_t *ptr = magic;
+    if (ptr != NULL)
+    {
+        free(ptr->name);
+        free(ptr->value);
+    }
+    return 0;
+}
+
+static packer_header_comp_t *packer_header_comp_init(void) {
+    packer_header_comp_t    *ret;
+
+    ret = malloc(sizeof(*ret));
+    if (ret == NULL)
+        return NULL;
+
+    ret->configure = NULL;
+    ret->make = NULL;
+    ret->test = NULL;
+    ret->install = NULL;
+    return ret;
+}
+
+static void packer_header_comp_free(packer_header_comp_t *ptr) {
+    if (ptr != NULL)
+    {
+        list_free(ptr->configure, &packer_conf_opt_free);
+        free(ptr->make);
+        free(ptr->test);
+        free(ptr->install);
+        free(ptr);
+    }
+}
+
 static packer_header_t *packer_header_init(void) {
     packer_header_t     *ret;
 
@@ -107,8 +154,95 @@ void packer_free(packer_t *ptr) {
     }
 }
 
-static bool packer_read_config_package(packer_t *ctx, struct json_object *obj)
-{
+static bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) {
+    struct json_object_iterator     it, it_end;
+    struct json_object              *tmp;
+    const char                      *name;
+
+    assert(ctx != NULL);
+
+    /* Can't raise an assertion since NULL is a valid type in JSON */
+    if (obj == NULL)
+        return false;
+
+    it = json_object_iter_begin(obj);
+    it_end = json_object_iter_end(obj);
+    ctx->header->compilation = packer_header_comp_init();
+   while (!json_object_iter_equal(&it, &it_end))
+    {
+        name = json_object_iter_peek_name(&it);
+        tmp = json_object_iter_peek_value(&it);
+        if (strcmp(name, PACKER_CONF_COMP_CONF_TOKEN) == 0)
+        {
+            if (json_object_get_type(tmp) != json_type_array)
+                goto cleanup;
+            for (size_t i = 0; i < json_object_array_length(tmp); i++)
+            {
+                struct json_object  *array_ent, *array_tmp;
+                packer_conf_opt_t   *opt = NULL;
+
+                array_ent = json_object_array_get_idx(tmp, i);
+                if (json_object_get_type(array_ent) == json_type_object)
+                {
+                    struct json_object_iterator     it_arr, it_arr_end;
+
+                    it_arr = json_object_iter_begin(array_ent);
+                    it_arr_end = json_object_iter_end(array_ent);
+                    while (!json_object_iter_equal(&it_arr, &it_arr_end))
+                    {
+                        array_tmp = json_object_iter_peek_value(&it_arr);
+                        if (json_object_get_type(array_tmp) != json_type_string)
+                            goto cleanup;
+                        opt = packer_conf_opt_init(json_object_iter_peek_name(&it_arr),
+                            json_object_get_string(array_tmp));
+                        list_add(ctx->header->compilation->configure, opt, sizeof(opt));
+                        free(opt);
+                        json_object_iter_next(&it_arr);
+                    }
+                }
+                else if (json_object_get_type(array_ent) == json_type_string)
+                {
+                    opt = packer_conf_opt_init(NULL,
+                        json_object_get_string(array_ent));
+                    list_add(ctx->header->compilation->configure, opt, sizeof(opt));
+                    free(opt);
+                }
+                else
+                    goto cleanup;
+            }
+        }
+        else if (strcmp(name, PACKER_CONF_COMP_MAKE_TOKEN) == 0)
+        {
+            if (json_object_get_type(tmp) != json_type_string)
+                goto cleanup;
+            ctx->header->compilation->make = strdup(json_object_get_string(tmp));
+        }
+        else if (strcmp(name, PACKER_CONF_COMP_TEST_TOKEN) == 0)
+        {
+            if (json_object_get_type(tmp) != json_type_string)
+                goto cleanup;
+            ctx->header->compilation->test = strdup(json_object_get_string(tmp));
+        }
+        else if (strcmp(name, PACKER_CONF_COMP_INST_TOKEN) == 0)
+        {
+            if (json_object_get_type(tmp) != json_type_string)
+                goto cleanup;
+            ctx->header->compilation->install = strdup(json_object_get_string(tmp));
+        }
+        /* Wrong token */
+        else
+            goto cleanup;
+        json_object_iter_next(&it);
+
+    }
+    return true;
+
+cleanup:
+    packer_header_comp_free(ctx->header->compilation);
+    return false;
+}
+
+static bool packer_read_config_package(packer_t *ctx, struct json_object *obj) {
     struct json_object_iterator     it, it_end;
     struct json_object              *tmp;
     const char                      *name;
@@ -126,23 +260,21 @@ static bool packer_read_config_package(packer_t *ctx, struct json_object *obj)
     while (!json_object_iter_equal(&it, &it_end))
     {
         name = json_object_iter_peek_name(&it);
+        tmp = json_object_iter_peek_value(&it);
         if (strcmp(name, PACKER_CONF_PACKAGE_NAME_TOKEN) == 0)
         {
-            tmp = json_object_iter_peek_value(&it);
             if (json_object_get_type(tmp) != json_type_string)
                 goto cleanup;
             ctx->header->package->name = strdup(json_object_get_string(tmp));
         }
         else if (strcmp(name, PACKER_CONF_PACKAGE_VERSION_TOKEN) == 0)
         {
-            tmp = json_object_iter_peek_value(&it);
             if (json_object_get_type(tmp) != json_type_string)
                 goto cleanup;
             ctx->header->package->version = strdup(json_object_get_string(tmp));
         }
         else if (strcmp(name, PACKER_CONF_PACKAGE_DESC_TOKEN) == 0)
         {
-            tmp = json_object_iter_peek_value(&it);
             if (json_object_get_type(tmp) != json_type_string)
                 goto cleanup;
             ctx->header->package->description = strdup(json_object_get_string(tmp));
@@ -172,10 +304,16 @@ static bool packer_read_config_file(packer_t *ctx) {
     {
         name = json_object_iter_peek_name(&it);
         if (strcmp(name, PACKER_CONF_PACKAGE_TOKEN) == 0)
-            packer_read_config_package(ctx, json_object_iter_peek_value(&it));
-        else if (strcmp(name, "compilation"))
-            ;
-        else if (strcmp(name, "dependencies"))
+        {
+            if (!packer_read_config_package(ctx, json_object_iter_peek_value(&it)))
+                goto cleanup;
+        }
+        else if (strcmp(name, PACKER_CONF_COMP_TOKEN) == 0)
+        {
+            if (!packer_read_config_comp(ctx, json_object_iter_peek_value(&it)))
+                goto cleanup;
+        }
+        else if (strcmp(name, "dependencies") == 0)
             ;
         /* Wrong token */
         else

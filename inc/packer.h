@@ -29,10 +29,15 @@ typedef enum packer_type_e {
     PACKER_TYPE_ARCHIVE
 } packer_type_t;
 
-# define PACKER_CONF_PACKAGE_TOKEN             "package"
-# define PACKER_CONF_PACKAGE_NAME_TOKEN        "name"
-# define PACKER_CONF_PACKAGE_VERSION_TOKEN     "version"
-# define PACKER_CONF_PACKAGE_DESC_TOKEN        "description"
+# define PACKER_CONF_PACKAGE_TOKEN              "package"
+# define PACKER_CONF_PACKAGE_NAME_TOKEN         "name"
+# define PACKER_CONF_PACKAGE_VERSION_TOKEN      "version"
+# define PACKER_CONF_PACKAGE_DESC_TOKEN         "description"
+# define PACKER_CONF_COMP_TOKEN                 "compilation"
+# define PACKER_CONF_COMP_CONF_TOKEN            "configure"
+# define PACKER_CONF_COMP_MAKE_TOKEN            "make"
+# define PACKER_CONF_COMP_TEST_TOKEN            "test"
+# define PACKER_CONF_COMP_INST_TOKEN            "install"
 
 
 typedef struct packer_header_package_s {
@@ -41,8 +46,21 @@ typedef struct packer_header_package_s {
     char    *description; /*!< Description of the package */
 } packer_header_package_t;
 
+typedef struct packer_conf_opt_s {
+    char    *name;
+    char    *value;
+} packer_conf_opt_t;
+
+typedef struct packer_header_comp_s {
+    mlist_t     *configure; /*!< Configure options */
+    char        *make;      /*!< Make options */
+    char        *test;      /*!< Test instructions */
+    char        *install;   /*!< Install instructions */
+} packer_header_comp_t;
+
 typedef struct packer_header_s {
-    packer_header_package_t *package; /*!< Package header section */
+    packer_header_package_t *package;     /*!< Package header section */
+    packer_header_comp_t    *compilation; /*!< Compilation header section */
 } packer_header_t;
 
 typedef struct packer_s {
