@@ -25,6 +25,7 @@ static packer_t *packer_init(const char *str) {
 
     ret->json = NULL;
     ret->str = strdup(str);
+    ret->header = NULL;
     if (ret->str == NULL)
         goto cleanup;
 
@@ -66,8 +67,13 @@ static packer_conf_opt_t *packer_conf_opt_init(const char *str, const char *valu
     if (ret == NULL)
         return NULL;
 
-    ret->name = (char *)str;
-    ret->value = (char *)value;
+    ret->name = NULL;
+    ret->value = NULL;
+
+    if (str != NULL)
+        ret->name = strdup(str);
+    if (value != NULL)
+        ret->value = strdup(value);
     return ret;
 }
 
@@ -78,7 +84,7 @@ static int packer_conf_opt_free(void *magic) {
         free(ptr->name);
         free(ptr->value);
     }
-    return 0;
+    return 1;
 }
 
 static packer_header_comp_t *packer_header_comp_init(void) {
@@ -98,7 +104,8 @@ static packer_header_comp_t *packer_header_comp_init(void) {
 static void packer_header_comp_free(packer_header_comp_t *ptr) {
     if (ptr != NULL)
     {
-        list_free(ptr->configure, &packer_conf_opt_free);
+        if (ptr->configure)
+           list_free(ptr->configure, &packer_conf_opt_free);
         free(ptr->make);
         free(ptr->test);
         free(ptr->install);
@@ -114,6 +121,7 @@ static packer_header_t *packer_header_init(void) {
         return NULL;
 
     ret->package = NULL;
+    ret->compilation = NULL;
     return ret;
 }
 
@@ -121,6 +129,7 @@ static void packer_header_free(packer_header_t *ptr) {
     if (ptr != NULL)
     {
         packer_header_package_free(ptr->package);
+        packer_header_comp_free(ptr->compilation);
         free(ptr);
     }
 }
@@ -150,6 +159,7 @@ void packer_free(packer_t *ptr) {
     {
         json_object_put(ptr->json);
         free(ptr->str);
+        packer_header_free(ptr->header);
         free(ptr);
     }
 }
@@ -195,7 +205,7 @@ static bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) {
                             goto cleanup;
                         opt = packer_conf_opt_init(json_object_iter_peek_name(&it_arr),
                             json_object_get_string(array_tmp));
-                        list_add(ctx->header->compilation->configure, opt, sizeof(opt));
+                        list_add(ctx->header->compilation->configure, opt, sizeof(*opt));
                         free(opt);
                         json_object_iter_next(&it_arr);
                     }
@@ -204,7 +214,7 @@ static bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) {
                 {
                     opt = packer_conf_opt_init(NULL,
                         json_object_get_string(array_ent));
-                    list_add(ctx->header->compilation->configure, opt, sizeof(opt));
+                    list_add(ctx->header->compilation->configure, opt, sizeof(*opt));
                     free(opt);
                 }
                 else
