@@ -59,6 +59,16 @@ TEST(packer_read_dir_no_configuration) {
     return TEST_SUCCESS;
 }
 
+TEST(packer_wrong_main_1) {
+    packer_t    *ptr;
+
+    ptr = packer_init_dir("packer/wrong_main_1/");
+    TEST_ASSERT(packer_read_dir(ptr) == false, "Error not raised");
+    packer_free(ptr);
+    return TEST_SUCCESS;
+}
+
+
 TEST(packer_right) {
     packer_t    *ptr;
 
@@ -216,10 +226,38 @@ TEST(packer_init_2) {
     return TEST_SUCCESS;
 }
 
-MPX_STATIC packer_header_package_t *packer_header_package_init(void);
+MPX_STATIC packer_header_t *packer_header_init(void);
 TEST(packer_header_init) {
     set_malloc_fail(0);
     TEST_ASSERT(packer_header_init() == NULL, "Error not raised");
+    return TEST_SUCCESS;
+}
+
+MPX_STATIC packer_header_package_t *packer_header_package_init(void);
+TEST(packer_header_package_init) {
+    set_malloc_fail(0);
+    TEST_ASSERT(packer_header_package_init() == NULL, "Error not raised");
+    return TEST_SUCCESS;
+}
+
+MPX_STATIC packer_conf_opt_t *packer_conf_opt_init(const char *str, const char *value);
+TEST(packer_conf_opt_init) {
+    set_malloc_fail(0);
+    TEST_ASSERT(packer_conf_opt_init(NULL, NULL) == NULL, "Error not raised");
+    return TEST_SUCCESS;
+}
+
+MPX_STATIC packer_header_comp_t *packer_header_comp_init(void);
+TEST(packer_header_comp_init) {
+    set_malloc_fail(0);
+    TEST_ASSERT(packer_header_comp_init() == NULL, "Error not raised");
+    return TEST_SUCCESS;
+}
+
+MPX_STATIC packer_header_deps_t *packer_header_deps_init(void);
+TEST(packer_header_deps_init) {
+    set_malloc_fail(0);
+    TEST_ASSERT(packer_header_deps_init() == NULL, "Error not raised");
     return TEST_SUCCESS;
 }
 
@@ -229,6 +267,7 @@ void register_test_packer(void) {
     reg_test("packer", packer_read_dir_wrong_type);
     reg_test("packer", packer_read_dir_wrong_dir);
     reg_test("packer", packer_read_dir_no_configuration);
+    reg_test("packer", packer_wrong_main_1);
     reg_test("packer", packer_right);
     reg_test("packer", packer_wrong_package_section_1);
     reg_test("packer", packer_wrong_package_section_2);
@@ -248,4 +287,9 @@ void register_test_packer(void) {
     reg_test("packer", packer_init_1);
     reg_test("packer", packer_init_2);
     reg_test("packer", packer_header_init);
+    reg_test("packer", packer_header_package_init);
+    reg_test("packer", packer_conf_opt_init);
+    reg_test("packer", packer_header_comp_init);
+    reg_test("packer", packer_header_deps_init);
+
 }
