@@ -395,21 +395,27 @@ bool packer_read_dir(packer_t *ctx) {
     char        *old_pwd = getenv("PWD");
 
     assert(ctx != NULL);
+    assert(old_pwd != NULL);
+
+    /* Sanitazing variable */
+    old_pwd = strdup(old_pwd);
 
     if (ctx->type != PACKER_TYPE_DIRECTORY)
-        return false;
+        goto error;
     if (chdir(ctx->str) == -1)
-        return false;
+        goto error;
 
     ctx->json = json_object_from_file(PACKER_DEF_CONF_FN);
     if (ctx->json == NULL)
         goto error;
 
     chdir(old_pwd);
+    free(old_pwd);
     return packer_read_config_file(ctx);
 
 error:
     chdir(old_pwd);
+    free(old_pwd);
     return false;
 }
 
