@@ -18,6 +18,7 @@
         "install": ""
     },
     "dependencies": [
-        "something-5.5"
+        "something-5.5",
+        "yrdy"
     ]
 }

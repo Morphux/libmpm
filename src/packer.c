@@ -199,7 +199,7 @@ static bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) {
     it = json_object_iter_begin(obj);
     it_end = json_object_iter_end(obj);
     ctx->header->compilation = packer_header_comp_init();
-   while (!json_object_iter_equal(&it, &it_end))
+    while (!json_object_iter_equal(&it, &it_end))
     {
         name = json_object_iter_peek_name(&it);
         tmp = json_object_iter_peek_value(&it);
@@ -275,8 +275,8 @@ cleanup:
 }
 
 static bool packer_read_config_deps(packer_t *ctx, struct json_object *obj) {
-    struct json_object_iterator     it, it_end;
-    struct json_object              *tmp;
+    struct json_object  *tmp;
+    size_t              len = 0, i = 0;
 
     assert(ctx != NULL);
 
@@ -284,12 +284,10 @@ static bool packer_read_config_deps(packer_t *ctx, struct json_object *obj) {
     if (obj == NULL || json_object_get_type(obj) != json_type_array)
         return false;
 
-    it = json_object_iter_begin(obj);
-    it_end = json_object_iter_end(obj);
     ctx->header->dependencies = packer_header_deps_init();
-    while (!json_object_iter_equal(&it, &it_end))
+    for (len = json_object_array_length(obj), i = 0; i < len; i++)
     {
-        tmp = json_object_iter_peek_value(&it);
+        tmp = json_object_array_get_idx(obj, i);
         if (json_object_get_type(tmp) != json_type_string)
             goto cleanup;
         list_add(ctx->header->dependencies->list, (char *)json_object_get_string(tmp),
