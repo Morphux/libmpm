@@ -16,7 +16,7 @@
 
 #include <packer.h>
 
-static packer_t *packer_init(const char *str) {
+MPX_STATIC packer_t *packer_init(const char *str) {
     packer_t    *ret;
 
     ret = malloc(sizeof(*ret));
@@ -37,7 +37,7 @@ cleanup:
 
 }
 
-static packer_header_package_t *packer_header_package_init(void) {
+MPX_STATIC packer_header_package_t *packer_header_package_init(void) {
     packer_header_package_t     *ret;
 
     ret = malloc(sizeof(*ret));
@@ -50,7 +50,7 @@ static packer_header_package_t *packer_header_package_init(void) {
     return ret;
 }
 
-static void packer_header_package_free(packer_header_package_t *ptr) {
+MPX_STATIC void packer_header_package_free(packer_header_package_t *ptr) {
     if (ptr != NULL)
     {
         free(ptr->name);
@@ -60,7 +60,7 @@ static void packer_header_package_free(packer_header_package_t *ptr) {
     }
 }
 
-static packer_conf_opt_t *packer_conf_opt_init(const char *str, const char *value) {
+MPX_STATIC packer_conf_opt_t *packer_conf_opt_init(const char *str, const char *value) {
     packer_conf_opt_t       *ret;
 
     ret = malloc(sizeof(*ret));
@@ -77,7 +77,7 @@ static packer_conf_opt_t *packer_conf_opt_init(const char *str, const char *valu
     return ret;
 }
 
-static int packer_conf_opt_free(void *magic) {
+MPX_STATIC int packer_conf_opt_free(void *magic) {
     packer_conf_opt_t *ptr = magic;
     if (ptr != NULL)
     {
@@ -87,7 +87,7 @@ static int packer_conf_opt_free(void *magic) {
     return 1;
 }
 
-static packer_header_comp_t *packer_header_comp_init(void) {
+MPX_STATIC packer_header_comp_t *packer_header_comp_init(void) {
     packer_header_comp_t    *ret;
 
     ret = malloc(sizeof(*ret));
@@ -101,7 +101,7 @@ static packer_header_comp_t *packer_header_comp_init(void) {
     return ret;
 }
 
-static void packer_header_comp_free(packer_header_comp_t *ptr) {
+MPX_STATIC void packer_header_comp_free(packer_header_comp_t *ptr) {
     if (ptr != NULL)
     {
         if (ptr->configure)
@@ -113,7 +113,7 @@ static void packer_header_comp_free(packer_header_comp_t *ptr) {
     }
 }
 
-static packer_header_deps_t *packer_header_deps_init(void) {
+MPX_STATIC packer_header_deps_t *packer_header_deps_init(void) {
     packer_header_deps_t    *ret;
 
     ret = malloc(sizeof(*ret));
@@ -124,7 +124,7 @@ static packer_header_deps_t *packer_header_deps_init(void) {
     return ret;
 }
 
-static void packer_header_deps_free(packer_header_deps_t *ptr) {
+MPX_STATIC void packer_header_deps_free(packer_header_deps_t *ptr) {
     if (ptr != NULL)
     {
         list_free(ptr->list, NULL);
@@ -132,7 +132,7 @@ static void packer_header_deps_free(packer_header_deps_t *ptr) {
     }
 }
 
-static packer_header_t *packer_header_init(void) {
+MPX_STATIC packer_header_t *packer_header_init(void) {
     packer_header_t     *ret;
 
     ret = malloc(sizeof(*ret));
@@ -145,7 +145,7 @@ static packer_header_t *packer_header_init(void) {
     return ret;
 }
 
-static void packer_header_free(packer_header_t *ptr) {
+MPX_STATIC void packer_header_free(packer_header_t *ptr) {
     if (ptr != NULL)
     {
         packer_header_package_free(ptr->package);
@@ -185,7 +185,7 @@ void packer_free(packer_t *ptr) {
     }
 }
 
-static bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) {
+MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) {
     struct json_object_iterator     it, it_end;
     struct json_object              *tmp;
     const char                      *name;
@@ -274,7 +274,7 @@ cleanup:
     return false;
 }
 
-static bool packer_read_config_deps(packer_t *ctx, struct json_object *obj) {
+MPX_STATIC bool packer_read_config_deps(packer_t *ctx, struct json_object *obj) {
     struct json_object  *tmp;
     size_t              len = 0, i = 0;
 
@@ -301,7 +301,7 @@ cleanup:
     return false;
 }
 
-static bool packer_read_config_package(packer_t *ctx, struct json_object *obj) {
+MPX_STATIC bool packer_read_config_package(packer_t *ctx, struct json_object *obj) {
     struct json_object_iterator     it, it_end;
     struct json_object              *tmp;
     const char                      *name;
@@ -351,7 +351,7 @@ cleanup:
     return false;
 }
 
-static bool packer_read_config_file(packer_t *ctx) {
+MPX_STATIC bool packer_read_config_file(packer_t *ctx) {
     struct json_object_iterator     it, it_end;
     const char                      *name;
 

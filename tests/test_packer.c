@@ -203,6 +203,26 @@ TEST(packer_wrong_deps_section_2) {
     return TEST_SUCCESS;
 }
 
+MPX_STATIC packer_t *packer_init(const char *str);
+TEST(packer_init_1) {
+    set_malloc_fail(0);
+    TEST_ASSERT(packer_init("Yup.") == NULL, "Error not raised");
+    return TEST_SUCCESS;
+}
+
+TEST(packer_init_2) {
+    set_strdup_fail(0);
+    TEST_ASSERT(packer_init("Yup.") == NULL, "Error not raised");
+    return TEST_SUCCESS;
+}
+
+MPX_STATIC packer_header_package_t *packer_header_package_init(void);
+TEST(packer_header_init) {
+    set_malloc_fail(0);
+    TEST_ASSERT(packer_header_init() == NULL, "Error not raised");
+    return TEST_SUCCESS;
+}
+
 void register_test_packer(void) {
     reg_test("packer", packer_init_dir);
     reg_test("packer", packer_init_archive);
@@ -225,4 +245,7 @@ void register_test_packer(void) {
     reg_test("packer", packer_wrong_comp_section_8);
     reg_test("packer", packer_wrong_deps_section_1);
     reg_test("packer", packer_wrong_deps_section_2);
+    reg_test("packer", packer_init_1);
+    reg_test("packer", packer_init_2);
+    reg_test("packer", packer_header_init);
 }
