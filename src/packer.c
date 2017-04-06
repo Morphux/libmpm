@@ -193,7 +193,7 @@ static bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) {
     assert(ctx != NULL);
 
     /* Can't raise an assertion since NULL is a valid type in JSON */
-    if (obj == NULL)
+    if (obj == NULL || json_object_get_type(obj) != json_type_object)
         return false;
 
     it = json_object_iter_begin(obj);
@@ -309,7 +309,7 @@ static bool packer_read_config_package(packer_t *ctx, struct json_object *obj) {
     assert(ctx != NULL);
 
     /* Can't raise an assertion since NULL is a valid type in JSON */
-    if (obj == NULL)
+    if (obj == NULL || json_object_get_type(obj) != json_type_object)
         return false;
 
     it = json_object_iter_begin(obj);
@@ -347,6 +347,7 @@ static bool packer_read_config_package(packer_t *ctx, struct json_object *obj) {
 
 cleanup:
     packer_header_package_free(ctx->header->package);
+    ctx->header->package = NULL;
     return false;
 }
 
@@ -386,6 +387,7 @@ static bool packer_read_config_file(packer_t *ctx) {
 
 cleanup:
     packer_header_free(ctx->header);
+    ctx->header = NULL;
     return false;
 }
 

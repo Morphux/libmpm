@@ -1,0 +1,24 @@
+{
+    "package": {
+        "name": "name",
+        "version": "2.0",
+        "description": []
+    },
+    "compilation": {
+        "configure": [
+            {"mandir": "/usr/share/man"},
+            "with-shared",
+            "without-debug",
+            "without-normal",
+            "enable-pc-files",
+            "enable-widec"
+        ],
+        "make": "",
+        "test": "",
+        "install": ""
+    },
+    "dependencies": [
+        "something-5.5",
+        "yrdy"
+    ]
+}

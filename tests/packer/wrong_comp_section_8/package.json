@@ -1,0 +1,12 @@
+{
+    "package": {
+        "name": "name",
+        "version": "2.0",
+        "description": "This is a description. Yeah I know, mind blowing."
+    },
+    "compilation": ["wi"],
+    "dependencies": [
+        "something-5.5",
+        "yrdy"
+    ]
+}
