@@ -113,6 +113,25 @@ static void packer_header_comp_free(packer_header_comp_t *ptr) {
     }
 }
 
+static packer_header_deps_t *packer_header_deps_init(void) {
+    packer_header_deps_t    *ret;
+
+    ret = malloc(sizeof(*ret));
+    if (ret == NULL)
+        return NULL;
+
+    ret->list = NULL;
+    return ret;
+}
+
+static void packer_header_deps_free(packer_header_deps_t *ptr) {
+    if (ptr != NULL)
+    {
+        list_free(ptr->list, NULL);
+        free(ptr);
+    }
+}
+
 static packer_header_t *packer_header_init(void) {
     packer_header_t     *ret;
 
@@ -122,6 +141,7 @@ static packer_header_t *packer_header_init(void) {
 
     ret->package = NULL;
     ret->compilation = NULL;
+    ret->dependencies = NULL;
     return ret;
 }
 
@@ -130,6 +150,7 @@ static void packer_header_free(packer_header_t *ptr) {
     {
         packer_header_package_free(ptr->package);
         packer_header_comp_free(ptr->compilation);
+        packer_header_deps_free(ptr->dependencies);
         free(ptr);
     }
 }
@@ -249,6 +270,36 @@ static bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) {
 
 cleanup:
     packer_header_comp_free(ctx->header->compilation);
+    ctx->header->compilation = NULL;
+    return false;
+}
+
+static bool packer_read_config_deps(packer_t *ctx, struct json_object *obj) {
+    struct json_object_iterator     it, it_end;
+    struct json_object              *tmp;
+
+    assert(ctx != NULL);
+
+    /* Can't raise an assertion since NULL is a valid type in JSON */
+    if (obj == NULL || json_object_get_type(obj) != json_type_array)
+        return false;
+
+    it = json_object_iter_begin(obj);
+    it_end = json_object_iter_end(obj);
+    ctx->header->dependencies = packer_header_deps_init();
+    while (!json_object_iter_equal(&it, &it_end))
+    {
+        tmp = json_object_iter_peek_value(&it);
+        if (json_object_get_type(tmp) != json_type_string)
+            goto cleanup;
+        list_add(ctx->header->dependencies->list, (char *)json_object_get_string(tmp),
+            json_object_get_string_len(tmp));
+    }
+
+    return true;
+cleanup:
+    packer_header_deps_free(ctx->header->dependencies);
+    ctx->header->dependencies = NULL;
     return false;
 }
 
@@ -323,8 +374,11 @@ static bool packer_read_config_file(packer_t *ctx) {
             if (!packer_read_config_comp(ctx, json_object_iter_peek_value(&it)))
                 goto cleanup;
         }
-        else if (strcmp(name, "dependencies") == 0)
-            ;
+        else if (strcmp(name, PACKER_CONF_DEPS_TOKEN) == 0)
+        {
+            if (!packer_read_config_deps(ctx, json_object_iter_peek_value(&it)))
+                goto cleanup;
+        }
         /* Wrong token */
         else
             goto cleanup;

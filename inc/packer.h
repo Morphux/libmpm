@@ -38,6 +38,7 @@ typedef enum packer_type_e {
 # define PACKER_CONF_COMP_MAKE_TOKEN            "make"
 # define PACKER_CONF_COMP_TEST_TOKEN            "test"
 # define PACKER_CONF_COMP_INST_TOKEN            "install"
+# define PACKER_CONF_DEPS_TOKEN                 "dependencies"
 
 
 typedef struct packer_header_package_s {
@@ -58,9 +59,14 @@ typedef struct packer_header_comp_s {
     char        *install;   /*!< Install instructions */
 } packer_header_comp_t;
 
+typedef struct packer_header_deps_s {
+    mlist_t     *list; /*!< List of strings, containing the dependencies */
+} packer_header_deps_t;
+
 typedef struct packer_header_s {
-    packer_header_package_t *package;     /*!< Package header section */
-    packer_header_comp_t    *compilation; /*!< Compilation header section */
+    packer_header_package_t *package;      /*!< Package header section */
+    packer_header_comp_t    *compilation;  /*!< Compilation header section */
+    packer_header_deps_t    *dependencies; /*!< Package dependencies */
 } packer_header_t;
 
 typedef struct packer_s {
