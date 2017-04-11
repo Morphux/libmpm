@@ -413,3 +413,45 @@ error:
     return false;
 }
 
+MPX_STATIC void write_package_header(FILE *fd, packer_t *ctx) {
+    packer_header_t     *h = ctx->header;
+    mlist_t             *tmp = NULL;
+    packer_conf_opt_t   *opt = NULL;
+    const char          *tmp_str = NULL;
+
+    fprintf(fd, "%s%c", h->package->name, 0);
+    fprintf(fd, "%s%c", h->package->version, 0);
+    fprintf(fd, "%s%c", h->package->description, 0);
+
+    fprintf(fd, "%d", list_size(h->compilation->configure));
+    list_for_each(h->compilation->configure, tmp, opt) {
+        if (opt->name != NULL)
+            fprintf(fd, "%s:%s%c", opt->name, opt->value, 0);
+        else
+            fprintf(fd, "%s%c", opt->value, 0);
+    }
+    fprintf(fd, "%s%c", h->compilation->make, 0);
+    fprintf(fd, "%s%c", h->compilation->test, 0);
+    fprintf(fd, "%s%c", h->compilation->install, 0);
+
+    list_for_each(h->dependencies->list, tmp, tmp_str) {
+        fprintf(fd, "%s%c", tmp_str, 0);
+    }
+}
+
+bool packer_create_archive(packer_t *ctx, const char *archive_path) {
+    FILE *fd;
+
+    assert(archive_path == NULL || ctx != NULL);
+    if (ctx->type != PACKER_TYPE_DIRECTORY)
+        return false;
+
+    fd = fopen(archive_path, "w+");
+    if (fd == NULL)
+        return false;
+
+    write_package_header(fd, ctx);
+    fclose(fd);
+    return true;
+}
+

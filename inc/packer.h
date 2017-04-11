@@ -23,6 +23,7 @@
 # include <json.h>
 
 # define PACKER_DEF_CONF_FN     "package.json"
+# define PACKER_DEF_EXT         ".mpx"
 
 typedef enum packer_type_e {
     PACKER_TYPE_DIRECTORY,
@@ -39,7 +40,6 @@ typedef enum packer_type_e {
 # define PACKER_CONF_COMP_TEST_TOKEN            "test"
 # define PACKER_CONF_COMP_INST_TOKEN            "install"
 # define PACKER_CONF_DEPS_TOKEN                 "dependencies"
-
 
 typedef struct packer_header_package_s {
     char    *name;        /*!< Name of the package */
@@ -112,5 +112,20 @@ void packer_free(packer_t *ptr);
  * \return true on success, false on failure
  */
 bool packer_read_dir(packer_t *ctx);
+
+/*!
+ * \brief Create a .mpx archive with a directory
+ *
+ * \param[in] ctx Already initialized packer_t struct
+ * \param[in] archive_path Filename of the output
+ *
+ * Create a .mpx archive with archive with an already parsed directory.
+ *
+ * \note This function is not NULL safe against ctx and archive_path parameters,
+ * it will raise an assertion
+ *
+ * \return True on success, false on failure
+ */
+bool packer_create_archive(packer_t *ctx, const char *archive_path);
 
 #endif /* PACKER_H */
