@@ -246,19 +246,30 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
         {
             if (json_object_get_type(tmp) != json_type_string)
                 goto cleanup;
-            ctx->header->compilation->make = strdup(json_object_get_string(tmp));
+            if (json_object_get_string_len(tmp) == 0)
+                ctx->header->compilation->make = strdup(PACKER_MAKE_DEF);
+            else
+                ctx->header->compilation->make = strdup(json_object_get_string(tmp));
         }
         else if (strcmp(name, PACKER_CONF_COMP_TEST_TOKEN) == 0)
         {
             if (json_object_get_type(tmp) != json_type_string)
                 goto cleanup;
-            ctx->header->compilation->test = strdup(json_object_get_string(tmp));
+
+            if (json_object_get_string_len(tmp) == 0)
+                ctx->header->compilation->test = strdup(PACKER_TEST_DEF);
+            else
+                ctx->header->compilation->test = strdup(json_object_get_string(tmp));
         }
         else if (strcmp(name, PACKER_CONF_COMP_INST_TOKEN) == 0)
         {
             if (json_object_get_type(tmp) != json_type_string)
                 goto cleanup;
-            ctx->header->compilation->install = strdup(json_object_get_string(tmp));
+
+            if (json_object_get_string_len(tmp) == 0)
+                ctx->header->compilation->test = strdup(PACKER_INST_DEF);
+            else
+                ctx->header->compilation->install = strdup(json_object_get_string(tmp));
         }
         /* Wrong token */
         else

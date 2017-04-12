@@ -27,6 +27,10 @@
 # define PACKER_DEF_EXT         ".mpx"
 # define PACKER_MPX_MAGIC       "MPX"
 
+# define PACKER_MAKE_DEF        "make"
+# define PACKER_TEST_DEF        "test"
+# define PACKER_INST_DEF        "install"
+
 typedef enum packer_type_e {
     PACKER_TYPE_DIRECTORY,
     PACKER_TYPE_ARCHIVE
