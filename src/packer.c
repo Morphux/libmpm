@@ -435,6 +435,7 @@ MPX_STATIC void write_package_header(FILE *fd, packer_t *ctx) {
     fprintf(fd, "%s%c", h->compilation->test, 0);
     fprintf(fd, "%s%c", h->compilation->install, 0);
 
+    /* TODO: print binary size of the list before content */
     list_for_each(h->dependencies->list, tmp, tmp_str) {
         fprintf(fd, "%s%c", tmp_str, 0);
     }

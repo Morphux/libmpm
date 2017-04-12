@@ -261,12 +261,14 @@ TEST(packer_header_deps_init) {
     return TEST_SUCCESS;
 }
 
+#define PACKAGE_OUTPUT_FN "package" PACKER_DEF_EXT
+
 TEST(packer_create_archive_1) {
     packer_t    *ptr;
 
     ptr = packer_init_dir("packer/right/");
     TEST_ASSERT(packer_read_dir(ptr) == true, "An error happened");
-    TEST_ASSERT(packer_create_archive(ptr, "package" PACKER_DEF_EXT) == true,
+    TEST_ASSERT(packer_create_archive(ptr, PACKAGE_OUTPUT_FN) == true,
                     "An error happened");
     return TEST_SUCCESS;
 }
@@ -287,6 +289,11 @@ TEST(packer_create_archive_wrong_type) {
     ptr = packer_init_archive("test");
     TEST_ASSERT(packer_create_archive(ptr, "nocare") == false,
                     "Error did not raise")
+    return TEST_SUCCESS;
+}
+
+TEST(packer_create_archive_cleanup) {
+    unlink(PACKAGE_OUTPUT_FN);
     return TEST_SUCCESS;
 }
 
@@ -323,5 +330,6 @@ void register_test_packer(void) {
     reg_test("packer", packer_create_archive_1);
     reg_test("packer", packer_create_archive_wrong_fn);
     reg_test("packer", packer_create_archive_wrong_type);
+    reg_test("packer", packer_create_archive_cleanup);
 
 }
