@@ -24,6 +24,7 @@
 
 # define PACKER_DEF_CONF_FN     "package.json"
 # define PACKER_DEF_EXT         ".mpx"
+# define PACKER_MPX_MAGIC       "MPX"
 
 typedef enum packer_type_e {
     PACKER_TYPE_DIRECTORY,

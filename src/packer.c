@@ -419,6 +419,7 @@ MPX_STATIC void write_package_header(FILE *fd, packer_t *ctx) {
     packer_conf_opt_t   *opt = NULL;
     const char          *tmp_str = NULL;
 
+    fprintf(fd, PACKER_MPX_MAGIC);
     fprintf(fd, "%s%c", h->package->name, 0);
     fprintf(fd, "%s%c", h->package->version, 0);
     fprintf(fd, "%s%c", h->package->description, 0);
