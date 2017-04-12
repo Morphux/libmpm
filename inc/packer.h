@@ -49,8 +49,8 @@ typedef struct packer_header_package_s {
 } packer_header_package_t;
 
 typedef struct packer_conf_opt_s {
-    char    *name;
-    char    *value;
+    char    *name;  /*!< Name of the option (can be NULL) */
+    char    *value; /*!< Value of the option */
 } packer_conf_opt_t;
 
 typedef struct packer_header_comp_s {

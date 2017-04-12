@@ -418,6 +418,7 @@ MPX_STATIC void write_package_header(FILE *fd, packer_t *ctx) {
     mlist_t             *tmp = NULL;
     packer_conf_opt_t   *opt = NULL;
     const char          *tmp_str = NULL;
+    u32_t               list_len = 0;
 
     fprintf(fd, PACKER_MPX_MAGIC);
     fprintf(fd, "%s%c", h->package->name, 0);
@@ -435,7 +436,9 @@ MPX_STATIC void write_package_header(FILE *fd, packer_t *ctx) {
     fprintf(fd, "%s%c", h->compilation->test, 0);
     fprintf(fd, "%s%c", h->compilation->install, 0);
 
-    /* TODO: print binary size of the list before content */
+    list_len = htonl(list_size(h->dependencies->list));
+    fwrite(&list_len, sizeof(u32_t), 1, fd);
+
     list_for_each(h->dependencies->list, tmp, tmp_str) {
         fprintf(fd, "%s%c", tmp_str, 0);
     }
