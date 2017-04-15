@@ -471,3 +471,28 @@ bool packer_create_archive(packer_t *ctx, const char *archive_path) {
     return true;
 }
 
+static bool read_package_header(int fd, packer_t *ctx)
+{
+    (void)ctx;
+    char *file_content = mpm_read_file_from_fd(fd);
+    printf("%s\n", file_content);
+    return true;
+}
+
+bool packer_read_archive(packer_t *ctx)
+{
+    int     fd;
+    bool    ret;
+
+    if (ctx->type != PACKER_TYPE_ARCHIVE)
+        return false;
+
+    fd = open(ctx->str, O_RDONLY);
+    if (fd == -1)
+        return false;
+
+    ret = read_package_header(fd, ctx);
+
+    close(fd);
+    return ret;
+}

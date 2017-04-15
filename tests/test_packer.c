@@ -279,6 +279,7 @@ TEST(packer_create_archive_1) {
     TEST_ASSERT(packer_read_dir(ptr) == true, "An error happened");
     TEST_ASSERT(packer_create_archive(ptr, PACKAGE_OUTPUT_FN) == true,
                     "An error happened");
+    packer_free(ptr);
     return TEST_SUCCESS;
 }
 
@@ -289,6 +290,7 @@ TEST(packer_create_archive_wrong_fn) {
     TEST_ASSERT(packer_read_dir(ptr) == true, "An error happened");
     TEST_ASSERT(packer_create_archive(ptr, "/non/sense/path") == false,
                     "Error did not raise");
+    packer_free(ptr);
     return TEST_SUCCESS;
 }
 
@@ -298,6 +300,34 @@ TEST(packer_create_archive_wrong_type) {
     ptr = packer_init_archive("test");
     TEST_ASSERT(packer_create_archive(ptr, "nocare") == false,
                     "Error did not raise")
+    packer_free(ptr);
+    return TEST_SUCCESS;
+}
+
+TEST(packer_read_archive_1) {
+    packer_t    *ctx;
+
+    ctx = packer_init_dir("./");
+    TEST_ASSERT(packer_read_archive(ctx) == false, "Wrong return");
+    packer_free(ctx);
+    return TEST_SUCCESS;
+}
+
+TEST(packer_read_archive_2) {
+    packer_t    *ctx;
+
+    ctx = packer_init_archive("/non/sense/path");
+    TEST_ASSERT(packer_read_archive(ctx) == false, "Wrong return");
+    packer_free(ctx);
+    return TEST_SUCCESS;
+}
+
+TEST(packer_read_archive_3) {
+    packer_t    *ctx;
+
+    ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
+    TEST_ASSERT(packer_read_archive(ctx) == true, "Wrong return");
+    packer_free(ctx);
     return TEST_SUCCESS;
 }
 
@@ -340,6 +370,8 @@ void register_test_packer(void) {
     reg_test("packer", packer_create_archive_1);
     reg_test("packer", packer_create_archive_wrong_fn);
     reg_test("packer", packer_create_archive_wrong_type);
+    reg_test("packer", packer_read_archive_1);
+    reg_test("packer", packer_read_archive_2);
+    reg_test("packer", packer_read_archive_3);
     reg_test("packer", packer_create_archive_cleanup);
-
 }
