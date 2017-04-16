@@ -302,7 +302,7 @@ MPX_STATIC bool packer_read_config_deps(packer_t *ctx, struct json_object *obj) 
         if (json_object_get_type(tmp) != json_type_string)
             goto cleanup;
         list_add(ctx->header->dependencies->list, (char *)json_object_get_string(tmp),
-            json_object_get_string_len(tmp));
+            json_object_get_string_len(tmp) + 1);
     }
 
     return true;
