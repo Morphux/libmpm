@@ -267,7 +267,7 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
                 goto cleanup;
 
             if (json_object_get_string_len(tmp) == 0)
-                ctx->header->compilation->test = strdup(PACKER_INST_DEF);
+                ctx->header->compilation->install = strdup(PACKER_INST_DEF);
             else
                 ctx->header->compilation->install = strdup(json_object_get_string(tmp));
         }
@@ -451,7 +451,7 @@ MPX_STATIC void write_package_header(FILE *fd, packer_t *ctx) {
     fwrite(&list_len, sizeof(u32_t), 1, fd);
 
     list_for_each(h->dependencies->list, tmp, tmp_str) {
-        fprintf(fd, "%s%c", tmp_str, 0);
+        fprintf(fd, "%s%c", tmp_str, '\0');
     }
 }
 
@@ -475,8 +475,16 @@ static bool read_package_header(int fd, packer_t *ctx)
 {
     (void)ctx;
     char *file_content = mpm_read_file_from_fd(fd);
-    printf("%s\n", file_content);
+
+    if (strncmp(file_content, "MPX", 3) != 0)
+        goto cleanup;
+
+    free(file_content);
     return true;
+
+cleanup:
+    free(file_content);
+    return false;
 }
 
 bool packer_read_archive(packer_t *ctx)

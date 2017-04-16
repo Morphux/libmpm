@@ -331,13 +331,22 @@ TEST(packer_read_archive_3) {
     return TEST_SUCCESS;
 }
 
+TEST(packer_read_archive_4) {
+    packer_t    *ctx;
+
+    ctx = packer_init_archive("/bin/ls");
+    TEST_ASSERT(packer_read_archive(ctx) == false, "Wrong return");
+    packer_free(ctx);
+    return TEST_SUCCESS;
+}
+
 TEST(packer_create_archive_cleanup) {
     unlink(PACKAGE_OUTPUT_FN);
     return TEST_SUCCESS;
 }
 
 void register_test_packer(void) {
-    reg_test("packer", packer_init_dir);
+   reg_test("packer", packer_init_dir);
     reg_test("packer", packer_init_archive);
     reg_test("packer", packer_read_dir_wrong_type);
     reg_test("packer", packer_read_dir_wrong_dir);
@@ -373,5 +382,6 @@ void register_test_packer(void) {
     reg_test("packer", packer_read_archive_1);
     reg_test("packer", packer_read_archive_2);
     reg_test("packer", packer_read_archive_3);
+    reg_test("packer", packer_read_archive_4);
     reg_test("packer", packer_create_archive_cleanup);
 }

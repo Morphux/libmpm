@@ -134,4 +134,15 @@ bool packer_read_dir(packer_t *ctx);
  */
 bool packer_create_archive(packer_t *ctx, const char *archive_path);
 
+/*!
+ * \brief Read a .mpx archive
+ *
+ * \param[in] ctx Already initialized packer_t struct
+ *
+ * Read an .mpx archive in order to extract compilation informations off it
+ *
+ * \return True on success, false on failure
+ */
+bool packer_read_archive(packer_t *ctx);
+
 #endif /* PACKER_H */
