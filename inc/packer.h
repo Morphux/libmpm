@@ -21,8 +21,15 @@
 # include <sys/types.h>
 # include <sys/stat.h>
 # include <json.h>
+# include <arpa/inet.h>
 
 # define PACKER_DEF_CONF_FN     "package.json"
+# define PACKER_DEF_EXT         ".mpx"
+# define PACKER_MPX_MAGIC       "MPX"
+
+# define PACKER_MAKE_DEF        "make"
+# define PACKER_TEST_DEF        "test"
+# define PACKER_INST_DEF        "install"
 
 typedef enum packer_type_e {
     PACKER_TYPE_DIRECTORY,
@@ -40,7 +47,6 @@ typedef enum packer_type_e {
 # define PACKER_CONF_COMP_INST_TOKEN            "install"
 # define PACKER_CONF_DEPS_TOKEN                 "dependencies"
 
-
 typedef struct packer_header_package_s {
     char    *name;        /*!< Name of the package */
     char    *version;     /*!< Version of the package */
@@ -48,8 +54,8 @@ typedef struct packer_header_package_s {
 } packer_header_package_t;
 
 typedef struct packer_conf_opt_s {
-    char    *name;
-    char    *value;
+    char    *name;  /*!< Name of the option (can be NULL) */
+    char    *value; /*!< Value of the option */
 } packer_conf_opt_t;
 
 typedef struct packer_header_comp_s {
@@ -112,5 +118,31 @@ void packer_free(packer_t *ptr);
  * \return true on success, false on failure
  */
 bool packer_read_dir(packer_t *ctx);
+
+/*!
+ * \brief Create a .mpx archive with a directory
+ *
+ * \param[in] ctx Already initialized packer_t struct
+ * \param[in] archive_path Filename of the output
+ *
+ * Create a .mpx archive with archive with an already parsed directory.
+ *
+ * \note This function is not NULL safe against ctx and archive_path parameters,
+ * it will raise an assertion
+ *
+ * \return True on success, false on failure
+ */
+bool packer_create_archive(packer_t *ctx, const char *archive_path);
+
+/*!
+ * \brief Read a .mpx archive
+ *
+ * \param[in] ctx Already initialized packer_t struct
+ *
+ * Read an .mpx archive in order to extract compilation informations off it
+ *
+ * \return True on success, false on failure
+ */
+bool packer_read_archive(packer_t *ctx);
 
 #endif /* PACKER_H */

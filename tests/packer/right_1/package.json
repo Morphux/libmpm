@@ -1,0 +1,24 @@
+{
+    "package": {
+        "name": "test",
+        "version": "2.0",
+        "description": "This is a description. Yeah I know, mind blowing."
+    },
+    "compilation": {
+        "configure": [
+            {"mandir": "/usr/share/man"},
+            "with-shared",
+            "without-debug",
+            "without-normal",
+            "enable-pc-files",
+            "enable-widec"
+        ],
+        "make": "make -j2 -something",
+        "test": "check-all",
+        "install": "not-posix"
+    },
+    "dependencies": [
+        "something-5.5",
+        "yrdy"
+    ]
+}
