@@ -429,14 +429,15 @@ MPX_STATIC void write_package_header(FILE *fd, packer_t *ctx) {
     mlist_t             *tmp = NULL;
     packer_conf_opt_t   *opt = NULL;
     const char          *tmp_str = NULL;
-    u32_t               list_len = 0;
+    u32_t               list_len = 0, conf_len = 0;
 
     fprintf(fd, PACKER_MPX_MAGIC);
     fprintf(fd, "%s%c", h->package->name, 0);
     fprintf(fd, "%s%c", h->package->version, 0);
     fprintf(fd, "%s%c", h->package->description, 0);
 
-    fprintf(fd, "%d", list_size(h->compilation->configure));
+    conf_len = htonl(list_size(h->compilation->configure));
+    fwrite(&conf_len, sizeof(u32_t), 1, fd);
     list_for_each(h->compilation->configure, tmp, opt) {
         if (opt->name != NULL)
             fprintf(fd, "%s:%s%c", opt->name, opt->value, 0);
@@ -471,19 +472,190 @@ bool packer_create_archive(packer_t *ctx, const char *archive_path) {
     return true;
 }
 
-static bool read_package_header(int fd, packer_t *ctx)
+MPX_STATIC int read_package_header_package(const char *file, packer_t *ctx)
 {
-    (void)ctx;
-    char *file_content = mpm_read_file_from_fd(fd);
+    int                         ret = 0;
+    packer_header_package_t     *pkg = NULL;
 
-    if (strncmp(file_content, "MPX", 3) != 0)
+    pkg = packer_header_package_init();
+    if (pkg == NULL)
+        return ret;
+
+    pkg->name = strdup(file + ret);
+    if (pkg->name == NULL)
         goto cleanup;
+
+    ret += strlen(pkg->name) + 1;
+
+    pkg->version = strdup(file + ret);
+    if (pkg->version == NULL)
+        goto cleanup;
+    ret += strlen(pkg->version) + 1;
+
+    pkg->description = strdup(file + ret);
+    if (pkg->description == NULL)
+        goto cleanup;
+    ret += strlen(pkg->description) + 1;
+
+    ctx->header->package = pkg;
+    return ret;
+
+cleanup:
+    packer_header_package_free(pkg);
+    return 0;
+}
+
+MPX_STATIC int read_package_header_compilation(char *file, packer_t *ctx)
+{
+    packer_header_comp_t        *comp = NULL;
+    packer_conf_opt_t           *opt = NULL;
+    int                         ret = 0;
+    u32_t                       size = 0;
+    char                        *tmp = NULL, *ptr = NULL;
+
+    comp = packer_header_comp_init();
+    if (comp == NULL)
+        return 0;
+
+    memcpy(&size, file, sizeof(u32_t));
+    size = ntohl(size);
+    ret += sizeof(u32_t);
+
+    for (u32_t i = 0; i < size; i++)
+    {
+        opt = malloc(sizeof(*opt));
+        if (opt == NULL)
+            goto cleanup;
+
+        tmp = file + ret;
+        ret += strlen(tmp) + 1;
+
+        ptr = strchr(tmp, ':');
+        if (ptr == NULL)
+        {
+            opt->value = strdup(tmp);
+            if (opt->value == NULL)
+            {
+                free(opt);
+                goto cleanup;
+            }
+            opt->name = NULL;
+        }
+        else
+        {
+            *ptr = 0;
+            opt->name = strdup(tmp);
+            if (opt->name == NULL)
+            {
+                free(opt);
+                goto cleanup;
+            }
+
+            opt->value = strdup(ptr + 1);
+            if (opt->value == NULL)
+            {
+                free(opt->name);
+                free(opt);
+                goto cleanup;
+            }
+        }
+        list_add(comp->configure, opt, sizeof(*opt));
+        free(opt);
+    }
+
+    comp->make = strdup(file + ret);
+    if (comp->make == NULL)
+        goto cleanup;
+    ret += strlen(comp->make) + 1;
+
+    comp->test = strdup(file + ret);
+    if (comp->test == NULL)
+        goto cleanup;
+    ret += strlen(comp->test) + 1;
+
+    comp->install = strdup(file + ret);
+    if (comp->install == NULL)
+        goto cleanup;
+    ret += strlen(comp->install) + 1;
+
+    ctx->header->compilation = comp;
+    return ret;
+
+cleanup:
+    packer_header_comp_free(comp);
+    return 0;
+}
+
+MPX_STATIC int read_package_header_dependencies(const char *file, packer_t *ctx) {
+    packer_header_deps_t        *deps = NULL;
+    int                         ret = 0;
+    u32_t                       list_len = 0;
+    char                        *tmp = NULL;
+
+    deps = packer_header_deps_init();
+    if (deps == NULL)
+        return 0;
+    memcpy(&list_len, file, sizeof(u32_t));
+    list_len = ntohl(list_len);
+    ret += sizeof(u32_t);
+
+    for (u32_t i = 0; i < list_len; i++)
+    {
+        tmp = strdup(file + ret);
+        if (tmp == NULL)
+            goto cleanup;
+        ret += strlen(tmp) + 1;
+        list_add(deps->list, tmp, strlen(tmp) + 1);
+        free(tmp);
+    }
+
+    ctx->header->dependencies = deps;
+    return ret;
+
+cleanup:
+    packer_header_deps_free(deps);
+    return 0;
+}
+
+MPX_STATIC bool read_package_header(int fd, packer_t *ctx)
+{
+    char *file_content = mpm_read_file_from_fd(fd);
+    int  ret = 0, tmp;
+
+    if (file_content == NULL)
+        return false;
+
+    if (strncmp(file_content, PACKER_MPX_MAGIC, sizeof(PACKER_MPX_MAGIC) - 1) != 0)
+        goto cleanup;
+
+    ret += sizeof(PACKER_MPX_MAGIC) - 1;
+
+    ctx->header = packer_header_init();
+    if (ctx->header == NULL)
+        goto cleanup;
+
+    tmp = read_package_header_package(file_content + ret, ctx);
+    if (tmp == 0)
+        goto cleanup;
+    ret += tmp;
+
+    tmp = read_package_header_compilation(file_content + ret, ctx);
+    if (tmp == 0)
+        goto cleanup;
+    ret += tmp;
+
+    tmp = read_package_header_dependencies(file_content + ret, ctx);
+    if (tmp == 0)
+        goto cleanup;
+    ret += tmp;
 
     free(file_content);
     return true;
 
 cleanup:
     free(file_content);
+    packer_header_free(ctx->header);
+    ctx->header = NULL;
     return false;
 }
 

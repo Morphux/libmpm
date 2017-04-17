@@ -340,6 +340,115 @@ TEST(packer_read_archive_4) {
     return TEST_SUCCESS;
 }
 
+MPX_STATIC int read_package_header_dependencies(const char *file, packer_t *ctx);
+TEST(packer_read_package_header_dependencies) {
+    char file[10], *tmp;
+    u32_t i = htonl(3);
+
+    memcpy(file, &i, sizeof(i));
+    tmp = strdup("Test");
+    file[4] = tmp;
+    set_strdup_fail(0);
+    TEST_ASSERT(read_package_header_dependencies(file, NULL) == 0, "Wrong return");
+    free(tmp);
+    return TEST_SUCCESS;
+}
+
+MPX_STATIC int read_package_header_compilation(char *file, packer_t *ctx);
+TEST(packer_read_package_header_compilation) {
+    char        *file;
+    char        tmp[] = "TEst:123\0Oui\0make\0test\0install";
+    u32_t       i = htonl(2);
+
+    file = malloc(sizeof(i) + sizeof(tmp));
+    memcpy(file, &i, sizeof(i));
+    memcpy(file + sizeof(i), tmp, sizeof(tmp));
+
+    set_malloc_fail(0);
+    TEST_ASSERT(read_package_header_compilation(file, NULL) == 0, "Wrong return");
+    memcpy(file + sizeof(i), tmp, sizeof(tmp));
+
+    set_malloc_fail(1);
+    TEST_ASSERT(read_package_header_compilation(file, NULL) == 0, "Wrong return");
+    memcpy(file + sizeof(i), tmp, sizeof(tmp));
+
+    set_strdup_fail(0);
+    TEST_ASSERT(read_package_header_compilation(file, NULL) == 0, "Wrong return");
+    memcpy(file + sizeof(i), tmp, sizeof(tmp));
+
+    set_strdup_fail(1);
+    TEST_ASSERT(read_package_header_compilation(file, NULL) == 0, "Wrong return");
+    memcpy(file + sizeof(i), tmp, sizeof(tmp));
+
+    set_strdup_fail(2);
+    TEST_ASSERT(read_package_header_compilation(file, NULL) == 0, "Wrong return");
+    memcpy(file + sizeof(i), tmp, sizeof(tmp));
+
+    set_strdup_fail(3);
+    TEST_ASSERT(read_package_header_compilation(file, NULL) == 0, "Wrong return");
+    memcpy(file + sizeof(i), tmp, sizeof(tmp));
+
+    set_strdup_fail(4);
+    TEST_ASSERT(read_package_header_compilation(file, NULL) == 0, "Wrong return");
+    memcpy(file + sizeof(i), tmp, sizeof(tmp));
+
+    set_strdup_fail(5);
+    TEST_ASSERT(read_package_header_compilation(file, NULL) == 0, "Wrong return");
+
+    free(file);
+    return TEST_SUCCESS;
+}
+
+MPX_STATIC int read_package_header_package(const char *file, packer_t *ctx);
+TEST(packer_read_package_header_package) {
+    char tmp[] = "Name\0Version\0Desc\0";
+
+    set_malloc_fail(0);
+    TEST_ASSERT(read_package_header_package(tmp, NULL) == 0, "Wrong return");
+    set_strdup_fail(0);
+    TEST_ASSERT(read_package_header_package(tmp, NULL) == 0, "Wrong return");
+    set_strdup_fail(1);
+    TEST_ASSERT(read_package_header_package(tmp, NULL) == 0, "Wrong return");
+    set_strdup_fail(2);
+    TEST_ASSERT(read_package_header_package(tmp, NULL) == 0, "Wrong return");
+
+    return TEST_SUCCESS;
+}
+MPX_STATIC bool read_package_header(int fd, packer_t *ctx);
+TEST(packer_read_package_header) {
+    packer_t *ctx = packer_init_archive("Test");
+    int fd;
+
+    set_malloc_fail(0);
+    fd = open(PACKAGE_OUTPUT_FN, O_RDONLY);
+    TEST_ASSERT(read_package_header(fd, ctx) == false, "Wrong return");
+    close(fd);
+
+    set_malloc_fail(1);
+    fd = open(PACKAGE_OUTPUT_FN, O_RDONLY);
+    TEST_ASSERT(read_package_header(fd, ctx) == false, "Wrong return");
+    close(fd);
+
+    set_malloc_fail(2);
+    fd = open(PACKAGE_OUTPUT_FN, O_RDONLY);
+    TEST_ASSERT(read_package_header(fd, ctx) == false, "Wrong return");
+    close(fd);
+
+    set_malloc_fail(3);
+    fd = open(PACKAGE_OUTPUT_FN, O_RDONLY);
+    TEST_ASSERT(read_package_header(fd, ctx) == false, "Wrong return");
+    close(fd);
+
+    set_malloc_fail(10);
+    fd = open(PACKAGE_OUTPUT_FN, O_RDONLY);
+    TEST_ASSERT(read_package_header(fd, ctx) == false, "Wrong return");
+    close(fd);
+
+    packer_free(ctx);
+
+    return TEST_SUCCESS;
+}
+
 TEST(packer_create_archive_cleanup) {
     unlink(PACKAGE_OUTPUT_FN);
     return TEST_SUCCESS;
@@ -383,5 +492,9 @@ void register_test_packer(void) {
     reg_test("packer", packer_read_archive_2);
     reg_test("packer", packer_read_archive_3);
     reg_test("packer", packer_read_archive_4);
+    reg_test("packer", packer_read_package_header_dependencies);
+    reg_test("packer", packer_read_package_header_compilation);
+    reg_test("packer", packer_read_package_header_package);
+    reg_test("packer", packer_read_package_header);
     reg_test("packer", packer_create_archive_cleanup);
 }
