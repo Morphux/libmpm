@@ -403,13 +403,14 @@ cleanup:
 }
 
 bool packer_read_dir(packer_t *ctx) {
-    char        *old_pwd = getenv("PWD");
+    char        old_pwd[PATH_MAX];
 
     assert(ctx != NULL);
-    assert(old_pwd != NULL);
 
-    /* Sanitazing variable */
-    old_pwd = strdup(old_pwd);
+    getcwd(old_pwd, sizeof(old_pwd));
+
+    /* If we can't get the current working directory, it's a fatal error */
+    assert(old_pwd != NULL);
 
     if (ctx->type != PACKER_TYPE_DIRECTORY)
         goto error;
@@ -421,12 +422,10 @@ bool packer_read_dir(packer_t *ctx) {
         goto error;
 
     chdir(old_pwd);
-    free(old_pwd);
     return packer_read_config_file(ctx);
 
 error:
     chdir(old_pwd);
-    free(old_pwd);
     return false;
 }
 
