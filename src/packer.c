@@ -456,6 +456,110 @@ MPX_STATIC void write_package_header(FILE *fd, packer_t *ctx) {
     }
 }
 
+static int packer_file_free(void *magic) {
+    packer_file_t   *file = magic;
+
+    if (file != NULL)
+    {
+        free(file->fn);
+        free(file->content);
+    }
+    return 1;
+}
+
+static packer_file_t *packer_file_init(const char *file, const char *dir) {
+    packer_file_t   *ret = NULL;
+
+    ret = calloc(1, sizeof(*ret));
+    if (ret == NULL)
+        return NULL;
+
+    ret->fn = malloc(strlen(file) + strlen(dir) + 1);
+    if (strcpy(ret->fn, dir) == NULL)
+        goto error;
+
+    if (strcat(ret->fn, file) == NULL)
+        goto error;
+
+    return ret;
+
+error:
+    packer_file_free(ret);
+    free(ret);
+    return NULL;
+}
+
+static bool read_files_from_dir(const char *dir_name, mlist_t **files, mlist_t **dirs) {
+    DIR             *dir = opendir(dir_name);
+    struct dirent   *dinfo = NULL;
+    packer_file_t   *file = NULL;
+
+    if (dir == NULL)
+        return false;
+
+    while ((dinfo = readdir(dir)))
+    {
+        if (strlen(dinfo->d_name) > 0 && dinfo->d_name[0] == '.')
+            continue ;
+
+        if (dinfo->d_type == DT_DIR)
+        {
+            size_t tmp = strlen(dinfo->d_name);
+
+            dinfo->d_name[tmp] = '/';
+            dinfo->d_name[tmp + 1] = '\0';
+        }
+
+        file = packer_file_init(dinfo->d_name, dir_name);
+        if (file == NULL)
+            goto error;
+
+        if (dinfo->d_type == DT_DIR)
+        {
+            list_add((*dirs), file->fn, strlen(file->fn) + 1);
+            packer_file_free(file);
+        }
+        else
+        {
+            list_add((*files), file, sizeof(*file));
+        }
+        free(file);
+    }
+
+    closedir(dir);
+    return true;
+
+error:
+    closedir(dir);
+    return false;
+}
+
+static bool write_package_sources(FILE *fd, packer_t *ctx) {
+    mlist_t         *files_list = NULL;
+    mlist_t         *dirs = NULL;
+    mlist_t         *tmp = NULL;
+
+    assert(fd != NULL && ctx != NULL);
+
+    chdir(ctx->str);
+    list_add(dirs, PACKER_SRC_DIR, sizeof(PACKER_SRC_DIR));
+
+    char    *dir = NULL;
+
+    list_for_each(dirs, tmp, dir) {
+        read_files_from_dir(dir, &files_list, &dirs);
+        printf("%s\n", dir);
+    }
+    list_free(files_list, packer_file_free);
+    list_free(dirs, NULL);
+
+    chdir("../../");
+    return true;
+
+/*error:*/
+    /*return false;*/
+}
+
 bool packer_create_archive(packer_t *ctx, const char *archive_path) {
     FILE *fd;
 
@@ -468,6 +572,7 @@ bool packer_create_archive(packer_t *ctx, const char *archive_path) {
         return false;
 
     write_package_header(fd, ctx);
+    write_package_sources(fd, ctx);
     fclose(fd);
     return true;
 }

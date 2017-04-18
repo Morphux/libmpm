@@ -22,10 +22,14 @@
 # include <sys/stat.h>
 # include <json.h>
 # include <arpa/inet.h>
+# include <sys/types.h>
+# include <dirent.h>
 
 # define PACKER_DEF_CONF_FN     "package.json"
 # define PACKER_DEF_EXT         ".mpx"
 # define PACKER_MPX_MAGIC       "MPX"
+
+# define PACKER_SRC_DIR         "srcs/"
 
 # define PACKER_MAKE_DEF        "make"
 # define PACKER_TEST_DEF        "test"
@@ -81,6 +85,13 @@ typedef struct packer_s {
     packer_type_t   type;    /*!< Type of packer */
     packer_header_t *header; /*!< Header of the MPX format */
 } packer_t;
+
+typedef struct packer_file_s {
+    char    *fn;       /*!< Filename, with relative path (Ex: srcs/main.c ) */
+    off_t   file_size; /*!< File size, in bytes */
+    char    sum[65];   /*!< Sha256sum of the file */
+    char    *content;  /*!< Actual content of the file */
+} packer_file_t;
 
 /*!
  * \brief Allocate, fill and init a packer_t structure
