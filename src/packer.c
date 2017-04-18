@@ -526,6 +526,8 @@ static bool read_files_from_dir(const char *dir_name, mlist_t **files, mlist_t *
         }
         else
         {
+            file->file_size = mpm_get_file_size_from_fn(file->fn);
+            file->content = mpm_read_file_from_fn(file->fn);
             list_add((*files), file, sizeof(*file));
         }
         free(file);
@@ -543,26 +545,41 @@ static bool write_package_sources(FILE *fd, packer_t *ctx) {
     mlist_t         *files_list = NULL;
     mlist_t         *dirs = NULL;
     mlist_t         *tmp = NULL;
+    char            old_pwd[PATH_MAX];
+    char            *dir = NULL;
 
     assert(fd != NULL && ctx != NULL);
+
+    getcwd(old_pwd, sizeof(old_pwd));
+
+    /* If we can't get the current working directory, it's a fatal error */
+    assert(old_pwd != NULL);
 
     chdir(ctx->str);
     list_add(dirs, PACKER_SRC_DIR, sizeof(PACKER_SRC_DIR));
 
-    char    *dir = NULL;
-
     list_for_each(dirs, tmp, dir) {
-        read_files_from_dir(dir, &files_list, &dirs);
-        printf("%s\n", dir);
+        if (read_files_from_dir(dir, &files_list, &dirs) == false)
+            goto error;
     }
-    list_free(files_list, packer_file_free);
+
     list_free(dirs, NULL);
 
-    chdir("../../");
+    packer_file_t *file;
+    list_for_each(files_list, tmp, file) {
+        printf("File: %s:\n'%s'\n", file->fn, file->content);
+    }
+    list_free(files_list, packer_file_free);
+
+    chdir(old_pwd);
     return true;
 
-/*error:*/
-    /*return false;*/
+error:
+    list_free(files_list, packer_file_free);
+    list_free(dirs, NULL);
+    chdir(old_pwd);
+
+    return false;
 }
 
 bool packer_create_archive(packer_t *ctx, const char *archive_path) {
