@@ -403,14 +403,19 @@ cleanup:
 }
 
 bool packer_read_dir(packer_t *ctx) {
-    char        *old_pwd = getenv("PWD");
+    char        old_pwd[PATH_MAX];
 
     assert(ctx != NULL);
 
+    getcwd(old_pwd, sizeof(old_pwd));
+
+    /* If we can't get the current working directory, it's a fatal error */
+    assert(old_pwd != NULL);
+
     if (ctx->type != PACKER_TYPE_DIRECTORY)
-        return false;
+        goto error;
     if (chdir(ctx->str) == -1)
-        return false;
+        goto error;
 
     ctx->json = json_object_from_file(PACKER_DEF_CONF_FN);
     if (ctx->json == NULL)

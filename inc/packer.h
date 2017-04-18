@@ -24,6 +24,7 @@
 # include <arpa/inet.h>
 # include <sys/types.h>
 # include <dirent.h>
+# include <limits.h>
 
 # define PACKER_DEF_CONF_FN     "package.json"
 # define PACKER_DEF_EXT         ".mpx"
