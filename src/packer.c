@@ -486,6 +486,8 @@ static packer_file_t *packer_file_init(const char *file, const char *dir) {
     if (strcat(ret->fn, file) == NULL)
         goto error;
 
+    ret->sum[0] = 0;
+
     return ret;
 
 error:
@@ -528,6 +530,9 @@ static bool read_files_from_dir(const char *dir_name, mlist_t **files, mlist_t *
         {
             file->file_size = mpm_get_file_size_from_fn(file->fn);
             file->content = mpm_read_file_from_fn(file->fn);
+            crypto_hash_sha256((unsigned char *)file->sum,
+                (const unsigned char *)file->content,
+                file->file_size);
             list_add((*files), file, sizeof(*file));
         }
         free(file);
@@ -567,7 +572,7 @@ static bool write_package_sources(FILE *fd, packer_t *ctx) {
 
     packer_file_t *file;
     list_for_each(files_list, tmp, file) {
-        printf("File: %s:\n'%s'\n", file->fn, file->content);
+        printf("File: %s %s:\n'%s'\n", file->fn, file->sum, file->content);
     }
     list_free(files_list, packer_file_free);
 

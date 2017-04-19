@@ -25,6 +25,7 @@
 # include <sys/types.h>
 # include <dirent.h>
 # include <limits.h>
+# include <sodium.h>
 
 # define PACKER_DEF_CONF_FN     "package.json"
 # define PACKER_DEF_EXT         ".mpx"
@@ -88,10 +89,10 @@ typedef struct packer_s {
 } packer_t;
 
 typedef struct packer_file_s {
-    char    *fn;       /*!< Filename, with relative path (Ex: srcs/main.c ) */
-    off_t   file_size; /*!< File size, in bytes */
-    char    sum[65];   /*!< Sha256sum of the file */
-    char    *content;  /*!< Actual content of the file */
+    char    *fn;                           /*!< Filename, with relative path (Ex: srcs/main.c ) */
+    off_t   file_size;                     /*!< File size, in bytes */
+    char    sum[crypto_hash_sha256_BYTES]; /*!< Sha256sum of the file */
+    char    *content;                      /*!< Actual content of the file */
 } packer_file_t;
 
 /*!

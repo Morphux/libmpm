@@ -25,7 +25,8 @@ IFLAGS =	-I inc/ \
 			-I lib/curl/lib/ \
 			-I lib/json-c/ \
 			-I lib/sqlite \
-			-I lib/libconfuse/src/
+			-I lib/libconfuse/src/ \
+			-I lib/libsodium/src/libsodium/include/
 
 # Optimisation Flags
 OFLAGS =	-std=gnu99 -g -O3
@@ -37,7 +38,8 @@ SFLAGS =	-Wall -Wextra -Werror -Wno-unused-result
 LFLAGS =	-L lib/libmorphux -lmorphux \
 			-L ./lib/curl/lib/.libs/ -lcurl \
 			-L ./lib/json-c/.libs -ljson-c \
-			-L ./lib/libconfuse/.libs -lconfuse
+			-L ./lib/libconfuse/.libs -lconfuse \
+			-L ./lib/libsodium/src/libsodium/.libs/ -lsodium
 CFLAGS =	$(SFLAGS) $(IFLAGS) $(OFLAGS) $(LFLAGS)
 ARFLAGS =	-cq
 
@@ -52,6 +54,7 @@ L_MORPHUX =	../lib/libmorphux/libmorphux.a
 L_CURL = 	../lib/curl/lib/.libs/libcurl.a
 L_JSON = 	../lib/json-c/.libs/libjson-c.a
 L_CONF =	../lib/libconfuse/src/.libs/libconfuse.a
+L_SODIUM =	../lib/libsodium/src/libsodium/.libs/libsodium.a
 
 all: $(NAME)
 
@@ -63,8 +66,8 @@ $(NAME): $(SQLITE) $(OBJS)
 	@if [ ! -d "$(OBJ_DIR)" ]; then mkdir $(OBJ_DIR); fi
 	@cp $(OBJS) $(OBJ_DIR)
 	@cp $(SQLITE) $(OBJ_DIR)
-	@echo "AR\t\t$(L_MORPHUX) $(L_CURL) $(L_JSON) $(L_CONF)"
-	@cd $(OBJ_DIR) && ar -x $(L_MORPHUX) && ar -x $(L_CURL) && ar -x $(L_JSON) && ar -x $(L_CONF)
+	@echo "AR\t\t$(L_MORPHUX) $(L_CURL) $(L_JSON) $(L_CONF) $(L_SODIUM)"
+	@cd $(OBJ_DIR) && ar -x $(L_MORPHUX) && ar -x $(L_CURL) && ar -x $(L_JSON) && ar -x $(L_CONF) && ar -x $(L_SODIUM)
 	@echo "CCLD\t\t$(NAME)"
 	@$(LIB) $(ARFLAGS) $(NAME) objs/*.o
 	@rm -rf $(OBJ_DIR)
@@ -78,6 +81,7 @@ init:
 	cd lib/curl/ && ./buildconf && ./configure --disable-shared --enable-debug --enable-maintainer-mode && make
 	cd lib/json-c/ && sh autogen.sh && ./configure --disable-shared && make
 	cd lib/libconfuse/ && sh autogen.sh && ./configure && make
+	cd lib/libsodium/ && sh autogen.sh && ./configure && make
 
 doc:
 	doxygen docs/doxyfile

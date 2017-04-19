@@ -7,7 +7,8 @@ IFLAGS =	-I ../inc/ \
 			-I ../lib/curl/lib/ \
 			-I ../lib/json-c/ \
 			-I ../lib/sqlite \
-			-I ../lib/libconfuse/src/
+			-I ../lib/libconfuse/src/ \
+			-I ../lib/libsodium/src/libsodium/include/
 
 # Optimisation Flags
 OFLAGS =	-std=gnu99 -g -O3

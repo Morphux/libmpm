@@ -13,3 +13,6 @@
 [submodule "docs/doxygen-theme"]
 	path = docs/doxygen-theme
 	url = https://github.com/Ne02ptzero/doxygen-theme
+[submodule "lib/libsodium"]
+	path = lib/libsodium
+	url = https://github.com/jedisct1/libsodium.git
