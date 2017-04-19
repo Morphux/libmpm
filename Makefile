@@ -39,7 +39,8 @@ LFLAGS =	-L lib/libmorphux -lmorphux \
 			-L ./lib/curl/lib/.libs/ -lcurl \
 			-L ./lib/json-c/.libs -ljson-c \
 			-L ./lib/libconfuse/.libs -lconfuse \
-			-L ./lib/libsodium/src/libsodium/.libs/ -lsodium
+			-L ./lib/libsodium/src/libsodium/.libs/ -lsodium \
+			-lz
 CFLAGS =	$(SFLAGS) $(IFLAGS) $(OFLAGS) $(LFLAGS)
 ARFLAGS =	-cq
 

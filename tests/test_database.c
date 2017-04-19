@@ -205,6 +205,7 @@ TEST(database_init_3) {
 		DUP_ALL_OUTPUTS(fd);
 		ret = mpm_database_init(ptr);
 		TEST_ASSERT((ret != 0), "Error did not trigger");
+        exit(0);
 	} else {
 		WAIT_AND_CLOSE(pid, st, fd);
 	}
@@ -697,6 +698,7 @@ TEST(database_sql_to_file) {
 	if ((pid = fork()) == 0) {
 		DUP_ALL_OUTPUTS(fd);
 		ptr = sql_to_file(ptr, "Unknown", "Nothing");
+        exit(0);
 	} else {
 		WAIT_AND_CLOSE(pid, st, fd);
 		TEST_ASSERT((WEXITSTATUS(st) == 1), "Exit code is wrong");
@@ -720,7 +722,7 @@ TEST(database_sql_to_categ) {
 	if ((pid = fork()) == 0) {
 		DUP_ALL_OUTPUTS(fd);
 		sql_to_category(ptr, "Unknown", "Nothing");
-                exit(0);
+        exit(0);
 	} else {
 		WAIT_AND_CLOSE(pid, st, fd);
 		TEST_ASSERT((WEXITSTATUS(st) == 1), "Exit code is wrong");

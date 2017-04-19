@@ -21,7 +21,7 @@ SFLAGS =	-Wall -Wextra -Wno-unused-result -DCOMPILE_WITH_TEST
 			#-L ../lib/curl/.libs/ -lcurl \
 			#-L ../lib/json-c/.libs -ljson-c \
 
-LFLAGS=			-L ../ -lmpm -pthread -ldl
+LFLAGS=			-L ../ -lmpm -pthread -ldl -lz
 
 CFLAGS =	$(SFLAGS) $(IFLAGS) $(OFLAGS) $(LFLAGS)
 

@@ -26,6 +26,7 @@
 # include <dirent.h>
 # include <limits.h>
 # include <sodium.h>
+# include <zlib.h>
 
 # define PACKER_DEF_CONF_FN     "package.json"
 # define PACKER_DEF_EXT         ".mpx"

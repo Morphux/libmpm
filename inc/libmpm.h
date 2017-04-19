@@ -24,4 +24,9 @@
 # include <packer.h>
 # include <package.h>
 
+/*!
+ * \brief Init the mpm library
+ */
+void mpm_init(void);
+
 #endif /* LIBMPM_H */

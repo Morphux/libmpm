@@ -3,6 +3,8 @@
 int		main(void) {
 	int		ret;
 
+    mpm_init();
+
 	register_flags_test();
 	register_test_database();
 	register_test_files();

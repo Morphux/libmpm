@@ -496,6 +496,51 @@ error:
     return NULL;
 }
 
+static bool get_file_information(packer_file_t *file) {
+    z_stream        stream;
+    char            *file_content = NULL;
+    char            *chunk = NULL;
+    off_t           file_size;
+
+    file_size = mpm_get_file_size_from_fn(file->fn);
+    file_content = mpm_read_file_from_fn(file->fn);
+    if (file_content == NULL)
+    {
+        file->file_size = 0;
+        file->content = NULL;
+        return true;
+    }
+
+    crypto_hash_sha256((unsigned char *)file->sum,
+        (const unsigned char *)file_content,
+        file_size);
+
+    chunk = malloc(file_size);
+    if (chunk == NULL)
+        return false;
+
+    /* Compress file */
+    stream.zalloc = NULL;
+    stream.zfree = NULL;
+    stream.opaque = NULL;
+    stream.avail_in = file_size;
+    stream.next_in = (Bytef *)file_content;
+    stream.avail_out = file_size;
+    stream.next_out = (Bytef *)chunk;
+
+    deflateInit(&stream, Z_DEFAULT_COMPRESSION);
+    deflate(&stream, Z_FINISH);
+    deflateEnd(&stream);
+
+    file->file_size = stream.total_out;
+    file->content = malloc(file->file_size);
+    memcpy(file->content, chunk, file->file_size);
+
+    free(file_content);
+    free(chunk);
+    return true;
+}
+
 static bool read_files_from_dir(const char *dir_name, mlist_t **files, mlist_t **dirs) {
     DIR             *dir = opendir(dir_name);
     struct dirent   *dinfo = NULL;
@@ -528,11 +573,11 @@ static bool read_files_from_dir(const char *dir_name, mlist_t **files, mlist_t *
         }
         else
         {
-            file->file_size = mpm_get_file_size_from_fn(file->fn);
-            file->content = mpm_read_file_from_fn(file->fn);
-            crypto_hash_sha256((unsigned char *)file->sum,
-                (const unsigned char *)file->content,
-                file->file_size);
+            if (get_file_information(file) == false)
+            {
+                packer_file_free(file);
+                goto error;
+            }
             list_add((*files), file, sizeof(*file));
         }
         free(file);
@@ -572,7 +617,13 @@ static bool write_package_sources(FILE *fd, packer_t *ctx) {
 
     packer_file_t *file;
     list_for_each(files_list, tmp, file) {
-        printf("File: %s %s:\n'%s'\n", file->fn, file->sum, file->content);
+        fprintf(fd, "%s%c", file->fn, 0);
+        fwrite(&file->file_size, sizeof(file->file_size), 1, fd);
+        if (file->file_size != 0)
+        {
+            fwrite(&file->sum, crypto_hash_sha256_BYTES, 1, fd);
+            fwrite(file->content, file->file_size, 1, fd);
+        }
     }
     list_free(files_list, packer_file_free);
 
