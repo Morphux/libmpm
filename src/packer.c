@@ -650,9 +650,15 @@ bool packer_create_archive(packer_t *ctx, const char *archive_path) {
         return false;
 
     write_package_header(fd, ctx);
-    write_package_sources(fd, ctx);
+    if (write_package_sources(fd, ctx) == false)
+        goto error;
+
     fclose(fd);
     return true;
+
+error:
+    fclose(fd);
+    return false;
 }
 
 MPX_STATIC int read_package_header_package(const char *file, packer_t *ctx)
