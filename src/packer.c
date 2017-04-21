@@ -591,7 +591,7 @@ error:
     return false;
 }
 
-static bool write_package_sources(FILE *fd, packer_t *ctx) {
+static bool write_packer_sources(FILE *fd, packer_t *ctx, const char *dir_name) {
     mlist_t         *files_list = NULL;
     mlist_t         *dirs = NULL;
     mlist_t         *tmp = NULL;
@@ -606,7 +606,7 @@ static bool write_package_sources(FILE *fd, packer_t *ctx) {
     assert(old_pwd != NULL);
 
     chdir(ctx->str);
-    list_add(dirs, PACKER_SRC_DIR, sizeof(PACKER_SRC_DIR));
+    list_add(dirs, dir_name, strlen(dir_name) + 1);
 
     list_for_each(dirs, tmp, dir) {
         if (read_files_from_dir(dir, &files_list, &dirs) == false)
@@ -650,7 +650,7 @@ bool packer_create_archive(packer_t *ctx, const char *archive_path) {
         return false;
 
     write_package_header(fd, ctx);
-    if (write_package_sources(fd, ctx) == false)
+    if (write_packer_sources(fd, ctx, PACKER_SRC_DIR) == false)
         goto error;
 
     fclose(fd);
