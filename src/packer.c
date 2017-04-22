@@ -529,7 +529,7 @@ static bool get_file_information(packer_file_t *file) {
     stream.avail_out = file_size;
     stream.next_out = (Bytef *)chunk;
 
-    deflateInit(&stream, Z_DEFAULT_COMPRESSION);
+    deflateInit(&stream, Z_BEST_COMPRESSION);
     deflate(&stream, Z_FINISH);
     deflateEnd(&stream);
 
@@ -619,7 +619,10 @@ static bool write_packer_sources(FILE *fd, packer_t *ctx, const char *dir_name) 
 
     /* No file to process, all good */
     if (list_size(files_list) == 0)
+    {
+        chdir(old_pwd);
         return true;
+    }
 
     packer_file_t *file;
     list_for_each(files_list, tmp, file) {
