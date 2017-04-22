@@ -33,6 +33,8 @@
 # define PACKER_MPX_MAGIC       "MPX"
 
 # define PACKER_SRC_DIR         "srcs/"
+# define PACKER_PATCH_DIR       "patches/"
+# define PACKER_SCRIPT_DIR      "scripts/"
 
 # define PACKER_MAKE_DEF        "make"
 # define PACKER_TEST_DEF        "test"

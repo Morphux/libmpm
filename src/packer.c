@@ -414,6 +414,7 @@ bool packer_read_dir(packer_t *ctx) {
 
     if (ctx->type != PACKER_TYPE_DIRECTORY)
         goto error;
+
     if (chdir(ctx->str) == -1)
         goto error;
 
@@ -546,8 +547,9 @@ static bool read_files_from_dir(const char *dir_name, mlist_t **files, mlist_t *
     struct dirent   *dinfo = NULL;
     packer_file_t   *file = NULL;
 
+    /* Directory not here is okay */
     if (dir == NULL)
-        return false;
+        return true;
 
     while ((dinfo = readdir(dir)))
     {
@@ -606,7 +608,7 @@ static bool write_packer_sources(FILE *fd, packer_t *ctx, const char *dir_name) 
     assert(old_pwd != NULL);
 
     chdir(ctx->str);
-    list_add(dirs, dir_name, strlen(dir_name) + 1);
+    list_add(dirs, (void *)dir_name, strlen(dir_name) + 1);
 
     list_for_each(dirs, tmp, dir) {
         if (read_files_from_dir(dir, &files_list, &dirs) == false)
@@ -614,6 +616,10 @@ static bool write_packer_sources(FILE *fd, packer_t *ctx, const char *dir_name) 
     }
 
     list_free(dirs, NULL);
+
+    /* No file to process, all good */
+    if (list_size(files_list) == 0)
+        return true;
 
     packer_file_t *file;
     list_for_each(files_list, tmp, file) {
@@ -651,6 +657,12 @@ bool packer_create_archive(packer_t *ctx, const char *archive_path) {
 
     write_package_header(fd, ctx);
     if (write_packer_sources(fd, ctx, PACKER_SRC_DIR) == false)
+        goto error;
+
+    if (write_packer_sources(fd, ctx, PACKER_PATCH_DIR) == false)
+        goto error;
+
+    if (write_packer_sources(fd, ctx, PACKER_SCRIPT_DIR) == false)
         goto error;
 
     fclose(fd);
