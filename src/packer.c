@@ -481,6 +481,13 @@ static packer_file_t *packer_file_init(const char *file, const char *dir) {
         return NULL;
 
     ret->fn = malloc(strlen(file) + strlen(dir) + 1);
+
+    if (ret->fn == NULL)
+    {
+        free(ret);
+        return NULL;
+    }
+
     if (strcpy(ret->fn, dir) == NULL)
         goto error;
 
@@ -535,6 +542,12 @@ static bool get_file_information(packer_file_t *file) {
 
     file->file_size = stream.total_out;
     file->content = malloc(file->file_size);
+    if (file->content == NULL)
+    {
+        free(chunk);
+        return false;
+    }
+
     memcpy(file->content, chunk, file->file_size);
 
     free(file_content);
@@ -593,7 +606,7 @@ error:
     return false;
 }
 
-static bool write_packer_sources(FILE *fd, packer_t *ctx, const char *dir_name) {
+MPX_STATIC bool write_packer_sources(FILE *fd, packer_t *ctx, const char *dir_name) {
     mlist_t         *files_list = NULL;
     mlist_t         *dirs = NULL;
     mlist_t         *tmp = NULL;

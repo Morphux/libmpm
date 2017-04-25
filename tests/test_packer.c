@@ -304,6 +304,46 @@ TEST(packer_create_archive_wrong_type) {
     return TEST_SUCCESS;
 }
 
+TEST(packer_create_archive_2) {
+    packer_t    *ptr;
+
+    ptr = packer_init_dir("packer/right/");
+    TEST_ASSERT(packer_read_dir(ptr) == true, "An error happened");
+
+    set_malloc_fail(2);
+    TEST_ASSERT(packer_create_archive(ptr, "package.mpx") == false,
+                    "Error did not raise")
+
+    set_malloc_fail(3);
+    TEST_ASSERT(packer_create_archive(ptr, "package.mpx") == false,
+                    "Error did not raise")
+
+   set_malloc_fail(8);
+    TEST_ASSERT(packer_create_archive(ptr, "package.mpx") == false,
+                    "Error did not raise")
+
+    set_malloc_fail(15);
+    TEST_ASSERT(packer_create_archive(ptr, "package.mpx") == false,
+                    "Error did not raise")
+
+    packer_free(ptr);
+    return TEST_SUCCESS;
+}
+
+MPX_STATIC bool write_packer_sources(FILE *fd, packer_t *ctx, const char *dir_name);
+TEST(packer_write_packer_sources) {
+    FILE        *fd = fopen("package_2.mpx", "w+");
+    packer_t    *ptr;
+
+    ptr = packer_init_dir("packer/right/");
+
+    set_malloc_fail(0);
+    TEST_ASSERT(write_packer_sources(fd, ptr, "srcs/") == false, "Error did not raise");
+    packer_free(ptr);
+    fclose(fd);
+    return TEST_SUCCESS;
+}
+
 TEST(packer_read_archive_1) {
     packer_t    *ctx;
 
@@ -486,6 +526,8 @@ void register_test_packer(void) {
     reg_test("packer", packer_header_comp_init);
     reg_test("packer", packer_header_deps_init);
     reg_test("packer", packer_create_archive_1);
+    reg_test("packer", packer_create_archive_2);
+    reg_test("packer", packer_write_packer_sources);
     reg_test("packer", packer_create_archive_wrong_fn);
     reg_test("packer", packer_create_archive_wrong_type);
     reg_test("packer", packer_read_archive_1);
