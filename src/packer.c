@@ -656,7 +656,6 @@ error:
     list_free(files_list, packer_file_free);
     list_free(dirs, NULL);
     chdir(old_pwd);
-
     return false;
 }
 

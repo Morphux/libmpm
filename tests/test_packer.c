@@ -330,6 +330,17 @@ TEST(packer_create_archive_2) {
     return TEST_SUCCESS;
 }
 
+TEST(packer_create_archive_3) {
+    packer_t *ptr;
+
+    ptr = packer_init_dir("packer/right_1/");
+    packer_read_dir(ptr);
+    TEST_ASSERT(packer_create_archive(ptr, "package_2.mpx") == true,
+        "An error happened");
+    packer_free(ptr);
+    return TEST_SUCCESS;
+}
+
 MPX_STATIC bool write_packer_sources(FILE *fd, packer_t *ctx, const char *dir_name);
 TEST(packer_write_packer_sources) {
     FILE        *fd = fopen("package_2.mpx", "w+");
@@ -337,10 +348,11 @@ TEST(packer_write_packer_sources) {
 
     ptr = packer_init_dir("packer/right/");
 
-    set_malloc_fail(0);
+    set_calloc_fail(0);
     TEST_ASSERT(write_packer_sources(fd, ptr, "srcs/") == false, "Error did not raise");
     packer_free(ptr);
     fclose(fd);
+    unlink("package_2.mpx");
     return TEST_SUCCESS;
 }
 
@@ -527,6 +539,7 @@ void register_test_packer(void) {
     reg_test("packer", packer_header_deps_init);
     reg_test("packer", packer_create_archive_1);
     reg_test("packer", packer_create_archive_2);
+    reg_test("packer", packer_create_archive_3);
     reg_test("packer", packer_write_packer_sources);
     reg_test("packer", packer_create_archive_wrong_fn);
     reg_test("packer", packer_create_archive_wrong_type);
