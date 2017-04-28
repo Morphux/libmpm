@@ -501,6 +501,22 @@ TEST(packer_read_package_header) {
     return TEST_SUCCESS;
 }
 
+MPX_STATIC packer_file_t *packer_file_init(const char *file, const char *dir);
+TEST(packer_file_init) {
+    char    *file = "truc";
+    char    *dir = "machin";
+
+    set_calloc_fail(0);
+    TEST_ASSERT(packer_file_init(file, dir) == NULL, "Error did not raise");
+    set_malloc_fail(0);
+    TEST_ASSERT(packer_file_init(file, dir) == NULL, "Error did not raise");
+    set_strcpy_fail(0);
+    TEST_ASSERT(packer_file_init(file, dir) == NULL, "Error did not raise");
+    set_strcat_fail(0);
+    TEST_ASSERT(packer_file_init(file, dir) == NULL, "Error did not raise");
+    return TEST_SUCCESS;
+}
+
 TEST(packer_create_archive_cleanup) {
     unlink(PACKAGE_OUTPUT_FN);
     return TEST_SUCCESS;
@@ -551,5 +567,6 @@ void register_test_packer(void) {
     reg_test("packer", packer_read_package_header_compilation);
     reg_test("packer", packer_read_package_header_package);
     reg_test("packer", packer_read_package_header);
+    reg_test("packer", packer_file_init);
     reg_test("packer", packer_create_archive_cleanup);
 }

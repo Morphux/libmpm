@@ -473,7 +473,7 @@ static int packer_file_free(void *magic) {
     return 1;
 }
 
-static packer_file_t *packer_file_init(const char *file, const char *dir) {
+MPX_STATIC packer_file_t *packer_file_init(const char *file, const char *dir) {
     packer_file_t   *ret = NULL;
 
     ret = calloc(1, sizeof(*ret));
