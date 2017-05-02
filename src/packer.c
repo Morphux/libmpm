@@ -525,7 +525,10 @@ static bool get_file_information(packer_file_t *file) {
 
     chunk = malloc(file_size);
     if (chunk == NULL)
+    {
+        free(file_content);
         return false;
+    }
 
     /* Compress file */
     stream.zalloc = NULL;
@@ -544,6 +547,7 @@ static bool get_file_information(packer_file_t *file) {
     file->content = malloc(file->file_size);
     if (file->content == NULL)
     {
+        free(file_content);
         free(chunk);
         return false;
     }
@@ -591,6 +595,7 @@ static bool read_files_from_dir(const char *dir_name, mlist_t **files, mlist_t *
             if (get_file_information(file) == false)
             {
                 packer_file_free(file);
+                free(file);
                 goto error;
             }
             list_add((*files), file, sizeof(*file));
