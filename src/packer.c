@@ -838,9 +838,8 @@ cleanup:
     return 0;
 }
 
-MPX_STATIC bool read_package_header(int fd, packer_t *ctx)
+MPX_STATIC bool read_package_header(char *file_content, packer_t *ctx, int *s_ret)
 {
-    char *file_content = mpm_read_file_from_fd(fd);
     int  ret = 0, tmp;
 
     if (file_content == NULL)
@@ -868,13 +867,13 @@ MPX_STATIC bool read_package_header(int fd, packer_t *ctx)
     tmp = read_package_header_dependencies(file_content + ret, ctx);
     if (tmp == 0)
         goto cleanup;
+
     ret += tmp;
 
-    free(file_content);
+    *s_ret = ret;
     return true;
 
 cleanup:
-    free(file_content);
     packer_header_free(ctx->header);
     ctx->header = NULL;
     return false;
@@ -884,6 +883,8 @@ bool packer_read_archive(packer_t *ctx)
 {
     int     fd;
     bool    ret;
+    char    *archive = NULL;
+    int     cur = 0;
 
     if (ctx->type != PACKER_TYPE_ARCHIVE)
         return false;
@@ -892,7 +893,11 @@ bool packer_read_archive(packer_t *ctx)
     if (fd == -1)
         return false;
 
-    ret = read_package_header(fd, ctx);
+    archive = mpm_read_file_from_fd(fd);
+
+    printf("%d\n", cur);
+    ret = read_package_header(archive, ctx, &cur);
+    printf("%d\n", cur);
 
     close(fd);
     return ret;

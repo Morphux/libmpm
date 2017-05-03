@@ -466,36 +466,28 @@ TEST(packer_read_package_header_package) {
 
     return TEST_SUCCESS;
 }
-MPX_STATIC bool read_package_header(int fd, packer_t *ctx);
+MPX_STATIC bool read_package_header(char *file_content, packer_t *ctx, int *s_ret);
 TEST(packer_read_package_header) {
     packer_t *ctx = packer_init_archive("Test");
-    int fd;
+    char    *file = mpm_read_file_from_fn(PACKAGE_OUTPUT_FN);
+    int     ret = 0;
+
+    TEST_ASSERT(read_package_header(NULL, ctx, &ret) == false, "Wrong return");
+    TEST_ASSERT(read_package_header("pasmpx", ctx, &ret) == false, "Wrong return");
 
     set_malloc_fail(0);
-    fd = open(PACKAGE_OUTPUT_FN, O_RDONLY);
-    TEST_ASSERT(read_package_header(fd, ctx) == false, "Wrong return");
-    close(fd);
+    TEST_ASSERT(read_package_header(file, ctx, &ret) == false, "Wrong return");
 
     set_malloc_fail(1);
-    fd = open(PACKAGE_OUTPUT_FN, O_RDONLY);
-    TEST_ASSERT(read_package_header(fd, ctx) == false, "Wrong return");
-    close(fd);
+    TEST_ASSERT(read_package_header(file, ctx, &ret) == false, "Wrong return");
 
     set_malloc_fail(2);
-    fd = open(PACKAGE_OUTPUT_FN, O_RDONLY);
-    TEST_ASSERT(read_package_header(fd, ctx) == false, "Wrong return");
-    close(fd);
+    TEST_ASSERT(read_package_header(file, ctx, &ret) == false, "Wrong return");
 
-    set_malloc_fail(3);
-    fd = open(PACKAGE_OUTPUT_FN, O_RDONLY);
-    TEST_ASSERT(read_package_header(fd, ctx) == false, "Wrong return");
-    close(fd);
+    set_malloc_fail(9);
+    TEST_ASSERT(read_package_header(file, ctx, &ret) == false, "Wrong return");
 
-    set_malloc_fail(10);
-    fd = open(PACKAGE_OUTPUT_FN, O_RDONLY);
-    TEST_ASSERT(read_package_header(fd, ctx) == false, "Wrong return");
-    close(fd);
-
+    free(file);
     packer_free(ctx);
 
     return TEST_SUCCESS;
