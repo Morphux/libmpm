@@ -879,12 +879,45 @@ cleanup:
     return false;
 }
 
+static bool read_package_files(char *content, packer_t *ctx, off_t total_size) {
+    if (content == NULL || ctx == NULL)
+        return false;
+
+    off_t   size = 0;
+    off_t   ctr = 0;
+    char    *name = NULL;
+    char    *f_content = NULL;
+    char    hash[crypto_hash_sha256_BYTES] = { '\0' };
+
+    while (total_size > ctr) {
+
+        /* File name */
+        name = strdup(content + ctr);
+        ctr += strlen(name) + 1;
+
+        /* File content size */
+        memcpy(&size, content + ctr, sizeof(size));
+        ctr += sizeof(size);
+
+        if (size > 0) {
+            /* File hash */
+            memcpy(hash, content + ctr, crypto_hash_sha256_BYTES);
+            ctr += crypto_hash_sha256_BYTES;
+
+            /* File actual content */
+            ctr += size;
+        }
+    }
+    return true;
+}
+
 bool packer_read_archive(packer_t *ctx)
 {
     int     fd;
     bool    ret;
     char    *archive = NULL;
     int     cur = 0;
+    off_t   size;
 
     if (ctx->type != PACKER_TYPE_ARCHIVE)
         return false;
@@ -894,11 +927,16 @@ bool packer_read_archive(packer_t *ctx)
         return false;
 
     archive = mpm_read_file_from_fd(fd);
+    size = mpm_get_file_size_from_fd(fd);
 
-    printf("%d\n", cur);
     ret = read_package_header(archive, ctx, &cur);
-    printf("%d\n", cur);
+    if (!ret)
+        goto cleanup;
 
+    ret = read_package_files(archive + cur, ctx, size - cur);
+
+cleanup:
     close(fd);
+    free(archive);
     return ret;
 }
