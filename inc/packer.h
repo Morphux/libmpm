@@ -89,6 +89,7 @@ typedef struct packer_s {
     json_object     *json;   /*!< JSON object */
     packer_type_t   type;    /*!< Type of packer */
     packer_header_t *header; /*!< Header of the MPX format */
+    mlist_t         *files; /*!< Files list, if it's an archive */
 } packer_t;
 
 typedef struct packer_file_s {

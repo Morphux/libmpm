@@ -16,6 +16,48 @@
 
 #include <packer.h>
 
+static int packer_file_free(void *magic) {
+    packer_file_t   *file = magic;
+
+    if (file != NULL)
+    {
+        free(file->fn);
+        free(file->content);
+    }
+    return 1;
+}
+
+MPX_STATIC packer_file_t *packer_file_init(const char *file, const char *dir) {
+    packer_file_t   *ret = NULL;
+
+    ret = calloc(1, sizeof(*ret));
+    if (ret == NULL)
+        return NULL;
+
+    ret->fn = malloc(strlen(file) + strlen(dir) + 1);
+
+    if (ret->fn == NULL)
+    {
+        free(ret);
+        return NULL;
+    }
+
+    if (strcpy(ret->fn, dir) == NULL)
+        goto error;
+
+    if (strcat(ret->fn, file) == NULL)
+        goto error;
+
+    ret->sum[0] = 0;
+
+    return ret;
+
+error:
+    packer_file_free(ret);
+    free(ret);
+    return NULL;
+}
+
 MPX_STATIC packer_t *packer_init(const char *str) {
     packer_t    *ret;
 
@@ -26,6 +68,7 @@ MPX_STATIC packer_t *packer_init(const char *str) {
     ret->json = NULL;
     ret->str = strdup(str);
     ret->header = NULL;
+    ret->files = NULL;
     if (ret->str == NULL)
         goto cleanup;
 
@@ -181,6 +224,10 @@ void packer_free(packer_t *ptr) {
         json_object_put(ptr->json);
         free(ptr->str);
         packer_header_free(ptr->header);
+        if (ptr->files != NULL)
+        {
+            list_free(ptr->files, packer_file_free);
+        }
         free(ptr);
     }
 }
@@ -462,47 +509,6 @@ MPX_STATIC void write_package_header(FILE *fd, packer_t *ctx) {
     }
 }
 
-static int packer_file_free(void *magic) {
-    packer_file_t   *file = magic;
-
-    if (file != NULL)
-    {
-        free(file->fn);
-        free(file->content);
-    }
-    return 1;
-}
-
-MPX_STATIC packer_file_t *packer_file_init(const char *file, const char *dir) {
-    packer_file_t   *ret = NULL;
-
-    ret = calloc(1, sizeof(*ret));
-    if (ret == NULL)
-        return NULL;
-
-    ret->fn = malloc(strlen(file) + strlen(dir) + 1);
-
-    if (ret->fn == NULL)
-    {
-        free(ret);
-        return NULL;
-    }
-
-    if (strcpy(ret->fn, dir) == NULL)
-        goto error;
-
-    if (strcat(ret->fn, file) == NULL)
-        goto error;
-
-    ret->sum[0] = 0;
-
-    return ret;
-
-error:
-    packer_file_free(ret);
-    free(ret);
-    return NULL;
-}
 
 static bool get_file_information(packer_file_t *file) {
     z_stream        stream;
@@ -883,32 +889,67 @@ static bool read_package_files(char *content, packer_t *ctx, off_t total_size) {
     if (content == NULL || ctx == NULL)
         return false;
 
-    off_t   size = 0;
-    off_t   ctr = 0;
-    char    *name = NULL;
-    char    *f_content = NULL;
-    char    hash[crypto_hash_sha256_BYTES] = { '\0' };
+    packer_file_t   *file = NULL;
+    z_stream        stream;
+    off_t           ctr = 0;
 
     while (total_size > ctr) {
 
+        file = malloc(sizeof(*file));
+        if (file == NULL)
+            goto error;
+        file->content = NULL;
+
         /* File name */
-        name = strdup(content + ctr);
-        ctr += strlen(name) + 1;
+        file->fn = strdup(content + ctr);
+        ctr += strlen(file->fn) + 1;
 
         /* File content size */
-        memcpy(&size, content + ctr, sizeof(size));
-        ctr += sizeof(size);
+        memcpy(&file->file_size, content + ctr, sizeof(file->file_size));
+        ctr += sizeof(file->file_size);
 
-        if (size > 0) {
+        if (file->file_size > 0) {
             /* File hash */
-            memcpy(hash, content + ctr, crypto_hash_sha256_BYTES);
+            memcpy(file->sum, content + ctr, crypto_hash_sha256_BYTES);
             ctr += crypto_hash_sha256_BYTES;
 
-            /* File actual content */
-            ctr += size;
+            /* Actual file content */
+            stream.zalloc = NULL;
+            stream.zfree = NULL;
+            stream.opaque = NULL;
+            stream.avail_in = file->file_size;
+            stream.avail_out = file->file_size;
+
+            inflateInit(&stream);
+
+            file->content = malloc(file->file_size + 1);
+            if (file->content == NULL)
+            {
+                free(file->fn);
+                free(file);
+                goto error;
+            }
+
+            /* Decompress file */
+            stream.next_in = (unsigned char *)content + ctr;
+            stream.next_out = (unsigned char *)file->content;
+
+            inflate(&stream, Z_NO_FLUSH);
+            file->content[file->file_size - stream.avail_out] = '\0';
+            inflateEnd(&stream);
+
+
+            ctr += file->file_size;
         }
+        list_add(ctx->files, file, sizeof(*file));
+        free(file);
     }
     return true;
+
+error:
+    list_free(ctx->files, packer_file_free);
+    ctx->files = NULL;
+    return false;
 }
 
 bool packer_read_archive(packer_t *ctx)
