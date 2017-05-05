@@ -25,8 +25,7 @@
 # include <sys/types.h>
 # include <dirent.h>
 # include <limits.h>
-# include <sodium.h>
-# include <zlib.h>
+# include <packer_file.h>
 
 # define PACKER_DEF_CONF_FN     "package.json"
 # define PACKER_DEF_EXT         ".mpx"
@@ -91,13 +90,6 @@ typedef struct packer_s {
     packer_header_t *header; /*!< Header of the MPX format */
     mlist_t         *files; /*!< Files list, if it's an archive */
 } packer_t;
-
-typedef struct packer_file_s {
-    char    *fn;                           /*!< Filename, with relative path (Ex: srcs/main.c ) */
-    off_t   file_size;                     /*!< File size, in bytes */
-    char    sum[crypto_hash_sha256_BYTES]; /*!< Sha256sum of the file */
-    char    *content;                      /*!< Actual content of the file */
-} packer_file_t;
 
 /*!
  * \brief Allocate, fill and init a packer_t structure

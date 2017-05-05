@@ -16,47 +16,6 @@
 
 #include <packer.h>
 
-static int packer_file_free(void *magic) {
-    packer_file_t   *file = magic;
-
-    if (file != NULL)
-    {
-        free(file->fn);
-        free(file->content);
-    }
-    return 1;
-}
-
-MPX_STATIC packer_file_t *packer_file_init(const char *file, const char *dir) {
-    packer_file_t   *ret = NULL;
-
-    ret = calloc(1, sizeof(*ret));
-    if (ret == NULL)
-        return NULL;
-
-    ret->fn = malloc(strlen(file) + strlen(dir) + 1);
-
-    if (ret->fn == NULL)
-    {
-        free(ret);
-        return NULL;
-    }
-
-    if (strcpy(ret->fn, dir) == NULL)
-        goto error;
-
-    if (strcat(ret->fn, file) == NULL)
-        goto error;
-
-    ret->sum[0] = 0;
-
-    return ret;
-
-error:
-    packer_file_free(ret);
-    free(ret);
-    return NULL;
-}
 
 MPX_STATIC packer_t *packer_init(const char *str) {
     packer_t    *ret;
@@ -77,7 +36,6 @@ MPX_STATIC packer_t *packer_init(const char *str) {
 cleanup:
     free(ret);
     return NULL;
-
 }
 
 MPX_STATIC packer_header_package_t *packer_header_package_init(void) {
@@ -507,114 +465,6 @@ MPX_STATIC void write_package_header(FILE *fd, packer_t *ctx) {
     list_for_each(h->dependencies->list, tmp, tmp_str) {
         fprintf(fd, "%s%c", tmp_str, '\0');
     }
-}
-
-
-static bool get_file_information(packer_file_t *file) {
-    z_stream        stream;
-    char            *file_content = NULL;
-    char            *chunk = NULL;
-    off_t           file_size;
-
-    file_size = mpm_get_file_size_from_fn(file->fn);
-    file_content = mpm_read_file_from_fn(file->fn);
-    if (file_content == NULL)
-    {
-        file->file_size = 0;
-        file->content = NULL;
-        return true;
-    }
-
-    crypto_hash_sha256((unsigned char *)file->sum,
-        (const unsigned char *)file_content,
-        file_size);
-
-    chunk = malloc(file_size);
-    if (chunk == NULL)
-    {
-        free(file_content);
-        return false;
-    }
-
-    /* Compress file */
-    stream.zalloc = NULL;
-    stream.zfree = NULL;
-    stream.opaque = NULL;
-    stream.avail_in = file_size;
-    stream.next_in = (Bytef *)file_content;
-    stream.avail_out = file_size;
-    stream.next_out = (Bytef *)chunk;
-
-    deflateInit(&stream, Z_BEST_COMPRESSION);
-    deflate(&stream, Z_FINISH);
-    deflateEnd(&stream);
-
-    file->file_size = stream.total_out;
-    file->content = malloc(file->file_size);
-    if (file->content == NULL)
-    {
-        free(file_content);
-        free(chunk);
-        return false;
-    }
-
-    memcpy(file->content, chunk, file->file_size);
-
-    free(file_content);
-    free(chunk);
-    return true;
-}
-
-static bool read_files_from_dir(const char *dir_name, mlist_t **files, mlist_t **dirs) {
-    DIR             *dir = opendir(dir_name);
-    struct dirent   *dinfo = NULL;
-    packer_file_t   *file = NULL;
-
-    /* Directory not here is okay */
-    if (dir == NULL)
-        return true;
-
-    while ((dinfo = readdir(dir)))
-    {
-        if (strlen(dinfo->d_name) > 0 && dinfo->d_name[0] == '.')
-            continue ;
-
-        if (dinfo->d_type == DT_DIR)
-        {
-            size_t tmp = strlen(dinfo->d_name);
-
-            dinfo->d_name[tmp] = '/';
-            dinfo->d_name[tmp + 1] = '\0';
-        }
-
-        file = packer_file_init(dinfo->d_name, dir_name);
-        if (file == NULL)
-            goto error;
-
-        if (dinfo->d_type == DT_DIR)
-        {
-            list_add((*dirs), file->fn, strlen(file->fn) + 1);
-            packer_file_free(file);
-        }
-        else
-        {
-            if (get_file_information(file) == false)
-            {
-                packer_file_free(file);
-                free(file);
-                goto error;
-            }
-            list_add((*files), file, sizeof(*file));
-        }
-        free(file);
-    }
-
-    closedir(dir);
-    return true;
-
-error:
-    closedir(dir);
-    return false;
 }
 
 MPX_STATIC bool write_packer_sources(FILE *fd, packer_t *ctx, const char *dir_name) {
