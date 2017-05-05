@@ -837,6 +837,9 @@ bool packer_read_archive_header(packer_t *ctx) {
     bool    ret;
     int     cur = 0;
 
+    if (ctx->type != PACKER_TYPE_ARCHIVE)
+        return false;
+
     archive = mpm_read_file_from_fn(ctx->str);
     if (archive == NULL)
         return false;
