@@ -274,17 +274,12 @@ TEST(packer_header_deps_init) {
 
 TEST(packer_create_archive_1) {
     packer_t        *ptr;
-    packer_file_t   *file;
-    mlist_t         *tmp;
 
     ptr = packer_init_dir("packer/right/");
     TEST_ASSERT(packer_read_dir(ptr) == true, "An error happened");
     TEST_ASSERT(packer_create_archive(ptr, PACKAGE_OUTPUT_FN) == true,
                     "An error happened");
 
-    list_for_each(ptr->files, tmp, file) {
-        printf("%s\n", file->fn);
-    }
     packer_free(ptr);
     return TEST_SUCCESS;
 }
@@ -386,6 +381,7 @@ TEST(packer_read_archive_3) {
 
     ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
     TEST_ASSERT(packer_read_archive(ctx) == true, "Wrong return");
+
     packer_free(ctx);
     return TEST_SUCCESS;
 }
