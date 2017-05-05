@@ -144,7 +144,7 @@ bool packer_read_dir(packer_t *ctx);
 bool packer_create_archive(packer_t *ctx, const char *archive_path);
 
 /*!
- * \brief Read a .mpx archive
+ * \brief Read a .mpx archive, and stock it in memory
  *
  * \param[in] ctx Already initialized packer_t struct
  *
@@ -152,6 +152,6 @@ bool packer_create_archive(packer_t *ctx, const char *archive_path);
  *
  * \return True on success, false on failure
  */
-bool packer_read_archive(packer_t *ctx);
+bool packer_read_archive_in_memory(packer_t *ctx);
 
 #endif /* PACKER_H */

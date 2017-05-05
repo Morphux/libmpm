@@ -362,7 +362,7 @@ TEST(packer_read_archive_1) {
     packer_t    *ctx;
 
     ctx = packer_init_dir("./");
-    TEST_ASSERT(packer_read_archive(ctx) == false, "Wrong return");
+    TEST_ASSERT(packer_read_archive_in_memory(ctx) == false, "Wrong return");
     packer_free(ctx);
     return TEST_SUCCESS;
 }
@@ -371,7 +371,7 @@ TEST(packer_read_archive_2) {
     packer_t    *ctx;
 
     ctx = packer_init_archive("/non/sense/path");
-    TEST_ASSERT(packer_read_archive(ctx) == false, "Wrong return");
+    TEST_ASSERT(packer_read_archive_in_memory(ctx) == false, "Wrong return");
     packer_free(ctx);
     return TEST_SUCCESS;
 }
@@ -380,7 +380,7 @@ TEST(packer_read_archive_3) {
     packer_t    *ctx;
 
     ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
-    TEST_ASSERT(packer_read_archive(ctx) == true, "Wrong return");
+    TEST_ASSERT(packer_read_archive_in_memory(ctx) == true, "Wrong return");
 
     packer_free(ctx);
     return TEST_SUCCESS;
@@ -390,7 +390,7 @@ TEST(packer_read_archive_4) {
     packer_t    *ctx;
 
     ctx = packer_init_archive("/bin/ls");
-    TEST_ASSERT(packer_read_archive(ctx) == false, "Wrong return");
+    TEST_ASSERT(packer_read_archive_in_memory(ctx) == false, "Wrong return");
     packer_free(ctx);
     return TEST_SUCCESS;
 }

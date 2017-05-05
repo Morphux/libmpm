@@ -802,7 +802,7 @@ error:
     return false;
 }
 
-bool packer_read_archive(packer_t *ctx)
+bool packer_read_archive_in_memory(packer_t *ctx)
 {
     int     fd;
     bool    ret;
