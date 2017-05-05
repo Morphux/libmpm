@@ -831,3 +831,17 @@ cleanup:
     free(archive);
     return ret;
 }
+
+bool packer_read_archive_header(packer_t *ctx) {
+    char    *archive = NULL;
+    bool    ret;
+    int     cur = 0;
+
+    archive = mpm_read_file_from_fn(ctx->str);
+    if (archive == NULL)
+        return false;
+
+    ret = read_package_header(archive, ctx, &cur);
+    free(archive);
+    return ret;
+}
