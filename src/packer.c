@@ -740,57 +740,13 @@ static bool read_package_files(char *content, packer_t *ctx, off_t total_size) {
         return false;
 
     packer_file_t   *file = NULL;
-    z_stream        stream;
     off_t           ctr = 0;
 
     while (total_size > ctr) {
-
-        file = malloc(sizeof(*file));
+        file = read_packer_file_from_binary(content, &ctr);
         if (file == NULL)
             goto error;
-        file->content = NULL;
 
-        /* File name */
-        file->fn = strdup(content + ctr);
-        ctr += strlen(file->fn) + 1;
-
-        /* File content size */
-        memcpy(&file->file_size, content + ctr, sizeof(file->file_size));
-        ctr += sizeof(file->file_size);
-
-        if (file->file_size > 0) {
-            /* File hash */
-            memcpy(file->sum, content + ctr, crypto_hash_sha256_BYTES);
-            ctr += crypto_hash_sha256_BYTES;
-
-            /* Actual file content */
-            stream.zalloc = NULL;
-            stream.zfree = NULL;
-            stream.opaque = NULL;
-            stream.avail_in = file->file_size;
-            stream.avail_out = file->file_size;
-
-            inflateInit(&stream);
-
-            file->content = malloc(file->file_size + 1);
-            if (file->content == NULL)
-            {
-                free(file->fn);
-                free(file);
-                goto error;
-            }
-
-            /* Decompress file */
-            stream.next_in = (unsigned char *)content + ctr;
-            stream.next_out = (unsigned char *)file->content;
-
-            inflate(&stream, Z_NO_FLUSH);
-            file->content[file->file_size - stream.avail_out] = '\0';
-            inflateEnd(&stream);
-
-
-            ctr += file->file_size;
-        }
         list_add(ctx->files, file, sizeof(*file));
         free(file);
     }

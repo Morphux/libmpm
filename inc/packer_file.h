@@ -81,4 +81,17 @@ bool read_files_from_dir(const char *dir_name, mlist_t **files, mlist_t **dirs);
  */
 bool get_file_information(packer_file_t *file);
 
+/*!
+ * \brief Read a file from a binary archive
+ *
+ * \param[in] content Binary content
+ * \param[in,out] ctr Cursor
+ *
+ * Read a file from binary stream, from the cursor position
+ *
+ * \return A freshly filled and allocated packer_file_t struct on success,
+ * NULL on failure
+ */
+packer_file_t *read_packer_file_from_binary(const char *content, off_t *ctr);
+
 #endif /* PACKER_FILE_H */

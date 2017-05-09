@@ -165,3 +165,62 @@ bool get_file_information(packer_file_t *file) {
     return true;
 }
 
+packer_file_t *read_packer_file_from_binary(const char *content, off_t *ctr) {
+    packer_file_t   *file = NULL;
+    z_stream        stream;
+
+    file = malloc(sizeof(*file));
+    if (file == NULL)
+        return NULL;
+
+    file->content = NULL;
+
+    /* File name */
+    file->fn = strdup(content + *ctr);
+    if (file->fn == NULL)
+    {
+        free(file);
+        return NULL;
+    }
+
+    *ctr += strlen(file->fn) + 1;
+
+    /* File content size */
+    memcpy(&file->file_size, content + *ctr, sizeof(file->file_size));
+    *ctr += sizeof(file->file_size);
+
+    if (file->file_size > 0) {
+        /* File hash */
+        memcpy(file->sum, content + *ctr, crypto_hash_sha256_BYTES);
+        *ctr += crypto_hash_sha256_BYTES;
+
+        /* Actual file content */
+        stream.zalloc = NULL;
+        stream.zfree = NULL;
+        stream.opaque = NULL;
+        stream.avail_in = file->file_size;
+        stream.avail_out = file->file_size;
+
+        inflateInit(&stream);
+
+        file->content = malloc(file->file_size + 1);
+        if (file->content == NULL)
+        {
+            free(file->fn);
+            free(file);
+            return NULL;
+        }
+
+        /* Decompress file */
+        stream.next_in = (unsigned char *)content + *ctr;
+        stream.next_out = (unsigned char *)file->content;
+
+        inflate(&stream, Z_NO_FLUSH);
+        file->content[file->file_size - stream.avail_out] = '\0';
+        inflateEnd(&stream);
+
+
+        *ctr += file->file_size;
+    }
+    return file;
+}
