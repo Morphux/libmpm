@@ -512,6 +512,16 @@ TEST(packer_file_init) {
     return TEST_SUCCESS;
 }
 
+TEST(packer_extract_archive_1) {
+    packer_t    *ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
+    char        *output_dir = NULL;
+
+    TEST_ASSERT(packer_extract_archive(ctx, "/tmp", &output_dir), "Wrong return");
+    packer_free(ctx);
+    free(output_dir);
+    return TEST_SUCCESS;
+}
+
 TEST(packer_create_archive_cleanup) {
     unlink(PACKAGE_OUTPUT_FN);
     return TEST_SUCCESS;
@@ -563,5 +573,6 @@ void register_test_packer(void) {
     reg_test("packer", packer_read_package_header_package);
     reg_test("packer", packer_read_package_header);
     reg_test("packer", packer_file_init);
+    reg_test("packer", packer_extract_archive_1);
     reg_test("packer", packer_create_archive_cleanup);
 }

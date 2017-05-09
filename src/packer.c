@@ -742,7 +742,8 @@ static bool read_package_files(char *content, packer_t *ctx, off_t total_size) {
     packer_file_t   *file = NULL;
     off_t           ctr = 0;
 
-    while (total_size > ctr) {
+    while (total_size > ctr)
+    {
         file = read_packer_file_from_binary(content, &ctr);
         if (file == NULL)
             goto error;
@@ -801,6 +802,82 @@ bool packer_read_archive_header(packer_t *ctx) {
         return false;
 
     ret = read_package_header(archive, ctx, &cur);
+    free(archive);
+    return ret;
+}
+
+static char *packer_create_directory_name(packer_t *ctx, char sep)
+{
+    char        *out = NULL;
+
+    out = malloc(strlen(ctx->header->package->name)
+        + strlen(ctx->header->package->version) + 2);
+    if (out == NULL)
+        return NULL;
+
+    strncpy(out, ctx->header->package->name, strlen(ctx->header->package->name));
+    out[strlen(ctx->header->package->name)] = sep;
+    strncpy(out + strlen(ctx->header->package->name) + 1,
+        ctx->header->package->version, strlen(ctx->header->package->version));
+    out[strlen(ctx->header->package->name) +
+        strlen(ctx->header->package->version) + 1] = '\0';
+
+    return out;
+}
+
+bool packer_extract_archive(packer_t *ctx, const char *dir, char **output_dir) {
+    packer_file_t       *file = NULL;
+    int                 fd, t_ctr;
+    bool                ret = false;
+    char                *archive = NULL;
+    off_t               size, ctr;
+    char                old_pwd[PATH_MAX];
+
+    getcwd(old_pwd, sizeof(old_pwd));
+
+    if (ctx->type != PACKER_TYPE_ARCHIVE)
+        return false;
+
+    fd = open(ctx->str, O_RDONLY);
+    if (fd == -1)
+        return false;
+
+    archive = mpm_read_file_from_fd(fd);
+    size = mpm_get_file_size_from_fd(fd);
+
+    if (!read_package_header(archive, ctx, &t_ctr))
+        goto cleanup;
+
+    ctr = t_ctr;
+
+    if (chdir(dir) == -1)
+    {
+        goto cleanup;
+    }
+
+    *output_dir  = packer_create_directory_name(ctx, '-');
+
+    if (mkdir(*output_dir, S_IRWXU | S_IRWXG | S_IRWXO) == -1 && errno != EEXIST)
+        goto cleanup;
+
+    chdir(*output_dir);
+
+    while (size > ctr)
+    {
+        file = read_packer_file_from_binary(archive, &ctr);
+        if (file == NULL)
+            goto cleanup;
+        if (packer_file_to_disk(file) == false)
+            goto cleanup;
+        packer_file_free(file);
+        free(file);
+    }
+
+    ret = true;
+
+cleanup:
+    chdir(old_pwd);
+    close(fd);
     free(archive);
     return ret;
 }

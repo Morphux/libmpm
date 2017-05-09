@@ -94,4 +94,6 @@ bool get_file_information(packer_file_t *file);
  */
 packer_file_t *read_packer_file_from_binary(const char *content, off_t *ctr);
 
+bool packer_file_to_disk(packer_file_t *file);
+
 #endif /* PACKER_FILE_H */

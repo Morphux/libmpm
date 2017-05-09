@@ -224,3 +224,30 @@ packer_file_t *read_packer_file_from_binary(const char *content, off_t *ctr) {
     }
     return file;
 }
+
+bool packer_file_to_disk(packer_file_t *file) {
+    char        *tmp = NULL;
+    FILE        *fd = NULL;
+
+    for (tmp = file->fn + 1; *tmp; tmp++)
+    {
+        if (*tmp == '/')
+        {
+            *tmp = 0;
+            if (mkdir(file->fn, S_IRWXU) == -1 && errno != EEXIST)
+            {
+                *tmp = '/';
+                return false;
+            }
+            *tmp = '/';
+        }
+    }
+
+    fd = fopen(file->fn, "w+");
+    if (fd == NULL)
+        return false;
+
+    fprintf(fd, "%s\n", file->content);
+    fclose(fd);
+    return true;
+}

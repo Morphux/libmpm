@@ -163,4 +163,6 @@ bool packer_read_archive_in_memory(packer_t *ctx);
  */
 bool packer_read_archive_header(packer_t *ctx);
 
+bool packer_extract_archive(packer_t *ctx, const char *dir, char **output_dir);
+
 #endif /* PACKER_H */
