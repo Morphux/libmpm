@@ -163,6 +163,24 @@ bool packer_read_archive_in_memory(packer_t *ctx);
  */
 bool packer_read_archive_header(packer_t *ctx);
 
+/*!
+ * \brief Extract an archive in a directory
+ *
+ * \param[in] ctx Archive to extract
+ * \param[in] dir Parent directory to extract to
+ * \param[out] output_dir Name of the main extracted directory
+ *
+ * This function will extract an MPX archive in a designated dir
+ * It will create a main directory too, with the format NAME-VERSION
+ * For example, if the call is:
+ *      packer_extract_archive(ctx, "/tmp", &ptr);
+ * The output directory will be /tmp/NAME-VERSION (Ex: /tmp/test-2.0)
+ *
+ * The output_dir parameter is allocated by this function, caller should take
+ * care of the free
+ *
+ * \return true on success, false on failure
+ */
 bool packer_extract_archive(packer_t *ctx, const char *dir, char **output_dir);
 
 #endif /* PACKER_H */
