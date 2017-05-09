@@ -552,6 +552,23 @@ TEST(packer_file_to_disk) {
     return TEST_SUCCESS;
 }
 
+MPX_STATIC char *packer_create_directory_name(packer_t *ctx, char sep);
+TEST(packer_create_directory_name) {
+    packer_t    *ctx = NULL;
+
+    ctx = packer_init("0");
+    ctx->header = calloc(1, sizeof(ctx->header));
+    ctx->header->package = calloc(1, sizeof(ctx->header->package));
+    ctx->header->package->name = strdup("1");
+    ctx->header->package->version = strdup("2");
+
+    set_malloc_fail(0);
+    TEST_ASSERT(packer_create_directory_name(ctx, '_') == NULL, "Error did not raise");
+
+    packer_free(ctx);
+    return TEST_SUCCESS;
+}
+
 TEST(packer_create_archive_cleanup) {
     unlink(PACKAGE_OUTPUT_FN);
     return TEST_SUCCESS;
@@ -606,5 +623,6 @@ void register_test_packer(void) {
     reg_test("packer", packer_extract_archive_1);
     reg_test("packer", read_packer_file_from_binary);
     reg_test("packer", packer_file_to_disk);
+    reg_test("packer", packer_create_directory_name);
     reg_test("packer", packer_create_archive_cleanup);
 }

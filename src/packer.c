@@ -806,8 +806,7 @@ bool packer_read_archive_header(packer_t *ctx) {
     return ret;
 }
 
-static char *packer_create_directory_name(packer_t *ctx, char sep)
-{
+MPX_STATIC char *packer_create_directory_name(packer_t *ctx, char sep) {
     char        *out = NULL;
 
     out = malloc(strlen(ctx->header->package->name)
