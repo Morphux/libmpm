@@ -522,6 +522,22 @@ TEST(packer_extract_archive_1) {
     return TEST_SUCCESS;
 }
 
+TEST(read_packer_file_from_binary) {
+    char    *content = "Test123\0Nocare";
+    off_t   ctr = 0;
+
+    set_malloc_fail(0);
+    TEST_ASSERT(read_packer_file_from_binary(content, &ctr) == NULL, "Error did not raise");
+
+
+    set_strdup_fail(0);
+    TEST_ASSERT(read_packer_file_from_binary(content, &ctr) == NULL, "Error did not raise");
+
+    set_malloc_fail(1);
+    TEST_ASSERT(read_packer_file_from_binary(content, &ctr) == NULL, "Error did not raise");
+    return TEST_SUCCESS;
+}
+
 TEST(packer_create_archive_cleanup) {
     unlink(PACKAGE_OUTPUT_FN);
     return TEST_SUCCESS;
@@ -574,5 +590,6 @@ void register_test_packer(void) {
     reg_test("packer", packer_read_package_header);
     reg_test("packer", packer_file_init);
     reg_test("packer", packer_extract_archive_1);
+    reg_test("packer", read_packer_file_from_binary);
     reg_test("packer", packer_create_archive_cleanup);
 }
