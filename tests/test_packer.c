@@ -538,6 +538,20 @@ TEST(read_packer_file_from_binary) {
     return TEST_SUCCESS;
 }
 
+TEST(packer_file_to_disk) {
+    packer_file_t *ptr = packer_file_init("one", "/two/");
+
+    TEST_ASSERT(packer_file_to_disk(ptr) == false, "Error did not raise");
+    /* Hardcoding the file name to a wrong one */
+    free(ptr->fn);
+    ptr->fn = strdup("/test");
+
+    TEST_ASSERT(packer_file_to_disk(ptr) == false, "Error did not raise");
+    packer_file_free(ptr);
+    free(ptr);
+    return TEST_SUCCESS;
+}
+
 TEST(packer_create_archive_cleanup) {
     unlink(PACKAGE_OUTPUT_FN);
     return TEST_SUCCESS;
@@ -591,5 +605,6 @@ void register_test_packer(void) {
     reg_test("packer", packer_file_init);
     reg_test("packer", packer_extract_archive_1);
     reg_test("packer", read_packer_file_from_binary);
+    reg_test("packer", packer_file_to_disk);
     reg_test("packer", packer_create_archive_cleanup);
 }

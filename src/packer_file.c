@@ -206,6 +206,7 @@ packer_file_t *read_packer_file_from_binary(const char *content, off_t *ctr) {
         file->content = malloc(file->file_size + 1);
         if (file->content == NULL)
         {
+            inflateEnd(&stream);
             free(file->fn);
             free(file);
             return NULL;
