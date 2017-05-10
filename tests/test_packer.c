@@ -605,7 +605,7 @@ TEST(read_package_files) {
 
 TEST(packer_extract_archive_2) {
     packer_t    *ctx = NULL;
-    char        *output_dir;
+    char        *output_dir = NULL;
 
     ctx = packer_init_dir("Test");
     TEST_ASSERT(packer_extract_archive(ctx, NULL, NULL) == false, "Error did not raise");
@@ -618,15 +618,29 @@ TEST(packer_extract_archive_2) {
     ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
     set_malloc_fail(0);
     TEST_ASSERT(packer_extract_archive(ctx, NULL, NULL) == false, "Error did not raise");
+    packer_free(ctx);
 
+    ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
     TEST_ASSERT(packer_extract_archive(ctx, "/totally/not/valid/dir", NULL) == false, "Error did not raise");
-    TEST_ASSERT(packer_extract_archive(ctx, "/", &output_dir) == false, "Error did not raise");
+    packer_free(ctx);
 
+    ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
+    TEST_ASSERT(packer_extract_archive(ctx, "/", &output_dir) == false, "Error did not raise");
+    free(output_dir);
+    packer_free(ctx);
+
+    ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
     set_malloc_fail(12);
     TEST_ASSERT(packer_extract_archive(ctx, "/tmp", &output_dir) == false, "Error did not raise");
+    free(output_dir);
+    packer_free(ctx);
 
+    ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
     set_mkdir_fail(1);
     TEST_ASSERT(packer_extract_archive(ctx, "/tmp", &output_dir) == false, "Error did not raise");
+    free(output_dir);
+
+    packer_free(ctx);
 
     return TEST_SUCCESS;
 }

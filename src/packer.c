@@ -866,7 +866,11 @@ bool packer_extract_archive(packer_t *ctx, const char *dir, char **output_dir) {
             goto cleanup;
 
         if (packer_file_to_disk(file) == false)
+        {
+            packer_file_free(file);
+            free(file);
             goto cleanup;
+        }
         packer_file_free(file);
         free(file);
     }
