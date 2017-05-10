@@ -557,8 +557,8 @@ TEST(packer_create_directory_name) {
     packer_t    *ctx = NULL;
 
     ctx = packer_init("0");
-    ctx->header = calloc(1, sizeof(ctx->header));
-    ctx->header->package = calloc(1, sizeof(ctx->header->package));
+    ctx->header = packer_header_init();
+    ctx->header->package = packer_header_package_init();
     ctx->header->package->name = strdup("1");
     ctx->header->package->version = strdup("2");
 
