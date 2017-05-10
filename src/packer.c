@@ -735,7 +735,7 @@ cleanup:
     return false;
 }
 
-static bool read_package_files(char *content, packer_t *ctx, off_t total_size) {
+MPX_STATIC bool read_package_files(char *content, packer_t *ctx, off_t total_size) {
     if (content == NULL || ctx == NULL)
         return false;
 
@@ -850,9 +850,7 @@ bool packer_extract_archive(packer_t *ctx, const char *dir, char **output_dir) {
     ctr = t_ctr;
 
     if (chdir(dir) == -1)
-    {
         goto cleanup;
-    }
 
     *output_dir  = packer_create_directory_name(ctx, '-');
 
@@ -866,6 +864,7 @@ bool packer_extract_archive(packer_t *ctx, const char *dir, char **output_dir) {
         file = read_packer_file_from_binary(archive, &ctr);
         if (file == NULL)
             goto cleanup;
+
         if (packer_file_to_disk(file) == false)
             goto cleanup;
         packer_file_free(file);

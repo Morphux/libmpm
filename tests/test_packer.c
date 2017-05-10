@@ -573,16 +573,61 @@ TEST(packer_read_archive_header) {
     packer_t *ctx = NULL;
 
     ctx = packer_init_dir("test/");
-    TEST_ASSERT(packer_read_archive_header(ctx) == NULL, "Error did not raise");
+    TEST_ASSERT(packer_read_archive_header(ctx) == false, "Error did not raise");
     packer_free(ctx);
 
     ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
     set_malloc_fail(0);
-    TEST_ASSERT(packer_read_archive_header(ctx) == NULL, "Error did not raise");
+    TEST_ASSERT(packer_read_archive_header(ctx) == false, "Error did not raise");
 
-    TEST_ASSERT(packer_read_archive_header(ctx) != NULL, "Something happend");
+    TEST_ASSERT(packer_read_archive_header(ctx) != false, "Something happend");
     TEST_ASSERT(strcmp(ctx->header->package->name, "test") == 0, "Name is wrong");
     TEST_ASSERT(strcmp(ctx->header->package->version, "2.0") == 0, "Name is wrong");
+
+    packer_free(ctx);
+    return TEST_SUCCESS;
+}
+
+MPX_STATIC bool read_package_files(char *content, packer_t *ctx, off_t total_size);
+TEST(read_package_files) {
+    char        *content = "Truc";
+    packer_t    *ctx;
+
+    ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
+
+    TEST_ASSERT(read_package_files(NULL, NULL, 0) == false, "Error did not raise");
+
+    set_malloc_fail(0);
+    TEST_ASSERT(read_package_files(content, ctx, sizeof(content)) == false, "Error did not raise");
+    packer_free(ctx);
+    return TEST_SUCCESS;
+}
+
+TEST(packer_extract_archive_2) {
+    packer_t    *ctx = NULL;
+    char        *output_dir;
+
+    ctx = packer_init_dir("Test");
+    TEST_ASSERT(packer_extract_archive(ctx, NULL, NULL) == false, "Error did not raise");
+    packer_free(ctx);
+
+    ctx = packer_init_archive("Not a valid file");
+    TEST_ASSERT(packer_extract_archive(ctx, NULL, NULL) == false, "Error did not raise");
+    packer_free(ctx);
+
+    ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
+    set_malloc_fail(0);
+    TEST_ASSERT(packer_extract_archive(ctx, NULL, NULL) == false, "Error did not raise");
+
+    TEST_ASSERT(packer_extract_archive(ctx, "/totally/not/valid/dir", NULL) == false, "Error did not raise");
+    TEST_ASSERT(packer_extract_archive(ctx, "/", &output_dir) == false, "Error did not raise");
+
+    set_malloc_fail(12);
+    TEST_ASSERT(packer_extract_archive(ctx, "/tmp", &output_dir) == false, "Error did not raise");
+
+    set_mkdir_fail(1);
+    TEST_ASSERT(packer_extract_archive(ctx, "/tmp", &output_dir) == false, "Error did not raise");
+
     return TEST_SUCCESS;
 }
 
@@ -638,9 +683,11 @@ void register_test_packer(void) {
     reg_test("packer", packer_read_package_header);
     reg_test("packer", packer_file_init);
     reg_test("packer", packer_extract_archive_1);
+    reg_test("packer", packer_extract_archive_2);
     reg_test("packer", read_packer_file_from_binary);
     reg_test("packer", packer_file_to_disk);
     reg_test("packer", packer_create_directory_name);
     reg_test("packer", packer_read_archive_header);
+    reg_test("packer", read_package_files);
     reg_test("packer", packer_create_archive_cleanup);
 }
