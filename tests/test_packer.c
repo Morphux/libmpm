@@ -638,7 +638,14 @@ TEST(packer_extract_archive_2) {
     ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
     set_mkdir_fail(1);
     TEST_ASSERT(packer_extract_archive(ctx, "/tmp", &output_dir) == false, "Error did not raise");
+
+    char *to_del = NULL;
+
+    asprintf(&to_del, "/tmp/%s", output_dir);
+    TEST_ASSERT(recursive_delete(to_del) == true, "Cannot delete directory")
+
     free(output_dir);
+    free(to_del);
 
     packer_free(ctx);
 
