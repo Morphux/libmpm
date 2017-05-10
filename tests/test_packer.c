@@ -569,6 +569,23 @@ TEST(packer_create_directory_name) {
     return TEST_SUCCESS;
 }
 
+TEST(packer_read_archive_header) {
+    packer_t *ctx = NULL;
+
+    ctx = packer_init_dir("test/");
+    TEST_ASSERT(packer_read_archive_header(ctx) == NULL, "Error did not raise");
+    packer_free(ctx);
+
+    ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
+    set_malloc_fail(0);
+    TEST_ASSERT(packer_read_archive_header(ctx) == NULL, "Error did not raise");
+
+    TEST_ASSERT(packer_read_archive_header(ctx) != NULL, "Something happend");
+    TEST_ASSERT(strcmp(ctx->header->package->name, "test") == 0, "Name is wrong");
+    TEST_ASSERT(strcmp(ctx->header->package->version, "2.0") == 0, "Name is wrong");
+    return TEST_SUCCESS;
+}
+
 TEST(packer_create_archive_cleanup) {
     unlink(PACKAGE_OUTPUT_FN);
     return TEST_SUCCESS;
@@ -624,5 +641,6 @@ void register_test_packer(void) {
     reg_test("packer", read_packer_file_from_binary);
     reg_test("packer", packer_file_to_disk);
     reg_test("packer", packer_create_directory_name);
+    reg_test("packer", packer_read_archive_header);
     reg_test("packer", packer_create_archive_cleanup);
 }
