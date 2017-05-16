@@ -17,7 +17,7 @@
 #ifndef PACKER_H
 # define PACKER_H
 
-# include <libmpm.h>
+# define _GNU_SOURCE
 # include <sys/types.h>
 # include <sys/stat.h>
 # include <json.h>
@@ -26,6 +26,7 @@
 # include <dirent.h>
 # include <limits.h>
 # include <packer_file.h>
+# include <stdio.h>
 
 # define PACKER_DEF_CONF_FN     "package.json"
 # define PACKER_DEF_EXT         ".mpx"
@@ -88,8 +89,11 @@ typedef struct packer_s {
     json_object     *json;   /*!< JSON object */
     packer_type_t   type;    /*!< Type of packer */
     packer_header_t *header; /*!< Header of the MPX format */
-    mlist_t         *files; /*!< Files list, if it's an archive */
+    mlist_t         *files;  /*!< Files list, if it's an archive */
+    char            *out_dir;/*!< Output directory, in case of an archive */
 } packer_t;
+
+# include <libmpm.h>
 
 /*!
  * \brief Allocate, fill and init a packer_t structure
@@ -168,19 +172,15 @@ bool packer_read_archive_header(packer_t *ctx);
  *
  * \param[in] ctx Archive to extract
  * \param[in] dir Parent directory to extract to
- * \param[out] output_dir Name of the main extracted directory
  *
  * This function will extract an MPX archive in a designated dir
  * It will create a main directory too, with the format NAME-VERSION
  * For example, if the call is:
- *      packer_extract_archive(ctx, "/tmp", &ptr);
- * The output directory will be /tmp/NAME-VERSION (Ex: /tmp/test-2.0)
- *
- * The output_dir parameter is allocated by this function, caller should take
- * care of the free
+ *      packer_extract_archive(ctx, "/tmp");
+ * The output directory can be found in the member out_dir in packer_t
  *
  * \return true on success, false on failure
  */
-bool packer_extract_archive(packer_t *ctx, const char *dir, char **output_dir);
+bool packer_extract_archive(packer_t *ctx, const char *dir);
 
 #endif /* PACKER_H */

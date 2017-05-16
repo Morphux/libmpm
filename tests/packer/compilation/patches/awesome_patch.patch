@@ -1,0 +1,10 @@
+--- main.c.orig	2017-04-21 19:08:47.207443526 +0200
++++ main.c	2017-04-21 19:08:52.499450888 +0200
+@@ -1,6 +1,6 @@
+ #include <stdio.h>
+ 
+ int     main(void) {
+-    printf("Hello World !\n");
++    printf("Hello World!\n");
+     return 0;
+ }

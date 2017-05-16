@@ -1,0 +1,30 @@
+#include "test.h"
+
+#define PACKAGE_OUTPUT_FN "package_compile" PACKER_DEF_EXT
+
+TEST(init_compile) {
+    packer_t        *ptr;
+
+    ptr = packer_init_dir("packer/compilation//");
+    TEST_ASSERT(packer_read_dir(ptr) == true, "An error happened");
+    TEST_ASSERT(packer_create_archive(ptr, PACKAGE_OUTPUT_FN) == true,
+                    "An error happened");
+
+    packer_free(ptr);
+    return TEST_SUCCESS;
+}
+
+TEST(configure_package) {
+    packer_t    *ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
+
+    packer_extract_archive(ctx, "/tmp");
+    TEST_ASSERT(configure_package(ctx) == true, "An error happened");
+    TEST_ASSERT(make_package(ctx) == true, "An error happened");
+
+    return TEST_SUCCESS;
+}
+
+void register_test_compile(void) {
+    reg_test("compile", init_compile)
+    reg_test("compile", configure_package);
+}

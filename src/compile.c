@@ -14,20 +14,26 @@
 *                       limitations under the License.                         *
 \******************************************************************************/
 
-#ifndef LIBMPM_H
-# define LIBMPM_H
+#include <compile.h>
 
-# include <morphux.h>
-# include <flags.h>
-# include <database.h>
-# include <config.h>
-# include <package.h>
-# include <compile.h>
-# include <packer.h>
+static char old_pwd[PATH_MAX] = "";
 
-/*!
- * \brief Init the mpm library
- */
-void mpm_init(void);
+bool package_install_init(packer_t *ctx) {
+    // Chdir, getcwd, cleanup
+}
 
-#endif /* LIBMPM_H */
+bool configure_package(packer_t *ctx) {
+    /* Nothing to configure, we're good */
+    if (ctx->header->compilation->configure == NULL)
+        return true;
+
+    return true;
+}
+
+bool make_package(packer_t *ctx) {
+    /* Nothing to compile, we're good */
+    if (ctx->header->compilation->make == NULL)
+        return true;
+
+    return true;
+}

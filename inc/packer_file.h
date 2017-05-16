@@ -17,9 +17,11 @@
 #ifndef PACKER_FILE_H
 # define PACKER_FILE_H
 
-# include <libmpm.h>
+# include <morphux.h>
 # include <sodium.h>
 # include <zlib.h>
+# include <sys/types.h>
+# include <dirent.h>
 
 typedef struct packer_file_s {
     char    *fn;                           /*!< Filename, with relative path (Ex: srcs/main.c ) */

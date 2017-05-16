@@ -11,6 +11,7 @@ int		main(void) {
 	register_test_category();
 	register_test_config();
     register_test_packer();
+    register_test_compile();
 
     m_info("Beginning tests...\n");
 	ret = test_all();

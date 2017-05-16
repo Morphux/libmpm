@@ -14,20 +14,19 @@
 *                       limitations under the License.                         *
 \******************************************************************************/
 
-#ifndef LIBMPM_H
-# define LIBMPM_H
+#ifndef COMPILE_H
+# define COMPILE_H
 
-# include <morphux.h>
-# include <flags.h>
-# include <database.h>
-# include <config.h>
-# include <package.h>
-# include <compile.h>
 # include <packer.h>
 
 /*!
- * \brief Init the mpm library
+ * \brief Configure a package
+ *
+ * \param[in] ctx Package to configure
+ * \param[in] dir Sources directory
  */
-void mpm_init(void);
+bool configure_package(packer_t *ctx);
 
-#endif /* LIBMPM_H */
+bool make_package(packer_t *ctx);
+
+#endif /* COMPILE_H */

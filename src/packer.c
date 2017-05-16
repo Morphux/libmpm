@@ -28,6 +28,7 @@ MPX_STATIC packer_t *packer_init(const char *str) {
     ret->str = strdup(str);
     ret->header = NULL;
     ret->files = NULL;
+    ret->out_dir = NULL;
     if (ret->str == NULL)
         goto cleanup;
 
@@ -182,6 +183,7 @@ void packer_free(packer_t *ptr) {
         json_object_put(ptr->json);
         free(ptr->str);
         packer_header_free(ptr->header);
+        free(ptr->out_dir);
         if (ptr->files != NULL)
         {
             list_free(ptr->files, packer_file_free);
@@ -210,8 +212,15 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
         tmp = json_object_iter_peek_value(&it);
         if (strcmp(name, PACKER_CONF_COMP_CONF_TOKEN) == 0)
         {
+            if (json_object_get_type(tmp) == json_type_null)
+            {
+                json_object_iter_next(&it);
+                continue ;
+            }
+
             if (json_object_get_type(tmp) != json_type_array)
                 goto cleanup;
+
             for (size_t i = 0; i < json_object_array_length(tmp); i++)
             {
                 struct json_object  *array_ent, *array_tmp;
@@ -449,11 +458,14 @@ MPX_STATIC void write_package_header(FILE *fd, packer_t *ctx) {
 
     conf_len = htonl(list_size(h->compilation->configure));
     fwrite(&conf_len, sizeof(u32_t), 1, fd);
-    list_for_each(h->compilation->configure, tmp, opt) {
-        if (opt->name != NULL)
-            fprintf(fd, "%s:%s%c", opt->name, opt->value, 0);
-        else
-            fprintf(fd, "%s%c", opt->value, 0);
+    if (list_size(h->compilation->configure) != 0)
+    {
+        list_for_each(h->compilation->configure, tmp, opt) {
+            if (opt->name != NULL)
+                fprintf(fd, "%s:%s%c", opt->name, opt->value, 0);
+            else
+                fprintf(fd, "%s%c", opt->value, 0);
+        }
     }
     fprintf(fd, "%s%c", h->compilation->make, 0);
     fprintf(fd, "%s%c", h->compilation->test, 0);
@@ -806,25 +818,7 @@ bool packer_read_archive_header(packer_t *ctx) {
     return ret;
 }
 
-MPX_STATIC char *packer_create_directory_name(packer_t *ctx, char sep) {
-    char        *out = NULL;
-
-    out = malloc(strlen(ctx->header->package->name)
-        + strlen(ctx->header->package->version) + 2);
-    if (out == NULL)
-        return NULL;
-
-    strncpy(out, ctx->header->package->name, strlen(ctx->header->package->name));
-    out[strlen(ctx->header->package->name)] = sep;
-    strncpy(out + strlen(ctx->header->package->name) + 1,
-        ctx->header->package->version, strlen(ctx->header->package->version));
-    out[strlen(ctx->header->package->name) +
-        strlen(ctx->header->package->version) + 1] = '\0';
-
-    return out;
-}
-
-bool packer_extract_archive(packer_t *ctx, const char *dir, char **output_dir) {
+bool packer_extract_archive(packer_t *ctx, const char *dir) {
     packer_file_t       *file = NULL;
     int                 fd, t_ctr;
     bool                ret = false;
@@ -852,12 +846,13 @@ bool packer_extract_archive(packer_t *ctx, const char *dir, char **output_dir) {
     if (chdir(dir) == -1)
         goto cleanup;
 
-    *output_dir  = packer_create_directory_name(ctx, '-');
+    asprintf(&ctx->out_dir, "%s/%s-%s/", dir,
+        ctx->header->package->name, ctx->header->package->version);
 
-    if (mkdir(*output_dir, S_IRWXU | S_IRWXG | S_IRWXO) == -1 && errno != EEXIST)
+    if (mkdir(ctx->out_dir, S_IRWXU | S_IRWXG | S_IRWXO) == -1 && errno != EEXIST)
         goto cleanup;
 
-    chdir(*output_dir);
+    chdir(ctx->out_dir);
 
     while (size > ctr)
     {
