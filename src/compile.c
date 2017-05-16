@@ -46,16 +46,20 @@ bool package_install_cleanup(compile_t *ctx) {
 
 bool configure_package(compile_t *ctx) {
     /* Nothing to configure, we're good */
-    if (ctx->package->header->compilation->configure == NULL)
-        return true;
+    if (STR_NULL_OR_EMPTY(ctx->package->header->compilation->configure))
+        goto end;
 
+end:
+    ctx->state = INST_STATE_CONFIGURATION;
     return true;
 }
 
 bool make_package(compile_t *ctx) {
     /* Nothing to compile, we're good */
-    if (ctx->package->header->compilation->make == NULL)
-        return true;
+    if (STR_NULL_OR_EMPTY(ctx->package->header->compilation->make))
+        goto end;
 
+end:
+    ctx->state = INST_STATE_COMPILATION;
     return true;
 }

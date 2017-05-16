@@ -56,6 +56,12 @@ typedef enum packer_type_e {
 # define PACKER_CONF_COMP_INST_TOKEN            "install"
 # define PACKER_CONF_DEPS_TOKEN                 "dependencies"
 
+# define JSON_SKIP_NULL(obj, it)    if (json_object_get_type(obj) == json_type_null) \
+                                { \
+                                    json_object_iter_next(&(it)); \
+                                    continue; \
+                                } \
+
 typedef struct packer_header_package_s {
     char    *name;        /*!< Name of the package */
     char    *version;     /*!< Version of the package */

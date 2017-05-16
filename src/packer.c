@@ -210,13 +210,10 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
     {
         name = json_object_iter_peek_name(&it);
         tmp = json_object_iter_peek_value(&it);
+
+        JSON_SKIP_NULL(tmp, it);
         if (strcmp(name, PACKER_CONF_COMP_CONF_TOKEN) == 0)
         {
-            if (json_object_get_type(tmp) == json_type_null)
-            {
-                json_object_iter_next(&it);
-                continue ;
-            }
 
             if (json_object_get_type(tmp) != json_type_array)
                 goto cleanup;
@@ -467,9 +464,9 @@ MPX_STATIC void write_package_header(FILE *fd, packer_t *ctx) {
                 fprintf(fd, "%s%c", opt->value, 0);
         }
     }
-    fprintf(fd, "%s%c", h->compilation->make, 0);
-    fprintf(fd, "%s%c", h->compilation->test, 0);
-    fprintf(fd, "%s%c", h->compilation->install, 0);
+    fprintf(fd, "%s%c", STR_OR_EMPTY(h->compilation->make), 0);
+    fprintf(fd, "%s%c", STR_OR_EMPTY(h->compilation->test), 0);
+    fprintf(fd, "%s%c", STR_OR_EMPTY(h->compilation->install), 0);
 
     list_len = htonl(list_size(h->dependencies->list));
     fwrite(&list_len, sizeof(u32_t), 1, fd);
@@ -655,6 +652,7 @@ MPX_STATIC int read_package_header_compilation(char *file, packer_t *ctx)
     comp->make = strdup(file + ret);
     if (comp->make == NULL)
         goto cleanup;
+
     ret += strlen(comp->make) + 1;
 
     comp->test = strdup(file + ret);
