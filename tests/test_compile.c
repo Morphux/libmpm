@@ -30,6 +30,7 @@ TEST(configure_package) {
 
 TEST(compile_cleanup) {
     unlink(PACKAGE_OUTPUT_FN);
+    return TEST_SUCCESS;
 }
 
 void register_test_compile(void) {
