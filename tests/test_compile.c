@@ -16,15 +16,24 @@ TEST(init_compile) {
 
 TEST(configure_package) {
     packer_t    *ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
+    compile_t   *ptr = NULL;
 
     packer_extract_archive(ctx, "/tmp");
-    TEST_ASSERT(configure_package(ctx) == true, "An error happened");
-    TEST_ASSERT(make_package(ctx) == true, "An error happened");
+    ptr = package_install_init(ctx);
+    TEST_ASSERT(ptr != NULL, "An error happened");
+    TEST_ASSERT(configure_package(ptr) == true, "An error happened");
+    TEST_ASSERT(make_package(ptr) == true, "An error happened");
+    TEST_ASSERT(package_install_cleanup(ptr) == true, "An error happened");
 
     return TEST_SUCCESS;
+}
+
+TEST(compile_cleanup) {
+    unlink(PACKAGE_OUTPUT_FN);
 }
 
 void register_test_compile(void) {
     reg_test("compile", init_compile)
     reg_test("compile", configure_package);
+    reg_test("compile", compile_cleanup);
 }
