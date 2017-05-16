@@ -16,23 +16,45 @@
 
 #include <compile.h>
 
-static char old_pwd[PATH_MAX] = "";
+compile_t *package_install_init(packer_t *ctx) {
+    compile_t   *ret = NULL;
 
-bool package_install_init(packer_t *ctx) {
-    // Chdir, getcwd, cleanup
+    ret = malloc(sizeof(*ret));
+    if (ret == NULL)
+        return NULL;
+
+    ret->package = ctx;
+    ret->state = INST_STATE_NONE;
+
+    getcwd(ret->old_pwd, sizeof(ret->old_pwd));
+    if (chdir(ctx->out_dir) != 0)
+    {
+        free(ret);
+        return NULL;
+    }
+    return ret;
 }
 
-bool configure_package(packer_t *ctx) {
+bool package_install_cleanup(compile_t *ctx) {
+    if (chdir(ctx->old_pwd) != 0)
+        return false;
+
+    packer_free(ctx->package);
+    free(ctx);
+    return true;
+}
+
+bool configure_package(compile_t *ctx) {
     /* Nothing to configure, we're good */
-    if (ctx->header->compilation->configure == NULL)
+    if (ctx->package->header->compilation->configure == NULL)
         return true;
 
     return true;
 }
 
-bool make_package(packer_t *ctx) {
+bool make_package(compile_t *ctx) {
     /* Nothing to compile, we're good */
-    if (ctx->header->compilation->make == NULL)
+    if (ctx->package->header->compilation->make == NULL)
         return true;
 
     return true;

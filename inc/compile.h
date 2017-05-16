@@ -19,14 +19,63 @@
 
 # include <packer.h>
 
+typedef enum {
+    INST_STATE_NONE = 0,
+    INST_STATE_CONFIGURATION,
+    INST_STATE_COMPILATION,
+    INST_STATE_INSTALLATION,
+    INST_STATE_DONE
+} install_state_t;
+
+typedef struct compile_s {
+    packer_t            *package;          /*!< Pointer to the package */
+    char                old_pwd[PATH_MAX]; /*!< Old processs path */
+    install_state_t     state;             /*!< State of the installation */
+} compile_t;
+
+
+/*!
+ * \brief Init a compile_t structure, in order to prepare installation
+ *
+ * \param[in] ctx Package to install
+ *
+ * This function will create a new compile_t structure, save the current pwd,
+ * and chdir in the decompressed directory of the package.
+ *
+ * \note This function take the ownership of the packer_t pointer
+ * \return A freshly allocated structure on success, NULL on failure
+ */
+compile_t *package_install_init(packer_t *ctx);
+
+/*!
+ * \brief Cleanup after an installation
+ *
+ * \param[in] ctx Installation to cleanup
+ *
+ * This function will chdir into the old directory, and free all the structure
+ *
+ * \note If the function fails to chdir in the old directory, data will not be
+ * freed
+ * \return true on success, false on failure
+ */
+bool package_install_cleanup(compile_t *ctx);
+
 /*!
  * \brief Configure a package
  *
  * \param[in] ctx Package to configure
- * \param[in] dir Sources directory
+ *
+ * \return true on success, false on failure
  */
-bool configure_package(packer_t *ctx);
+bool configure_package(compile_t *ctx);
 
-bool make_package(packer_t *ctx);
+/*!
+ * \brief Compile a package
+ *
+ * \param[in] ctx Package to compile
+ *
+ * \return true on success, false on failure
+ */
+bool make_package(compile_t *ctx);
 
 #endif /* COMPILE_H */
