@@ -19,8 +19,8 @@
 
 # include <packer.h>
 
-# define COMP_BEFORE_SCRIPT PACKER_SRC_DIR "before.sh"
-# define COMP_AFTER_SCRIPT PACKER_SRC_DIR "after.sh"
+# define COMP_BEFORE_SCRIPT PACKER_SCRIPT_DIR "before.sh"
+# define COMP_AFTER_SCRIPT PACKER_SCRIPT_DIR "after.sh"
 
 typedef enum {
     INST_STATE_NONE = 0,
