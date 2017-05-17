@@ -44,6 +44,15 @@ bool package_install_cleanup(compile_t *ctx) {
     return true;
 }
 
+bool before_package(compile_t *ctx) {
+    if (file_exist(COMP_BEFORE_SCRIPT) == false)
+        goto end;
+
+end:
+    ctx->state = INST_STATE_BEFORE;
+    return true;
+}
+
 bool configure_package(compile_t *ctx) {
     /* Nothing to configure, we're good */
     if (ctx->package->header->compilation->configure == NULL)

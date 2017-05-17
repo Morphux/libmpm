@@ -19,11 +19,18 @@
 
 # include <packer.h>
 
+# define COMP_BEFORE_SCRIPT PACKER_SRC_DIR "before.sh"
+# define COMP_AFTER_SCRIPT PACKER_SRC_DIR "after.sh"
+
 typedef enum {
     INST_STATE_NONE = 0,
+    INST_STATE_BEFORE,
+    INST_STATE_PATCHING,
     INST_STATE_CONFIGURATION,
     INST_STATE_COMPILATION,
     INST_STATE_INSTALLATION,
+    INST_STATE_AFTER,
+    INST_STATE_DB,
     INST_STATE_DONE
 } install_state_t;
 
@@ -59,6 +66,15 @@ compile_t *package_install_init(packer_t *ctx);
  * \return true on success, false on failure
  */
 bool package_install_cleanup(compile_t *ctx);
+
+/*!
+ * \brief Execute before script, if there is any
+ * 
+ * \param[in] ctx Current package
+ *
+ * \return true on success, false on failure
+ */
+bool before_package(compile_t *ctx);
 
 /*!
  * \brief Configure a package
