@@ -46,7 +46,7 @@ bool package_install_cleanup(compile_t *ctx) {
 
 bool configure_package(compile_t *ctx) {
     /* Nothing to configure, we're good */
-    if (STR_NULL_OR_EMPTY(ctx->package->header->compilation->configure))
+    if (ctx->package->header->compilation->configure == NULL)
         goto end;
 
 end:
