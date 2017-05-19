@@ -48,6 +48,8 @@ bool before_package(compile_t *ctx) {
     if (file_exist(COMP_BEFORE_SCRIPT) == false)
         goto end;
 
+    exec_line("sh " COMP_BEFORE_SCRIPT);
+
 end:
     ctx->state = INST_STATE_BEFORE;
     return true;
