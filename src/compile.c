@@ -59,12 +59,15 @@ bool patch_package(compile_t *ctx) {
     DIR             *dir = opendir(PACKER_PATCH_DIR);
     struct dirent   *dinfo = NULL;
     char            *cmd = NULL;
+    bool            status = false;
 
     /* Nothing to patch, we're good */
     if (dir == NULL)
         return true;
 
-    chdir(PACKER_SRC_DIR);
+    if (chdir(PACKER_SRC_DIR) == -1)
+        goto end;
+
     while ((dinfo = readdir(dir)))
     {
         /* Skip .* files */
@@ -79,10 +82,14 @@ bool patch_package(compile_t *ctx) {
         }
     }
 
-    chdir("..");
+    if (chdir("..") == -1)
+        goto end;
+
+    status = true;
+end:
     closedir(dir);
     ctx->state = INST_STATE_PATCHING;
-    return true;
+    return status;
 }
 
 bool configure_package(compile_t *ctx) {
