@@ -105,4 +105,6 @@ bool configure_package(compile_t *ctx);
  */
 bool make_package(compile_t *ctx);
 
+bool install_package(compile_t *ctx);
+
 #endif /* COMPILE_H */

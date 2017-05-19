@@ -37,8 +37,8 @@
 # define PACKER_SCRIPT_DIR      "scripts/"
 
 # define PACKER_MAKE_DEF        "make"
-# define PACKER_TEST_DEF        "test"
-# define PACKER_INST_DEF        "install"
+# define PACKER_TEST_DEF        "make test"
+# define PACKER_INST_DEF        "make install"
 
 typedef enum packer_type_e {
     PACKER_TYPE_DIRECTORY,

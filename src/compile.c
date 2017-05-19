@@ -48,7 +48,8 @@ bool before_package(compile_t *ctx) {
     if (file_exist(COMP_BEFORE_SCRIPT) == false)
         goto end;
 
-    exec_line("sh " COMP_BEFORE_SCRIPT);
+    if (exec_line("sh " COMP_BEFORE_SCRIPT) != 0)
+        return false;
 
 end:
     ctx->state = INST_STATE_BEFORE;
@@ -103,11 +104,41 @@ end:
 }
 
 bool make_package(compile_t *ctx) {
+    bool status = true;
+
     /* Nothing to compile, we're good */
     if (STR_NULL_OR_EMPTY(ctx->package->header->compilation->make))
         goto end;
 
+    if (chdir(PACKER_SRC_DIR))
+        return false;
+
+    if (exec_line(ctx->package->header->compilation->make) != 0)
+        status = false;
+
+    chdir("..");
+
 end:
     ctx->state = INST_STATE_COMPILATION;
-    return true;
+    return status;
+}
+
+bool install_package(compile_t *ctx) {
+    bool status = true;
+
+    /* Nothing to install, we're good */
+    if (STR_NULL_OR_EMPTY(ctx->package->header->compilation->install))
+        goto end;
+
+    if (chdir(PACKER_SRC_DIR))
+        return false;
+
+    if (exec_line(ctx->package->header->compilation->install) != 0)
+        status = false;
+
+    chdir("..");
+
+end:
+    ctx->state = INST_STATE_INSTALLATION;
+    return status;
 }
