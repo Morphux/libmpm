@@ -129,7 +129,7 @@ bool get_file_information(packer_file_t *file) {
         (const unsigned char *)file_content,
         file_size);
 
-    chunk = malloc(file_size);
+    chunk = malloc(file_size * 2);
     if (chunk == NULL)
     {
         free(file_content);
@@ -142,7 +142,7 @@ bool get_file_information(packer_file_t *file) {
     stream.opaque = NULL;
     stream.avail_in = file_size;
     stream.next_in = (Bytef *)file_content;
-    stream.avail_out = file_size;
+    stream.avail_out = file_size * 2;
     stream.next_out = (Bytef *)chunk;
 
     deflateInit(&stream, Z_BEST_COMPRESSION);
@@ -199,11 +199,11 @@ packer_file_t *read_packer_file_from_binary(const char *content, off_t *ctr) {
         stream.zfree = NULL;
         stream.opaque = NULL;
         stream.avail_in = file->file_size;
-        stream.avail_out = file->file_size;
+        stream.avail_out = file->file_size * 2;
 
         inflateInit(&stream);
 
-        file->content = malloc(file->file_size + 1);
+        file->content = malloc(file->file_size * 2);
         if (file->content == NULL)
         {
             inflateEnd(&stream);
@@ -217,7 +217,7 @@ packer_file_t *read_packer_file_from_binary(const char *content, off_t *ctr) {
         stream.next_out = (unsigned char *)file->content;
 
         inflate(&stream, Z_NO_FLUSH);
-        file->content[file->file_size - stream.avail_out] = '\0';
+        file->content[stream.total_out] = '\0';
         inflateEnd(&stream);
 
 
@@ -248,7 +248,7 @@ bool packer_file_to_disk(packer_file_t *file) {
     if (fd == NULL)
         return false;
 
-    fprintf(fd, "%s\n", file->content);
+    fprintf(fd, "%s", file->content);
     fclose(fd);
     return true;
 }
