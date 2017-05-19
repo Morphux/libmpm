@@ -22,6 +22,8 @@
 # define COMP_BEFORE_SCRIPT PACKER_SCRIPT_DIR "before.sh"
 # define COMP_AFTER_SCRIPT PACKER_SCRIPT_DIR "after.sh"
 
+# define PATCH_CMD "patch -Ni"
+
 typedef enum {
     INST_STATE_NONE = 0,
     INST_STATE_BEFORE,
@@ -75,6 +77,15 @@ bool package_install_cleanup(compile_t *ctx);
  * \return true on success, false on failure
  */
 bool before_package(compile_t *ctx);
+
+/*!
+ * \brief Apply system and user patch
+ *
+ * \param[in] ctx Current paco
+ *
+ * \return true on succes, false on failure
+ */
+bool patch_package(compile_t *ctx);
 
 /*!
  * \brief Configure a package

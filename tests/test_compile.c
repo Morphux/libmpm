@@ -22,6 +22,7 @@ TEST(configure_package) {
     ptr = package_install_init(ctx);
     TEST_ASSERT(ptr != NULL, "An error happened");
     TEST_ASSERT(before_package(ptr) == true, "An error happened");
+    TEST_ASSERT(patch_package(ptr) == true, "An error happened");
     TEST_ASSERT(configure_package(ptr) == true, "An error happened");
     TEST_ASSERT(make_package(ptr) == true, "An error happened");
     TEST_ASSERT(package_install_cleanup(ptr) == true, "An error happened");

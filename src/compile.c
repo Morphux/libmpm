@@ -55,6 +55,36 @@ end:
     return true;
 }
 
+bool patch_package(compile_t *ctx) {
+    DIR             *dir = opendir(PACKER_PATCH_DIR);
+    struct dirent   *dinfo = NULL;
+    char            *cmd = NULL;
+
+    /* Nothing to patch, we're good */
+    if (dir == NULL)
+        return true;
+
+    chdir(PACKER_SRC_DIR);
+    while ((dinfo = readdir(dir)))
+    {
+        /* Skip .* files */
+        if (strlen(dinfo->d_name) > 0 && dinfo->d_name[0] == '.')
+            continue ;
+
+        if (dinfo->d_type != DT_DIR)
+        {
+            asprintf(&cmd, "%s ../%s%s", PATCH_CMD, PACKER_PATCH_DIR, dinfo->d_name);
+            exec_line(cmd);
+            free(cmd);
+        }
+    }
+
+    chdir("..");
+    closedir(dir);
+    ctx->state = INST_STATE_PATCHING;
+    return true;
+}
+
 bool configure_package(compile_t *ctx) {
     /* Nothing to configure, we're good */
     if (ctx->package->header->compilation->configure == NULL)
