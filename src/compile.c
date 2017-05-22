@@ -148,10 +148,7 @@ bool after_package(compile_t *ctx) {
         goto end;
 
     if (exec_line("sh " COMP_AFTER_SCRIPT) != 0)
-    {
-        printf("Here !\n");
         return false;
-    }
 
 end:
     ctx->state = INST_STATE_AFTER;
