@@ -142,3 +142,18 @@ end:
     ctx->state = INST_STATE_INSTALLATION;
     return status;
 }
+
+bool after_package(compile_t *ctx) {
+    if (file_exist(COMP_AFTER_SCRIPT) == false)
+        goto end;
+
+    if (exec_line("sh " COMP_AFTER_SCRIPT) != 0)
+    {
+        printf("Here !\n");
+        return false;
+    }
+
+end:
+    ctx->state = INST_STATE_AFTER;
+    return true;
+}

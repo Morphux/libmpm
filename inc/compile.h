@@ -81,7 +81,7 @@ bool before_package(compile_t *ctx);
 /*!
  * \brief Apply system and user patch
  *
- * \param[in] ctx Current paco
+ * \param[in] ctx Current package
  *
  * \return true on succes, false on failure
  */
@@ -105,6 +105,22 @@ bool configure_package(compile_t *ctx);
  */
 bool make_package(compile_t *ctx);
 
+/*!
+ * \brief Install a Package
+ *
+ * \param[in] ctx Package to compile
+ *
+ * \return true on success, false on failure
+ */
 bool install_package(compile_t *ctx);
+
+/*!
+ * \brief Execute post-installation script
+ *
+ * \param[in] ctx Current package
+ *
+ * \return truc on success, false on failure
+ */
+bool after_package(compile_t *ctx);
 
 #endif /* COMPILE_H */
