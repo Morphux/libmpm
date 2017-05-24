@@ -5,7 +5,8 @@
 TEST(init_compile) {
     packer_t        *ptr;
 
-    ptr = packer_init_dir("packer/compilation//");
+    set_mkdir_fail(-1);
+    ptr = packer_init_dir("packer/compilation/");
     TEST_ASSERT(packer_read_dir(ptr) == true, "An error happened");
     TEST_ASSERT(packer_create_archive(ptr, PACKAGE_OUTPUT_FN) == true,
                     "An error happened");
@@ -18,7 +19,7 @@ TEST(configure_package) {
     packer_t    *ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
     compile_t   *ptr = NULL;
 
-    packer_extract_archive(ctx, "/tmp");
+    TEST_ASSERT(packer_extract_archive(ctx, "/tmp") == true, "An error happened");
     ptr = package_install_init(ctx);
     TEST_ASSERT(ptr != NULL, "An error happened");
     TEST_ASSERT(before_package(ptr) == true, "An error happened");

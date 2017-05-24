@@ -847,7 +847,7 @@ bool packer_extract_archive(packer_t *ctx, const char *dir) {
     asprintf(&ctx->out_dir, "%s/%s-%s/", dir,
         ctx->header->package->name, ctx->header->package->version);
 
-    if (mkdir(ctx->out_dir, S_IRWXU | S_IRWXG | S_IRWXO) == -1 && errno != EEXIST)
+    if (mkdir(ctx->out_dir, S_IRWXU | S_IRWXG | S_IRWXO) == -1)
         goto cleanup;
 
     chdir(ctx->out_dir);

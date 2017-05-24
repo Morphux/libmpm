@@ -1,5 +1,11 @@
 #include "test.h"
 
+TEST(packer_tests_init) {
+    /* Cleaning tests directory */
+    recursive_delete("/tmp/test-2.0");
+    return TEST_SUCCESS;
+}
+
 TEST(packer_init_dir) {
     packer_t    *ptr = NULL;
 
@@ -614,7 +620,7 @@ TEST(packer_extract_archive_2) {
     packer_free(ctx);
 
     ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
-    set_mkdir_fail(1);
+    set_mkdir_fail(2);
     TEST_ASSERT(packer_extract_archive(ctx, "/tmp") == false, "Error did not raise");
     packer_free(ctx);
 
@@ -622,12 +628,14 @@ TEST(packer_extract_archive_2) {
 }
 
 TEST(packer_create_archive_cleanup) {
+    recursive_delete("/tmp/test-2.0");
     unlink(PACKAGE_OUTPUT_FN);
     return TEST_SUCCESS;
 }
 
 void register_test_packer(void) {
-   reg_test("packer", packer_init_dir);
+    reg_test("packer", packer_tests_init);
+    reg_test("packer", packer_init_dir);
     reg_test("packer", packer_init_archive);
     reg_test("packer", packer_read_dir_wrong_type);
     reg_test("packer", packer_read_dir_wrong_dir);
