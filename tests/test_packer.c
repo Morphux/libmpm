@@ -364,43 +364,6 @@ TEST(packer_write_packer_sources) {
     return TEST_SUCCESS;
 }
 
-TEST(packer_read_archive_1) {
-    packer_t    *ctx;
-
-    ctx = packer_init_dir("./");
-    TEST_ASSERT(packer_read_archive_in_memory(ctx) == false, "Wrong return");
-    packer_free(ctx);
-    return TEST_SUCCESS;
-}
-
-TEST(packer_read_archive_2) {
-    packer_t    *ctx;
-
-    ctx = packer_init_archive("/non/sense/path");
-    TEST_ASSERT(packer_read_archive_in_memory(ctx) == false, "Wrong return");
-    packer_free(ctx);
-    return TEST_SUCCESS;
-}
-
-TEST(packer_read_archive_3) {
-    packer_t    *ctx;
-
-    ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
-    TEST_ASSERT(packer_read_archive_in_memory(ctx) == true, "Wrong return");
-
-    packer_free(ctx);
-    return TEST_SUCCESS;
-}
-
-TEST(packer_read_archive_4) {
-    packer_t    *ctx;
-
-    ctx = packer_init_archive("/bin/ls");
-    TEST_ASSERT(packer_read_archive_in_memory(ctx) == false, "Wrong return");
-    packer_free(ctx);
-    return TEST_SUCCESS;
-}
-
 MPX_STATIC int read_package_header_dependencies(const char *file, packer_t *ctx);
 TEST(packer_read_package_header_dependencies) {
     char file[10], *tmp;
@@ -521,24 +484,8 @@ TEST(packer_file_init) {
 TEST(packer_extract_archive_1) {
     packer_t    *ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
 
-    TEST_ASSERT(packer_extract_archive(ctx, "/tmp"), "Wrong return");
+    TEST_ASSERT(packer_extract_archive(ctx, "/tmp") == true, "Wrong return");
     packer_free(ctx);
-    return TEST_SUCCESS;
-}
-
-TEST(read_packer_file_from_binary) {
-    char    *content = "Test123\0Nocare";
-    off_t   ctr = 0;
-
-    set_malloc_fail(0);
-    TEST_ASSERT(read_packer_file_from_binary(content, &ctr) == NULL, "Error did not raise");
-
-
-    set_strdup_fail(0);
-    TEST_ASSERT(read_packer_file_from_binary(content, &ctr) == NULL, "Error did not raise");
-
-    set_malloc_fail(1);
-    TEST_ASSERT(read_packer_file_from_binary(content, &ctr) == NULL, "Error did not raise");
     return TEST_SUCCESS;
 }
 
@@ -571,21 +518,6 @@ TEST(packer_read_archive_header) {
     TEST_ASSERT(strcmp(ctx->header->package->name, "test") == 0, "Name is wrong");
     TEST_ASSERT(strcmp(ctx->header->package->version, "2.0") == 0, "Name is wrong");
 
-    packer_free(ctx);
-    return TEST_SUCCESS;
-}
-
-MPX_STATIC bool read_package_files(char *content, packer_t *ctx, off_t total_size);
-TEST(read_package_files) {
-    char        *content = "Truc";
-    packer_t    *ctx;
-
-    ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
-
-    TEST_ASSERT(read_package_files(NULL, NULL, 0) == false, "Error did not raise");
-
-    set_malloc_fail(0);
-    TEST_ASSERT(read_package_files(content, ctx, sizeof(content)) == false, "Error did not raise");
     packer_free(ctx);
     return TEST_SUCCESS;
 }
@@ -671,10 +603,6 @@ void register_test_packer(void) {
     reg_test("packer", packer_write_packer_sources);
     reg_test("packer", packer_create_archive_wrong_fn);
     reg_test("packer", packer_create_archive_wrong_type);
-    reg_test("packer", packer_read_archive_1);
-    reg_test("packer", packer_read_archive_2);
-    reg_test("packer", packer_read_archive_3);
-    reg_test("packer", packer_read_archive_4);
     reg_test("packer", packer_read_package_header_dependencies);
     reg_test("packer", packer_read_package_header_compilation);
     reg_test("packer", packer_read_package_header_package);
@@ -682,9 +610,7 @@ void register_test_packer(void) {
     reg_test("packer", packer_file_init);
     reg_test("packer", packer_extract_archive_1);
     reg_test("packer", packer_extract_archive_2);
-    reg_test("packer", read_packer_file_from_binary);
     reg_test("packer", packer_file_to_disk);
     reg_test("packer", packer_read_archive_header);
-    reg_test("packer", read_package_files);
     reg_test("packer", packer_create_archive_cleanup);
 }

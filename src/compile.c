@@ -26,6 +26,7 @@ compile_t *package_install_init(packer_t *ctx) {
     ret->package = ctx;
     ret->state = INST_STATE_NONE;
 
+    set_execute_flags(COMP_FLAGS_STDOUT);
     getcwd(ret->old_pwd, sizeof(ret->old_pwd));
     if (chdir(ctx->out_dir) != 0)
     {
@@ -94,13 +95,40 @@ end:
 }
 
 bool configure_package(compile_t *ctx) {
+    mlist_t             *cmd = NULL, *tmp;
+    packer_conf_opt_t   *opt;
+    char                *arg = NULL;
+    bool                ret = false;
+
     /* Nothing to configure, we're good */
     if (ctx->package->header->compilation->configure == NULL)
         goto end;
 
+    if (chdir(PACKER_SRC_DIR) == -1)
+        goto end;
+
+    /* TODO: Conserve rights in archive */
+    list_add(cmd, "sh", 3);
+    list_add(cmd, CONFIGURE_CMD, sizeof(CONFIGURE_CMD) + 1);
+
+    list_for_each(ctx->package->header->compilation->configure, tmp, opt) {
+        if (opt->name != NULL)
+            asprintf(&arg, "--%s=%s", opt->name, opt->value);
+        else
+            asprintf(&arg, "--%s", opt->value);
+        list_add(cmd, arg, strlen(arg) + 1);
+        free(arg);
+    }
+
+    if (exec_list(cmd) == 0)
+        ret = true;
+
+    if (chdir("..") == -1)
+        goto end;
+
 end:
     ctx->state = INST_STATE_CONFIGURATION;
-    return true;
+    return ret;
 }
 
 bool make_package(compile_t *ctx) {

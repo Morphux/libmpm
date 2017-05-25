@@ -6,7 +6,8 @@ TEST(init_compile) {
     packer_t        *ptr;
 
     set_mkdir_fail(-1);
-    ptr = packer_init_dir("packer/compilation/");
+    recursive_delete("/tmp/ncurses-6.0");
+    ptr = packer_init_dir("packer/ncurses/");
     TEST_ASSERT(packer_read_dir(ptr) == true, "An error happened");
     TEST_ASSERT(packer_create_archive(ptr, PACKAGE_OUTPUT_FN) == true,
                     "An error happened");

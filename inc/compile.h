@@ -24,6 +24,8 @@
 
 # define PATCH_CMD "patch -Ni"
 
+# define CONFIGURE_CMD "configure"
+
 typedef enum {
     INST_STATE_NONE = 0,
     INST_STATE_BEFORE,

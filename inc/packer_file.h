@@ -26,6 +26,7 @@
 typedef struct packer_file_s {
     char    *fn;                           /*!< Filename, with relative path (Ex: srcs/main.c ) */
     off_t   file_size;                     /*!< File size, in bytes */
+    off_t   compressed_size;               /*!< Compression size, in bytes */
     char    sum[crypto_hash_sha256_BYTES]; /*!< Sha256sum of the file */
     char    *content;                      /*!< Actual content of the file */
 } packer_file_t;
@@ -94,7 +95,7 @@ bool get_file_information(packer_file_t *file);
  * \return A freshly filled and allocated packer_file_t struct on success,
  * NULL on failure
  */
-packer_file_t *read_packer_file_from_binary(const char *content, off_t *ctr);
+bool packer_file_from_binary_to_disk(const char *content, off_t *ctr);
 
 /*!
  * \brief Write a file to disk
@@ -103,6 +104,6 @@ packer_file_t *read_packer_file_from_binary(const char *content, off_t *ctr);
  *
  * \return true on success, false on failure
  */
-bool packer_file_to_disk(packer_file_t *file);
+FILE *packer_file_to_disk(packer_file_t *file);
 
 #endif /* PACKER_FILE_H */

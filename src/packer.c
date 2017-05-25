@@ -479,9 +479,10 @@ MPX_STATIC void write_package_header(FILE *fd, packer_t *ctx) {
 MPX_STATIC bool write_packer_sources(FILE *fd, packer_t *ctx, const char *dir_name) {
     mlist_t         *files_list = NULL;
     mlist_t         *dirs = NULL;
-    mlist_t         *tmp = NULL;
+    mlist_t         *tmp = NULL, *tmp2 = NULL;
     char            old_pwd[PATH_MAX];
     char            *dir = NULL;
+    packer_file_t   *file;
 
     assert(fd != NULL && ctx != NULL);
 
@@ -496,29 +497,25 @@ MPX_STATIC bool write_packer_sources(FILE *fd, packer_t *ctx, const char *dir_na
     list_for_each(dirs, tmp, dir) {
         if (read_files_from_dir(dir, &files_list, &dirs) == false)
             goto error;
+
+        if (list_size(files_list) == 0)
+            continue;
+
+        list_for_each(files_list, tmp2, file) {
+            fprintf(fd, "%s%c", file->fn, 0);
+            fwrite(&file->compressed_size, sizeof(file->compressed_size), 1, fd);
+            fwrite(&file->file_size, sizeof(file->file_size), 1, fd);
+            if (file->file_size != 0)
+            {
+                fwrite(&file->sum, crypto_hash_sha256_BYTES, 1, fd);
+                fwrite(file->content, file->compressed_size, 1, fd);
+            }
+        }
+        list_free(files_list, packer_file_free);
+        files_list = NULL;
     }
 
     list_free(dirs, NULL);
-
-    /* No file to process, all good */
-    if (list_size(files_list) == 0)
-    {
-        chdir(old_pwd);
-        return true;
-    }
-
-    packer_file_t *file;
-    list_for_each(files_list, tmp, file) {
-        fprintf(fd, "%s%c", file->fn, 0);
-        fwrite(&file->file_size, sizeof(file->file_size), 1, fd);
-        if (file->file_size != 0)
-        {
-            fwrite(&file->sum, crypto_hash_sha256_BYTES, 1, fd);
-            fwrite(file->content, file->file_size, 1, fd);
-        }
-    }
-    list_free(files_list, packer_file_free);
-
     chdir(old_pwd);
     return true;
 
@@ -745,60 +742,6 @@ cleanup:
     return false;
 }
 
-MPX_STATIC bool read_package_files(char *content, packer_t *ctx, off_t total_size) {
-    if (content == NULL || ctx == NULL)
-        return false;
-
-    packer_file_t   *file = NULL;
-    off_t           ctr = 0;
-
-    while (total_size > ctr)
-    {
-        file = read_packer_file_from_binary(content, &ctr);
-        if (file == NULL)
-            goto error;
-
-        list_add(ctx->files, file, sizeof(*file));
-        free(file);
-    }
-    return true;
-
-error:
-    list_free(ctx->files, packer_file_free);
-    ctx->files = NULL;
-    return false;
-}
-
-bool packer_read_archive_in_memory(packer_t *ctx)
-{
-    int     fd;
-    bool    ret;
-    char    *archive = NULL;
-    int     cur = 0;
-    off_t   size;
-
-    if (ctx->type != PACKER_TYPE_ARCHIVE)
-        return false;
-
-    fd = open(ctx->str, O_RDONLY);
-    if (fd == -1)
-        return false;
-
-    archive = mpm_read_file_from_fd(fd);
-    size = mpm_get_file_size_from_fd(fd);
-
-    ret = read_package_header(archive, ctx, &cur);
-    if (!ret)
-        goto cleanup;
-
-    ret = read_package_files(archive + cur, ctx, size - cur);
-
-cleanup:
-    close(fd);
-    free(archive);
-    return ret;
-}
-
 bool packer_read_archive_header(packer_t *ctx) {
     char    *archive = NULL;
     bool    ret;
@@ -817,7 +760,7 @@ bool packer_read_archive_header(packer_t *ctx) {
 }
 
 bool packer_extract_archive(packer_t *ctx, const char *dir) {
-    packer_file_t       *file = NULL;
+    /*packer_file_t       *file = NULL;*/
     int                 fd, t_ctr;
     bool                ret = false;
     char                *archive = NULL;
@@ -854,18 +797,8 @@ bool packer_extract_archive(packer_t *ctx, const char *dir) {
 
     while (size > ctr)
     {
-        file = read_packer_file_from_binary(archive, &ctr);
-        if (file == NULL)
+        if (packer_file_from_binary_to_disk(archive, &ctr) == false)
             goto cleanup;
-
-        if (packer_file_to_disk(file) == false)
-        {
-            packer_file_free(file);
-            free(file);
-            goto cleanup;
-        }
-        packer_file_free(file);
-        free(file);
     }
 
     ret = true;

@@ -121,6 +121,7 @@ bool get_file_information(packer_file_t *file) {
     if (file_content == NULL)
     {
         file->file_size = 0;
+        file->compressed_size = 0;
         file->content = NULL;
         return true;
     }
@@ -149,8 +150,8 @@ bool get_file_information(packer_file_t *file) {
     deflate(&stream, Z_FINISH);
     deflateEnd(&stream);
 
-    file->file_size = stream.total_out;
-    file->content = malloc(file->file_size);
+    file->compressed_size = stream.total_out;
+    file->content = malloc(file->compressed_size);
     if (file->content == NULL)
     {
         free(file_content);
@@ -158,77 +159,16 @@ bool get_file_information(packer_file_t *file) {
         return false;
     }
 
-    memcpy(file->content, chunk, file->file_size);
+    memcpy(file->content, chunk, file->compressed_size);
+    file->file_size = file_size;
 
     free(file_content);
     free(chunk);
     return true;
 }
 
-packer_file_t *read_packer_file_from_binary(const char *content, off_t *ctr) {
-    packer_file_t   *file = NULL;
-    z_stream        stream;
-
-    file = malloc(sizeof(*file));
-    if (file == NULL)
-        return NULL;
-
-    file->content = NULL;
-
-    /* File name */
-    file->fn = strdup(content + *ctr);
-    if (file->fn == NULL)
-    {
-        free(file);
-        return NULL;
-    }
-
-    *ctr += strlen(file->fn) + 1;
-
-    /* File content size */
-    memcpy(&file->file_size, content + *ctr, sizeof(file->file_size));
-    *ctr += sizeof(file->file_size);
-
-    if (file->file_size > 0) {
-        /* File hash */
-        memcpy(file->sum, content + *ctr, crypto_hash_sha256_BYTES);
-        *ctr += crypto_hash_sha256_BYTES;
-
-        /* Actual file content */
-        stream.zalloc = NULL;
-        stream.zfree = NULL;
-        stream.opaque = NULL;
-        stream.avail_in = file->file_size;
-        stream.avail_out = file->file_size * 2;
-
-        inflateInit(&stream);
-
-        file->content = malloc(file->file_size * 2);
-        if (file->content == NULL)
-        {
-            inflateEnd(&stream);
-            free(file->fn);
-            free(file);
-            return NULL;
-        }
-
-        /* Decompress file */
-        stream.next_in = (unsigned char *)content + *ctr;
-        stream.next_out = (unsigned char *)file->content;
-
-        inflate(&stream, Z_NO_FLUSH);
-        file->content[stream.total_out] = '\0';
-        inflateEnd(&stream);
-
-
-        *ctr += file->file_size;
-    }
-    return file;
-}
-
-bool packer_file_to_disk(packer_file_t *file) {
+FILE *packer_file_to_disk(packer_file_t *file) {
     char        *tmp = NULL;
-    FILE        *fd = NULL;
 
     for (tmp = file->fn + 1; *tmp; tmp++)
     {
@@ -238,17 +178,78 @@ bool packer_file_to_disk(packer_file_t *file) {
             if (mkdir(file->fn, S_IRWXU) == -1 && errno != EEXIST)
             {
                 *tmp = '/';
-                return false;
+                goto open;
             }
             *tmp = '/';
         }
     }
 
-    fd = fopen(file->fn, "w+");
-    if (fd == NULL)
+open:
+    return fopen(file->fn, "w+");
+}
+
+#define _CHUNK_SIZE 2048
+
+bool packer_file_from_binary_to_disk(const char *content, off_t *ctr) {
+    z_stream        stream;
+    packer_file_t   file;
+    int             ret;
+    bool            status = false;
+    unsigned char   out[_CHUNK_SIZE];
+    FILE            *fd;
+
+    file.fn = strdup(content + *ctr);
+    if (file.fn == NULL)
         return false;
 
-    fprintf(fd, "%s", file->content);
+    fd = packer_file_to_disk(&file);
+    if (fd == NULL)
+        goto cleanup;
+
+    *ctr += strlen(file.fn) + 1;
+
+    /* File content size */
+    memcpy(&file.compressed_size, content + *ctr, sizeof(file.compressed_size));
+    *ctr += sizeof(file.compressed_size);
+
+    memcpy(&file.file_size, content + *ctr, sizeof(file.file_size));
+    *ctr += sizeof(file.file_size);
+
+    /* Init Zstream */
+    stream.zalloc = Z_NULL;
+    stream.zfree = Z_NULL;
+    stream.opaque = Z_NULL;
+
+    if (file.compressed_size > 0)
+    {
+        /* Ignore hash */
+        *ctr += crypto_hash_sha256_BYTES;
+
+        ret = inflateInit(&stream);
+        if (ret != Z_OK)
+            goto cleanup;
+
+        stream.avail_in = file.compressed_size;
+        stream.next_in = (unsigned char *)content + *ctr;
+        stream.avail_out = 0;
+        *ctr += file.compressed_size;
+
+        while (stream.avail_out == 0)
+        {
+            stream.avail_out = _CHUNK_SIZE;
+            stream.next_out = out;
+            ret = inflate(&stream, Z_NO_FLUSH);
+            if (_CHUNK_SIZE - stream.avail_out > 0)
+                fwrite(out, _CHUNK_SIZE - stream.avail_out, 1, fd);
+        }
+
+        inflateEnd(&stream);
+    }
+
+    status = true;
+
+cleanup:
     fclose(fd);
-    return true;
+    free(file.fn);
+    return status;
 }

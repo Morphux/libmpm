@@ -1,0 +1,21 @@
+{
+    "package": {
+        "name": "ncurses",
+        "version": "6.0",
+        "description": "This is a description. Yeah I know, mind blowing."
+    },
+    "compilation": {
+        "configure": [
+            {"prefix": "/usr"},
+            "with-shared",
+            "without-debug"
+        ],
+        "make": "",
+        "test": "",
+        "install": ""
+    },
+    "dependencies": [
+        "something-5.5",
+        "yrdy"
+    ]
+}
