@@ -136,6 +136,8 @@ bool configure_package(compile_t *ctx) {
     if (exec_list(cmd) == 0)
         ret = true;
 
+    list_free(cmd, NULL);
+
     if (chdir("..") == -1)
         goto end;
 
