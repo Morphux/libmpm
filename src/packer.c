@@ -100,6 +100,7 @@ MPX_STATIC packer_header_comp_t *packer_header_comp_init(void) {
     ret->make = NULL;
     ret->test = NULL;
     ret->install = NULL;
+    ret->env = NULL;
     return ret;
 }
 
@@ -108,6 +109,10 @@ MPX_STATIC void packer_header_comp_free(packer_header_comp_t *ptr) {
     {
         if (ptr->configure)
            list_free(ptr->configure, &packer_conf_opt_free);
+
+        if (ptr->env)
+           list_free(ptr->env, &packer_conf_opt_free);
+
         free(ptr->make);
         free(ptr->test);
         free(ptr->install);
@@ -281,6 +286,46 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
                 ctx->header->compilation->install = strdup(PACKER_INST_DEF);
             else
                 ctx->header->compilation->install = strdup(json_object_get_string(tmp));
+        }
+        else if (strcmp(name, PACKER_CONF_COMP_ENV_TOKEN) == 0)
+        {
+            if (json_object_get_type(tmp) != json_type_array)
+                goto cleanup;
+
+            for (size_t i = 0; i < json_object_array_length(tmp); i++)
+            {
+                struct json_object      *array_ent, *array_tmp;
+                packer_conf_opt_t       *opt = NULL;
+
+                array_ent = json_object_array_get_idx(tmp, i);
+                if (json_object_get_type(array_ent) == json_type_object)
+                {
+                    struct json_object_iterator     it_arr, it_arr_end;
+
+                    it_arr = json_object_iter_begin(array_ent);
+                    it_arr_end = json_object_iter_end(array_ent);
+                    while (!json_object_iter_equal(&it_arr, &it_arr_end))
+                    {
+                        array_tmp = json_object_iter_peek_value(&it_arr);
+                        if (json_object_get_type(array_tmp) != json_type_string)
+                            goto cleanup;
+                        opt = packer_conf_opt_init(json_object_iter_peek_name(&it_arr),
+                            json_object_get_string(array_tmp));
+                        list_add(ctx->header->compilation->env, opt, sizeof(*opt));
+                        free(opt);
+                        json_object_iter_next(&it_arr);
+                    }
+                }
+                else if (json_object_get_type(array_ent) == json_type_string)
+                {
+                    opt = packer_conf_opt_init(NULL,
+                        json_object_get_string(array_ent));
+                    list_add(ctx->header->compilation->env, opt, sizeof(*opt));
+                    free(opt);
+                }
+                else
+                    goto cleanup;
+            }
         }
         /* Wrong token */
         else
@@ -468,6 +513,19 @@ MPX_STATIC void write_package_header(FILE *fd, packer_t *ctx) {
     fprintf(fd, "%s%c", STR_OR_EMPTY(h->compilation->test), 0);
     fprintf(fd, "%s%c", STR_OR_EMPTY(h->compilation->install), 0);
 
+    conf_len = htonl(list_size(h->compilation->env));
+    fwrite(&conf_len, sizeof(u32_t), 1, fd);
+    if (list_size(h->compilation->env) != 0)
+    {
+        list_for_each(h->compilation->env, tmp, opt)
+        {
+            if (opt->name != NULL)
+                fprintf(fd, "%s:%s%c", opt->value, opt->name, 0);
+            else
+                fprintf(fd, "%s%c", opt->value, 0);
+        }
+    }
+
     list_len = htonl(list_size(h->dependencies->list));
     fwrite(&list_len, sizeof(u32_t), 1, fd);
 
@@ -588,21 +646,14 @@ cleanup:
     return 0;
 }
 
-MPX_STATIC int read_package_header_compilation(char *file, packer_t *ctx)
-{
-    packer_header_comp_t        *comp = NULL;
-    packer_conf_opt_t           *opt = NULL;
-    int                         ret = 0;
-    u32_t                       size = 0;
-    char                        *tmp = NULL, *ptr = NULL;
+MPX_STATIC bool read_conf_opt(char *file, mlist_t **list, int *ret) {
+    u32_t               size;
+    packer_conf_opt_t   *opt = NULL;
+    char                *tmp = NULL, *ptr = NULL;
 
-    comp = packer_header_comp_init();
-    if (comp == NULL)
-        return 0;
-
-    memcpy(&size, file, sizeof(u32_t));
+    memcpy(&size, file + *ret, sizeof(size));
     size = ntohl(size);
-    ret += sizeof(u32_t);
+    *ret += sizeof(size);
 
     for (u32_t i = 0; i < size; i++)
     {
@@ -610,8 +661,8 @@ MPX_STATIC int read_package_header_compilation(char *file, packer_t *ctx)
         if (opt == NULL)
             goto cleanup;
 
-        tmp = file + ret;
-        ret += strlen(tmp) + 1;
+        tmp = file + *ret;
+        *ret += strlen(tmp) + 1;
 
         ptr = strchr(tmp, ':');
         if (ptr == NULL)
@@ -642,9 +693,29 @@ MPX_STATIC int read_package_header_compilation(char *file, packer_t *ctx)
                 goto cleanup;
             }
         }
-        list_add(comp->configure, opt, sizeof(*opt));
+        list_add(*(list), opt, sizeof(*opt));
         free(opt);
     }
+
+    return true;
+
+cleanup:
+    list_free(*(list), packer_conf_opt_free);
+    *list = NULL;
+    return false;
+}
+
+MPX_STATIC int read_package_header_compilation(char *file, packer_t *ctx)
+{
+    packer_header_comp_t        *comp = NULL;
+    int                         ret = 0;
+
+    comp = packer_header_comp_init();
+    if (comp == NULL)
+        return 0;
+
+    if (read_conf_opt(file, &comp->configure, &ret) != true)
+        goto cleanup;
 
     comp->make = strdup(file + ret);
     if (comp->make == NULL)
@@ -661,6 +732,9 @@ MPX_STATIC int read_package_header_compilation(char *file, packer_t *ctx)
     if (comp->install == NULL)
         goto cleanup;
     ret += strlen(comp->install) + 1;
+
+    if (read_conf_opt(file, &comp->env, &ret) != true)
+        goto cleanup;
 
     ctx->header->compilation = comp;
     return ret;

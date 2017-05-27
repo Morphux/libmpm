@@ -54,6 +54,7 @@ typedef enum packer_type_e {
 # define PACKER_CONF_COMP_MAKE_TOKEN            "make"
 # define PACKER_CONF_COMP_TEST_TOKEN            "test"
 # define PACKER_CONF_COMP_INST_TOKEN            "install"
+# define PACKER_CONF_COMP_ENV_TOKEN              "env"
 # define PACKER_CONF_DEPS_TOKEN                 "dependencies"
 
 # define JSON_SKIP_NULL(obj, it)    if (json_object_get_type(obj) == json_type_null) \
@@ -78,6 +79,7 @@ typedef struct packer_header_comp_s {
     char        *make;      /*!< Make options */
     char        *test;      /*!< Test instructions */
     char        *install;   /*!< Install instructions */
+    mlist_t     *env;       /*!< Environnement variables */
 } packer_header_comp_t;
 
 typedef struct packer_header_deps_s {

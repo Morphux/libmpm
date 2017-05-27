@@ -8,11 +8,17 @@
         "configure": [
             {"prefix": "/usr"},
             "with-shared",
-            "without-debug"
+            "without-debug",
+            "without-ada",
+            "enable-widec",
+            "enable-overwrite"
         ],
         "make": "",
         "test": "",
-        "install": ""
+        "install": "all",
+        "env": [
+            {"CPPFLAGS": "-P"}
+        ]
     },
     "dependencies": [
         "something-5.5",

@@ -17,7 +17,9 @@
 #include <compile.h>
 
 compile_t *package_install_init(packer_t *ctx) {
-    compile_t   *ret = NULL;
+    compile_t           *ret = NULL;
+    packer_conf_opt_t   *opt = NULL;
+    mlist_t             *tmp = NULL;
 
     ret = malloc(sizeof(*ret));
     if (ret == NULL)
@@ -33,6 +35,17 @@ compile_t *package_install_init(packer_t *ctx) {
         free(ret);
         return NULL;
     }
+    if (ctx->header->compilation->env == NULL)
+        return ret;
+
+    list_for_each(ctx->header->compilation->env, tmp, opt)
+    {
+        if (opt->name != NULL)
+            setenv(opt->value, opt->name, 1);
+        else
+            setenv(opt->value, "", 1);
+    }
+
     return ret;
 }
 
