@@ -210,6 +210,33 @@ TEST(packer_wrong_comp_section_8) {
     return TEST_SUCCESS;
 }
 
+TEST(packer_wrong_comp_section_9) {
+    packer_t    *ptr;
+
+    ptr = packer_init_dir("packer/wrong_comp_section_9/");
+    TEST_ASSERT(packer_read_dir(ptr) == false, "Error not raised");
+    packer_free(ptr);
+    return TEST_SUCCESS;
+}
+
+TEST(packer_wrong_comp_section_10) {
+    packer_t    *ptr;
+
+    ptr = packer_init_dir("packer/wrong_comp_section_10/");
+    TEST_ASSERT(packer_read_dir(ptr) == false, "Error not raised");
+    packer_free(ptr);
+    return TEST_SUCCESS;
+}
+
+TEST(packer_wrong_comp_section_11) {
+    packer_t    *ptr;
+
+    ptr = packer_init_dir("packer/wrong_comp_section_11/");
+    TEST_ASSERT(packer_read_dir(ptr) == false, "Error not raised");
+    packer_free(ptr);
+    return TEST_SUCCESS;
+}
+
 TEST(packer_wrong_deps_section_1) {
     packer_t    *ptr;
 
@@ -381,7 +408,7 @@ TEST(packer_read_package_header_dependencies) {
 MPX_STATIC int read_package_header_compilation(char *file, packer_t *ctx);
 TEST(packer_read_package_header_compilation) {
     char        *file;
-    char        tmp[] = "TEst:123\0Oui\0make\0test\0install";
+    char        tmp[] = "TEst:123\0Oui\0make\0test\0install\0Test:123";
     u32_t       i = htonl(2);
 
     file = malloc(sizeof(i) + sizeof(tmp));
@@ -393,6 +420,10 @@ TEST(packer_read_package_header_compilation) {
     memcpy(file + sizeof(i), tmp, sizeof(tmp));
 
     set_malloc_fail(1);
+    TEST_ASSERT(read_package_header_compilation(file, NULL) == 0, "Wrong return");
+    memcpy(file + sizeof(i), tmp, sizeof(tmp));
+
+    set_malloc_fail(3);
     TEST_ASSERT(read_package_header_compilation(file, NULL) == 0, "Wrong return");
     memcpy(file + sizeof(i), tmp, sizeof(tmp));
 
@@ -519,6 +550,13 @@ TEST(packer_extract_archive_2) {
     TEST_ASSERT(packer_extract_archive(ctx, NULL) == false, "Error did not raise");
     packer_free(ctx);
 
+    recursive_delete("/tmp/test-2.0");
+    set_mkdir_fail(-1);
+    ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
+    set_strdup_fail(20);
+    TEST_ASSERT(packer_extract_archive(ctx, "/tmp") == false, "Error did not raise");
+    packer_free(ctx);
+
     ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
     set_malloc_fail(0);
     TEST_ASSERT(packer_extract_archive(ctx, NULL) == false, "Error did not raise");
@@ -530,16 +568,6 @@ TEST(packer_extract_archive_2) {
 
     ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
     TEST_ASSERT(packer_extract_archive(ctx, "/") == false, "Error did not raise");
-    packer_free(ctx);
-
-    ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
-    set_malloc_fail(12);
-    TEST_ASSERT(packer_extract_archive(ctx, "/tmp") == false, "Error did not raise");
-    packer_free(ctx);
-
-    ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
-    set_mkdir_fail(2);
-    TEST_ASSERT(packer_extract_archive(ctx, "/tmp") == false, "Error did not raise");
     packer_free(ctx);
 
     return TEST_SUCCESS;
@@ -598,6 +626,9 @@ void register_test_packer(void) {
     reg_test("packer", packer_wrong_comp_section_6);
     reg_test("packer", packer_wrong_comp_section_7);
     reg_test("packer", packer_wrong_comp_section_8);
+    reg_test("packer", packer_wrong_comp_section_9);
+    reg_test("packer", packer_wrong_comp_section_10);
+    reg_test("packer", packer_wrong_comp_section_11);
     reg_test("packer", packer_wrong_deps_section_1);
     reg_test("packer", packer_wrong_deps_section_2);
     reg_test("packer", packer_init_1);

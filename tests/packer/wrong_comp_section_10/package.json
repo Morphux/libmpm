@@ -1,6 +1,6 @@
 {
     "package": {
-        "name": "test",
+        "name": "name",
         "version": "2.0",
         "description": "This is a description. Yeah I know, mind blowing."
     },
@@ -13,8 +13,7 @@
         "test": "",
         "install": "",
         "env": [
-            {"TOTO": "TATA"},
-            "TRUC"
+            {"TOTO": 10}
         ]
     },
     "dependencies": [

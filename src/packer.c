@@ -27,7 +27,6 @@ MPX_STATIC packer_t *packer_init(const char *str) {
     ret->json = NULL;
     ret->str = strdup(str);
     ret->header = NULL;
-    ret->files = NULL;
     ret->out_dir = NULL;
     if (ret->str == NULL)
         goto cleanup;
@@ -189,10 +188,6 @@ void packer_free(packer_t *ptr) {
         free(ptr->str);
         packer_header_free(ptr->header);
         free(ptr->out_dir);
-        if (ptr->files != NULL)
-        {
-            list_free(ptr->files, packer_file_free);
-        }
         free(ptr);
     }
 }
@@ -835,7 +830,6 @@ bool packer_read_archive_header(packer_t *ctx) {
 }
 
 bool packer_extract_archive(packer_t *ctx, const char *dir) {
-    /*packer_file_t       *file = NULL;*/
     int                 fd, t_ctr;
     bool                ret = false;
     char                *archive = NULL;

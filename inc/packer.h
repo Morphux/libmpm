@@ -97,9 +97,9 @@ typedef struct packer_s {
     json_object     *json;   /*!< JSON object */
     packer_type_t   type;    /*!< Type of packer */
     packer_header_t *header; /*!< Header of the MPX format */
-    mlist_t         *files;  /*!< Files list, if it's an archive */
     char            *out_dir;/*!< Output directory, in case of an archive */
 } packer_t;
+
 
 # include <libmpm.h>
 
