@@ -49,6 +49,9 @@ typedef enum packer_type_e {
 # define PACKER_CONF_PACKAGE_NAME_TOKEN         "name"
 # define PACKER_CONF_PACKAGE_VERSION_TOKEN      "version"
 # define PACKER_CONF_PACKAGE_DESC_TOKEN         "description"
+# define PACKER_CONF_PACKAGE_SBU_TOKEN          "SBU"
+# define PACKER_CONF_PACKAGE_CATEG_TOKEN        "category"
+# define PACKER_CONF_PACKAGE_INST_SIZE_TOKEN    "inst_size"
 # define PACKER_CONF_COMP_TOKEN                 "compilation"
 # define PACKER_CONF_COMP_CONF_TOKEN            "configure"
 # define PACKER_CONF_COMP_MAKE_TOKEN            "make"
@@ -67,6 +70,9 @@ typedef struct packer_header_package_s {
     char    *name;        /*!< Name of the package */
     char    *version;     /*!< Version of the package */
     char    *description; /*!< Description of the package */
+    double  _sbu;         /*!< SBU (Installation time) */
+    char    *categ;       /*!< Category of the package */
+    double  inst_size;    /*!< Installation size */
 } packer_header_package_t;
 
 typedef struct packer_conf_opt_s {

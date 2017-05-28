@@ -138,6 +138,33 @@ TEST(packer_wrong_package_section_5) {
     return TEST_SUCCESS;
 }
 
+TEST(packer_wrong_package_section_6) {
+    packer_t    *ptr;
+
+    ptr = packer_init_dir("packer/wrong_package_section_6/");
+    TEST_ASSERT(packer_read_dir(ptr) == false, "Error not raised");
+    packer_free(ptr);
+    return TEST_SUCCESS;
+}
+
+TEST(packer_wrong_package_section_7) {
+    packer_t    *ptr;
+
+    ptr = packer_init_dir("packer/wrong_package_section_7/");
+    TEST_ASSERT(packer_read_dir(ptr) == false, "Error not raised");
+    packer_free(ptr);
+    return TEST_SUCCESS;
+}
+
+TEST(packer_wrong_package_section_8) {
+    packer_t    *ptr;
+
+    ptr = packer_init_dir("packer/wrong_package_section_8/");
+    TEST_ASSERT(packer_read_dir(ptr) == false, "Error not raised");
+    packer_free(ptr);
+    return TEST_SUCCESS;
+}
+
 TEST(packer_wrong_comp_section_1) {
     packer_t    *ptr;
 
@@ -466,6 +493,8 @@ TEST(packer_read_package_header_package) {
     TEST_ASSERT(read_package_header_package(tmp, NULL) == 0, "Wrong return");
     set_strdup_fail(2);
     TEST_ASSERT(read_package_header_package(tmp, NULL) == 0, "Wrong return");
+    set_strdup_fail(3);
+    TEST_ASSERT(read_package_header_package(tmp, NULL) == 0, "Wrong return");
 
     return TEST_SUCCESS;
 }
@@ -620,6 +649,9 @@ void register_test_packer(void) {
     reg_test("packer", packer_wrong_package_section_3);
     reg_test("packer", packer_wrong_package_section_4);
     reg_test("packer", packer_wrong_package_section_5);
+    reg_test("packer", packer_wrong_package_section_6);
+    reg_test("packer", packer_wrong_package_section_7);
+    reg_test("packer", packer_wrong_package_section_8);
     reg_test("packer", packer_wrong_comp_section_1);
     reg_test("packer", packer_wrong_comp_section_2);
     reg_test("packer", packer_wrong_comp_section_3);

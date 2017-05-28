@@ -3,10 +3,11 @@
         "name": "test",
         "version": "2.0",
         "description": "This is a description. Yeah I know, mind blowing.",
-        "SBU": 14,
-        "category": "main",
-        "inst_size": 244
+        "category": "truc",
+        "SBU": 244,
+        "inst_size": []
     },
+
     "compilation": {
         "configure": [
             {"mandir": "/usr/share/man"},

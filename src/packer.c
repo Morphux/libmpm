@@ -48,6 +48,9 @@ MPX_STATIC packer_header_package_t *packer_header_package_init(void) {
     ret->name = NULL;
     ret->version = NULL;
     ret->description = NULL;
+    ret->_sbu = 0;
+    ret->categ = NULL;
+    ret->inst_size = 0;
     return ret;
 }
 
@@ -57,6 +60,7 @@ MPX_STATIC void packer_header_package_free(packer_header_package_t *ptr) {
         free(ptr->name);
         free(ptr->version);
         free(ptr->description);
+        free(ptr->categ);
         free(ptr);
     }
 }
@@ -400,6 +404,26 @@ MPX_STATIC bool packer_read_config_package(packer_t *ctx, struct json_object *ob
                 goto cleanup;
             ctx->header->package->description = strdup(json_object_get_string(tmp));
         }
+        else if (strcmp(name, PACKER_CONF_PACKAGE_SBU_TOKEN) == 0)
+        {
+            if (json_object_get_type(tmp) != json_type_double
+                && json_object_get_type(tmp) != json_type_int)
+                goto cleanup;
+            ctx->header->package->_sbu = json_object_get_double(tmp);
+        }
+        else if (strcmp(name, PACKER_CONF_PACKAGE_CATEG_TOKEN) == 0)
+        {
+            if (json_object_get_type(tmp) != json_type_string)
+                goto cleanup;
+            ctx->header->package->categ = strdup(json_object_get_string(tmp));
+        }
+        else if (strcmp(name, PACKER_CONF_PACKAGE_INST_SIZE_TOKEN) == 0)
+        {
+            if (json_object_get_type(tmp) != json_type_double
+                && json_object_get_type(tmp) != json_type_int)
+                goto cleanup;
+            ctx->header->package->inst_size = json_object_get_double(tmp);
+        }
         /* Wrong token */
         else
             goto cleanup;
@@ -487,11 +511,18 @@ MPX_STATIC void write_package_header(FILE *fd, packer_t *ctx) {
     packer_conf_opt_t   *opt = NULL;
     const char          *tmp_str = NULL;
     u32_t               list_len = 0, conf_len = 0;
+    double              sbu, inst_size;
 
     fprintf(fd, PACKER_MPX_MAGIC);
     fprintf(fd, "%s%c", h->package->name, 0);
     fprintf(fd, "%s%c", h->package->version, 0);
     fprintf(fd, "%s%c", h->package->description, 0);
+    fprintf(fd, "%s%c", h->package->categ, 0);
+
+    sbu = htonl(h->package->_sbu);
+    fwrite(&sbu, sizeof(sbu), 1, fd);
+    inst_size = htonl(h->package->inst_size);
+    fwrite(&inst_size, sizeof(inst_size), 1, fd);
 
     conf_len = htonl(list_size(h->compilation->configure));
     fwrite(&conf_len, sizeof(u32_t), 1, fd);
@@ -613,6 +644,7 @@ MPX_STATIC int read_package_header_package(const char *file, packer_t *ctx)
 {
     int                         ret = 0;
     packer_header_package_t     *pkg = NULL;
+    double              sbu, inst_size;
 
     pkg = packer_header_package_init();
     if (pkg == NULL)
@@ -633,6 +665,19 @@ MPX_STATIC int read_package_header_package(const char *file, packer_t *ctx)
     if (pkg->description == NULL)
         goto cleanup;
     ret += strlen(pkg->description) + 1;
+
+    pkg->categ = strdup(file + ret);
+    if (pkg->categ == NULL)
+        goto cleanup;
+    ret += strlen(pkg->categ) + 1;
+
+    memcpy(&sbu, file + ret, sizeof(sbu));
+    pkg->_sbu = ntohl(sbu);
+    ret += sizeof(sbu);
+
+    memcpy(&inst_size, file + ret, sizeof(inst_size));
+    pkg->inst_size = ntohl(inst_size);
+    ret += sizeof(inst_size);
 
     ctx->header->package = pkg;
     return ret;
