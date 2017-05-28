@@ -213,7 +213,11 @@ bool install_archive(packer_t *ctx) {
 
     ptr = package_install_init(ctx);
     if (ptr == NULL)
-        goto end;
+    {
+        recursive_delete(ctx->out_dir);
+        packer_free(ctx);
+        return ret;
+    }
 
     if (before_package(ptr) == false)
         goto end;

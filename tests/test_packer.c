@@ -593,6 +593,8 @@ TEST(get_file_information) {
 
     set_stat_fail(0);
     TEST_ASSERT(get_file_information(file) == false, "Error did not raise");
+    free(file->fn);
+    free(file);
 
     return TEST_SUCCESS;
 }

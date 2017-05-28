@@ -200,6 +200,7 @@ TEST(full_install_2) {
     packer_t    *ctx;
 
     ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
+
     set_malloc_fail(0);
     TEST_ASSERT(install_archive(ctx) == false, "Error did not raise");
 
@@ -218,22 +219,18 @@ TEST(full_install_2) {
     ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
     set_fork_fail(2);
     TEST_ASSERT(install_archive(ctx) == false, "Error did not raise");
-    recursive_delete(ctx->out_dir);
 
     ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
     set_fork_fail(3);
     TEST_ASSERT(install_archive(ctx) == false, "Error did not raise");
-    recursive_delete(ctx->out_dir);
 
     ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
     set_fork_fail(4);
     TEST_ASSERT(install_archive(ctx) == false, "Error did not raise");
-    recursive_delete(ctx->out_dir);
 
     ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
     set_fork_fail(5);
     TEST_ASSERT(install_archive(ctx) == false, "Error did not raise");
-    recursive_delete(ctx->out_dir);
 
     return TEST_SUCCESS;
 }
