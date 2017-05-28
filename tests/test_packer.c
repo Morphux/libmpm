@@ -545,6 +545,30 @@ TEST(packer_extract_archive_2) {
     return TEST_SUCCESS;
 }
 
+TEST(packer_file_from_binary_to_disk) {
+    off_t       ctr = 0;
+
+    set_strdup_fail(0);
+    TEST_ASSERT(packer_file_from_binary_to_disk("Content", &ctr) == false, "Error did not raise");
+
+    set_strdup_fail(1);
+    TEST_ASSERT(packer_file_from_binary_to_disk("/tmp/somedir/somefile", &ctr) == false, "Error did not raise");
+
+    return TEST_SUCCESS;
+}
+
+TEST(get_file_information) {
+    packer_file_t   *file;
+
+    file = malloc(sizeof(file));
+    file->fn = strdup(PACKAGE_OUTPUT_FN);
+
+    set_stat_fail(0);
+    TEST_ASSERT(get_file_information(file) == false, "Error did not raise");
+
+    return TEST_SUCCESS;
+}
+
 TEST(packer_create_archive_cleanup) {
     recursive_delete("/tmp/test-2.0");
     unlink(PACKAGE_OUTPUT_FN);
@@ -597,5 +621,7 @@ void register_test_packer(void) {
     reg_test("packer", packer_extract_archive_1);
     reg_test("packer", packer_extract_archive_2);
     reg_test("packer", packer_read_archive_header);
+    reg_test("packer", packer_file_from_binary_to_disk);
+    reg_test("packer", get_file_information);
     reg_test("packer", packer_create_archive_cleanup);
 }

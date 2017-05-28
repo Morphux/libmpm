@@ -28,7 +28,6 @@ compile_t *package_install_init(packer_t *ctx) {
     ret->package = ctx;
     ret->state = INST_STATE_NONE;
 
-    set_execute_flags(COMP_FLAGS_STDOUT);
     getcwd(ret->old_pwd, sizeof(ret->old_pwd));
     if (chdir(ctx->out_dir) != 0)
     {
@@ -120,8 +119,6 @@ bool configure_package(compile_t *ctx) {
     if (chdir(PACKER_SRC_DIR) == -1)
         goto end;
 
-    /* TODO: Conserve rights in archive */
-    list_add(cmd, "sh", 3);
     list_add(cmd, CONFIGURE_CMD, sizeof(CONFIGURE_CMD) + 1);
 
     list_for_each(ctx->package->header->compilation->configure, tmp, opt) {

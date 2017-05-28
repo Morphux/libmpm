@@ -5,7 +5,10 @@
         "description": "This is a description. Yeah I know, mind blowing."
     },
     "compilation": {
-        "configure": null,
+        "configure": [
+            {"something": "value"},
+            "single-opt"
+        ],
         "make": "",
         "test": "",
         "install": ""

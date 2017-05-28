@@ -177,7 +177,6 @@ bool get_file_information(packer_file_t *file) {
 bool packer_file_from_binary_to_disk(const char *content, off_t *ctr) {
     z_stream        stream;
     packer_file_t   file;
-    int             ret;
     bool            status = false;
     unsigned char   out[_CHUNK_SIZE];
     FILE            *fd;
@@ -213,9 +212,7 @@ bool packer_file_from_binary_to_disk(const char *content, off_t *ctr) {
         /* Ignore hash */
         *ctr += crypto_hash_sha256_BYTES;
 
-        ret = inflateInit(&stream);
-        if (ret != Z_OK)
-            goto cleanup;
+        inflateInit(&stream);
 
         stream.avail_in = file.compressed_size;
         stream.next_in = (unsigned char *)content + *ctr;
@@ -226,7 +223,7 @@ bool packer_file_from_binary_to_disk(const char *content, off_t *ctr) {
         {
             stream.avail_out = _CHUNK_SIZE;
             stream.next_out = out;
-            ret = inflate(&stream, Z_NO_FLUSH);
+            inflate(&stream, Z_NO_FLUSH);
             if (_CHUNK_SIZE - stream.avail_out > 0)
                 fwrite(out, _CHUNK_SIZE - stream.avail_out, 1, fd);
         }
@@ -239,7 +236,8 @@ bool packer_file_from_binary_to_disk(const char *content, off_t *ctr) {
         status = true;
 
 cleanup:
-    fclose(fd);
+    if (fd != NULL)
+        fclose(fd);
     free(file.fn);
     return status;
 }
