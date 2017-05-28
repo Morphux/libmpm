@@ -1,0 +1,53 @@
+{
+    "package": {
+        "name": "test",
+        "version": "2.0",
+        "description": "This is a description. Yeah I know, mind blowing.",
+        "SBU": 1.4,
+        "category": "pkg",
+        "inst_size": 34
+    },
+    "compilation": {
+        "configure": [
+            {"mandir": "/usr/share/man"},
+            "with-shared",
+            "without-debug",
+            "without-normal",
+            "enable-pc-files",
+            "enable-widec"
+        ],
+        "make": "",
+        "test": "",
+        "install": ""
+    },
+    "dependencies": [
+        "something-5.5",
+        "yrdy"
+    ],
+    "files": [
+        "/etc/test/someconf.conf": {
+            "mode": 644,
+            "type": 1
+        }
+    ],
+    "users": [
+        {
+            "username": "louis",
+            "comment": "System account",
+            "home_dir": null,
+            "group": "system",
+            "shell": "/bin/false",
+            "uid": 50
+        }
+    ],
+    "groups": [
+        {
+            "group_name": "system",
+            "guid": 50
+        }
+    ],
+    "kernel": [
+        "+SOME_CONF_TO_ADD",
+        "-SOME_CONF_TO_REMOVE"
+    ]
+}
