@@ -853,6 +853,12 @@ bool packer_extract_archive(packer_t *ctx, const char *dir) {
 
     ctr = t_ctr;
 
+    DIR *p_dir = opendir(dir);
+    if (p_dir == NULL)
+        mkdir(dir, S_IRWXU | S_IRWXG | S_IRWXO);
+    else
+        closedir(p_dir);
+
     if (chdir(dir) == -1)
         goto cleanup;
 

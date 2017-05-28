@@ -22,9 +22,10 @@
 # define COMP_BEFORE_SCRIPT PACKER_SCRIPT_DIR "before.sh"
 # define COMP_AFTER_SCRIPT PACKER_SCRIPT_DIR "after.sh"
 
-# define PATCH_CMD "patch -Ni"
+# define PATCH_CMD              "patch -Ni"
+# define CONFIGURE_CMD          "./configure"
 
-# define CONFIGURE_CMD "./configure"
+# define DEFAULT_EXTRACT_DIR    "/var/tmp/mpm_private"
 
 typedef enum {
     INST_STATE_NONE = 0,
@@ -124,5 +125,14 @@ bool install_package(compile_t *ctx);
  * \return truc on success, false on failure
  */
 bool after_package(compile_t *ctx);
+
+/*!
+ * \brief Extract and Install an .mpx archive
+ *
+ * \param[in] ctx Archive to install
+ *
+ * \return true on success, false on failure
+ */
+bool install_archive(packer_t *ctx);
 
 #endif /* COMPILE_H */

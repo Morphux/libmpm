@@ -91,7 +91,11 @@ bool patch_package(compile_t *ctx) {
         if (dinfo->d_type != DT_DIR)
         {
             asprintf(&cmd, "%s ../%s%s", PATCH_CMD, PACKER_PATCH_DIR, dinfo->d_name);
-            exec_line(cmd);
+            if (exec_line(cmd) != 0)
+            {
+                free(cmd);
+                goto end;
+            }
             free(cmd);
         }
     }
@@ -114,7 +118,10 @@ bool configure_package(compile_t *ctx) {
 
     /* Nothing to configure, we're good */
     if (ctx->package->header->compilation->configure == NULL)
+    {
+        ret = true;
         goto end;
+    }
 
     if (chdir(PACKER_SRC_DIR) == -1)
         goto end;
@@ -135,8 +142,7 @@ bool configure_package(compile_t *ctx) {
 
     list_free(cmd, NULL);
 
-    if (chdir("..") == -1)
-        goto end;
+    chdir("..");
 
 end:
     ctx->state = INST_STATE_CONFIGURATION;
@@ -193,4 +199,44 @@ bool after_package(compile_t *ctx) {
 end:
     ctx->state = INST_STATE_AFTER;
     return true;
+}
+
+bool install_archive(packer_t *ctx) {
+    bool        ret = false;
+    compile_t   *ptr = NULL;
+
+    if (packer_extract_archive(ctx, DEFAULT_EXTRACT_DIR) == false)
+    {
+        packer_free(ctx);
+        return ret;
+    }
+
+    ptr = package_install_init(ctx);
+    if (ptr == NULL)
+        goto end;
+
+    if (before_package(ptr) == false)
+        goto end;
+
+    if (patch_package(ptr) == false)
+        goto end;
+
+    if (configure_package(ptr) == false)
+        goto end;
+
+    if (make_package(ptr) == false)
+        goto end;
+
+    if (install_package(ptr) == false)
+        goto end;
+
+    if (after_package(ptr) == false)
+        goto end;
+
+    ret = true;
+
+end:
+    recursive_delete(ctx->out_dir);
+    package_install_cleanup(ptr);
+    return ret;
 }
