@@ -172,27 +172,6 @@ bool get_file_information(packer_file_t *file) {
     return true;
 }
 
-FILE *packer_file_to_disk(packer_file_t *file) {
-    char        *tmp = NULL;
-
-    for (tmp = file->fn + 1; *tmp; tmp++)
-    {
-        if (*tmp == '/')
-        {
-            *tmp = 0;
-            if (mkdir(file->fn, S_IRWXU) == -1 && errno != EEXIST)
-            {
-                *tmp = '/';
-                goto open;
-            }
-            *tmp = '/';
-        }
-    }
-
-open:
-    return fopen(file->fn, "w+");
-}
-
 #define _CHUNK_SIZE 2048
 
 bool packer_file_from_binary_to_disk(const char *content, off_t *ctr) {
@@ -207,7 +186,7 @@ bool packer_file_from_binary_to_disk(const char *content, off_t *ctr) {
     if (file.fn == NULL)
         return false;
 
-    fd = packer_file_to_disk(&file);
+    fd = recursive_file_open(file.fn);
     if (fd == NULL)
         goto cleanup;
 
