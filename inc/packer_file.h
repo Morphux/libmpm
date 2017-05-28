@@ -27,6 +27,7 @@ typedef struct packer_file_s {
     char    *fn;                           /*!< Filename, with relative path (Ex: srcs/main.c ) */
     off_t   file_size;                     /*!< File size, in bytes */
     off_t   compressed_size;               /*!< Compression size, in bytes */
+    mode_t  mode;                          /*!< Mode / Rights on the file (st_mode) */
     char    sum[crypto_hash_sha256_BYTES]; /*!< Sha256sum of the file */
     char    *content;                      /*!< Actual content of the file */
 } packer_file_t;

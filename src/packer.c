@@ -561,6 +561,7 @@ MPX_STATIC bool write_packer_sources(FILE *fd, packer_t *ctx, const char *dir_na
 
         list_for_each(files_list, tmp2, file) {
             fprintf(fd, "%s%c", file->fn, 0);
+            fwrite(&file->mode, sizeof(file->mode), 1, fd);
             fwrite(&file->compressed_size, sizeof(file->compressed_size), 1, fd);
             fwrite(&file->file_size, sizeof(file->file_size), 1, fd);
             if (file->file_size != 0)

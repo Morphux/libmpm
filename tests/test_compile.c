@@ -27,7 +27,7 @@ TEST(configure_package) {
     TEST_ASSERT(patch_package(ptr) == true, "An error happened");
     TEST_ASSERT(configure_package(ptr) == true, "An error happened");
     TEST_ASSERT(make_package(ptr) == true, "An error happened");
-    /*TEST_ASSERT(install_package(ptr) == true, "An error happened");*/
+    TEST_ASSERT(install_package(ptr) == true, "An error happened");
     TEST_ASSERT(after_package(ptr) == true, "An error happened");
     TEST_ASSERT(package_install_cleanup(ptr) == true, "An error happened");
 

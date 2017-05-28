@@ -112,11 +112,15 @@ error:
 
 bool get_file_information(packer_file_t *file) {
     z_stream        stream;
+    struct stat     f_stat;
     char            *file_content = NULL;
     char            *chunk = NULL;
     off_t           file_size;
 
-    file_size = mpm_get_file_size_from_fn(file->fn);
+    if (stat(file->fn, &f_stat) == -1)
+        return false;
+
+    file_size = f_stat.st_size;
     file_content = mpm_read_file_from_fn(file->fn);
     if (file_content == NULL)
     {
@@ -161,6 +165,7 @@ bool get_file_information(packer_file_t *file) {
 
     memcpy(file->content, chunk, file->compressed_size);
     file->file_size = file_size;
+    file->mode = f_stat.st_mode;
 
     free(file_content);
     free(chunk);
@@ -208,6 +213,10 @@ bool packer_file_from_binary_to_disk(const char *content, off_t *ctr) {
 
     *ctr += strlen(file.fn) + 1;
 
+    /* File mode */
+    memcpy(&file.mode, content + *ctr, sizeof(file.mode));
+    *ctr += sizeof(file.mode);
+
     /* File content size */
     memcpy(&file.compressed_size, content + *ctr, sizeof(file.compressed_size));
     *ctr += sizeof(file.compressed_size);
@@ -246,7 +255,9 @@ bool packer_file_from_binary_to_disk(const char *content, off_t *ctr) {
         inflateEnd(&stream);
     }
 
-    status = true;
+    /* Set the rights */
+    if (fchmod(fd->_fileno, file.mode) != -1)
+        status = true;
 
 cleanup:
     fclose(fd);
