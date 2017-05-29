@@ -14,21 +14,27 @@
 *                       limitations under the License.                         *
 \******************************************************************************/
 
-#ifndef LIBMPM_H
-# define LIBMPM_H
+#include <error.h>
 
-# include <morphux.h>
-# include <flags.h>
-# include <database.h>
-# include <config.h>
-# include <package.h>
-# include <compile.h>
-# include <packer.h>
-# include <error.h>
+static u32_t    g_error = ERR_NO_ERROR;
+static const char *g_str_errors[] = {
+    SET_ERR_STR(ERR_NO_ERROR, "No error"),
+    SET_ERR_STR(ERR_MEMORY, "Insufficient memory"),
+    SET_ERR_STR(ERR_CHDIR_FAILED, "Can't change directory"),
+    SET_ERR_STR(ERR_EXEC_FAILED, "A binary execution failed"),
+    SET_ERR_STR(ERR_ARCHIVE_EXTRACT, "An archive extraction failed"),
+    SET_ERR_STR(ERR_INSTALLATION_FAILED, "An installation failed")
+};
 
-/*!
- * \brief Init the mpm library
- */
-void mpm_init(void);
+void set_mpm_error(mpm_error_t err_num) {
+    g_error = err_num;
+}
 
-#endif /* LIBMPM_H */
+const char *mpm_strerror(mpm_error_t err_num) {
+    const char *ret = NULL;
+
+    if (err_num > 0 && err_num < ERR_LAST)
+        ret = g_str_errors[err_num];
+    err_num = ERR_NO_ERROR;
+    return ret;
+}

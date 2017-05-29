@@ -14,21 +14,44 @@
 *                       limitations under the License.                         *
 \******************************************************************************/
 
-#ifndef LIBMPM_H
-# define LIBMPM_H
+#ifndef ERROR_H
+# define ERROR_H
 
 # include <morphux.h>
-# include <flags.h>
-# include <database.h>
-# include <config.h>
-# include <package.h>
-# include <compile.h>
-# include <packer.h>
-# include <error.h>
+
+# define SET_ERR_STR(num, str) [num] = str
+
+typedef enum u32_t {
+    /* No Error */
+    ERR_NO_ERROR = 0,
+    /* Insufficient memory */
+    ERR_MEMORY,
+    /* chdir(2) call failed */
+    ERR_CHDIR_FAILED,
+    /* A binary execution failed */
+    ERR_EXEC_FAILED,
+    /* An extract of an archive failed */
+    ERR_ARCHIVE_EXTRACT,
+    /* An installation failed */
+    ERR_INSTALLATION_FAILED,
+    /* Always keep this one last */
+    ERR_LAST
+} mpm_error_t;
 
 /*!
- * \brief Init the mpm library
+ * \brief Set an error
+ *
+ * \param err_num Error number
  */
-void mpm_init(void);
+void set_mpm_error(mpm_error_t err_num);
 
-#endif /* LIBMPM_H */
+/*!
+ * \brief Return a string from an error code
+ *
+ * \brief err_num Error code
+ *
+ * \return Error, in string format
+ */
+const char *mpm_strerror(mpm_error_t err_num);
+
+#endif

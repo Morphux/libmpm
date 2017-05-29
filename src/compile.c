@@ -23,7 +23,10 @@ compile_t *package_install_init(packer_t *ctx) {
 
     ret = malloc(sizeof(*ret));
     if (ret == NULL)
+    {
+        set_mpm_error(ERR_MEMORY);
         return NULL;
+    }
 
     ret->package = ctx;
     ret->state = INST_STATE_NONE;
@@ -32,6 +35,7 @@ compile_t *package_install_init(packer_t *ctx) {
     if (chdir(ctx->out_dir) != 0)
     {
         free(ret);
+        set_mpm_error(ERR_MEMORY);
         return NULL;
     }
     if (ctx->header->compilation->env == NULL)
@@ -50,7 +54,10 @@ compile_t *package_install_init(packer_t *ctx) {
 
 bool package_install_cleanup(compile_t *ctx) {
     if (chdir(ctx->old_pwd) != 0)
+    {
+        set_mpm_error(ERR_CHDIR_FAILED);
         return false;
+    }
 
     packer_free(ctx->package);
     free(ctx);
@@ -62,7 +69,10 @@ bool before_package(compile_t *ctx) {
         goto end;
 
     if (exec_line("sh " COMP_BEFORE_SCRIPT) != 0)
+    {
+        set_mpm_error(ERR_EXEC_FAILED);
         return false;
+    }
 
 end:
     ctx->state = INST_STATE_BEFORE;
@@ -80,7 +90,10 @@ bool patch_package(compile_t *ctx) {
         return true;
 
     if (chdir(PACKER_SRC_DIR) == -1)
+    {
+        set_mpm_error(ERR_CHDIR_FAILED);
         goto end;
+    }
 
     while ((dinfo = readdir(dir)))
     {
@@ -93,6 +106,7 @@ bool patch_package(compile_t *ctx) {
             asprintf(&cmd, "%s ../%s%s", PATCH_CMD, PACKER_PATCH_DIR, dinfo->d_name);
             if (exec_line(cmd) != 0)
             {
+                set_mpm_error(ERR_EXEC_FAILED);
                 free(cmd);
                 goto end;
             }
@@ -101,7 +115,10 @@ bool patch_package(compile_t *ctx) {
     }
 
     if (chdir("..") == -1)
+    {
+        set_mpm_error(ERR_CHDIR_FAILED);
         goto end;
+    }
 
     status = true;
 end:
@@ -124,7 +141,10 @@ bool configure_package(compile_t *ctx) {
     }
 
     if (chdir(PACKER_SRC_DIR) == -1)
+    {
+        set_mpm_error(ERR_CHDIR_FAILED);
         goto end;
+    }
 
     list_add(cmd, CONFIGURE_CMD, sizeof(CONFIGURE_CMD) + 1);
 
@@ -139,6 +159,8 @@ bool configure_package(compile_t *ctx) {
 
     if (exec_list(cmd) == 0)
         ret = true;
+    else
+        set_mpm_error(ERR_EXEC_FAILED);
 
     list_free(cmd, NULL);
 
@@ -157,10 +179,16 @@ bool make_package(compile_t *ctx) {
         goto end;
 
     if (chdir(PACKER_SRC_DIR))
+    {
+        set_mpm_error(ERR_CHDIR_FAILED);
         return false;
+    }
 
     if (exec_line(ctx->package->header->compilation->make) != 0)
+    {
+        set_mpm_error(ERR_EXEC_FAILED);
         status = false;
+    }
 
     chdir("..");
 
@@ -177,10 +205,16 @@ bool install_package(compile_t *ctx) {
         goto end;
 
     if (chdir(PACKER_SRC_DIR))
+    {
+        set_mpm_error(ERR_CHDIR_FAILED);
         return false;
+    }
 
     if (exec_line(ctx->package->header->compilation->install) != 0)
+    {
+        set_mpm_error(ERR_EXEC_FAILED);
         status = false;
+    }
 
     chdir("..");
 
@@ -194,7 +228,10 @@ bool after_package(compile_t *ctx) {
         goto end;
 
     if (exec_line("sh " COMP_AFTER_SCRIPT) != 0)
+    {
+        set_mpm_error(ERR_EXEC_FAILED);
         return false;
+    }
 
 end:
     ctx->state = INST_STATE_AFTER;
@@ -208,12 +245,14 @@ bool install_archive(packer_t *ctx) {
     if (packer_extract_archive(ctx, DEFAULT_EXTRACT_DIR) == false)
     {
         packer_free(ctx);
+        set_mpm_error(ERR_ARCHIVE_EXTRACT);
         return ret;
     }
 
     ptr = package_install_init(ctx);
     if (ptr == NULL)
     {
+        set_mpm_error(ERR_MEMORY);
         recursive_delete(ctx->out_dir);
         packer_free(ctx);
         return ret;
@@ -240,6 +279,8 @@ bool install_archive(packer_t *ctx) {
     ret = true;
 
 end:
+    if (ret != true)
+        set_mpm_error(ERR_INSTALLATION_FAILED);
     recursive_delete(ctx->out_dir);
     package_install_cleanup(ptr);
     return ret;
