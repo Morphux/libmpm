@@ -14,7 +14,15 @@ TEST(get_mpm_error) {
     return TEST_SUCCESS;
 }
 
+TEST(mpm_str_error) {
+    mpm_set_str_error("My name is %s, and i'm %d years old !", "Tux", 18888);
+    TEST_ASSERT(strcmp(mpm_get_str_error(), "My name is Tux, and i'm 18888 years old !") == 0,
+        "String content is wrong");
+    return TEST_SUCCESS;
+}
+
 void register_test_error(void) {
     reg_test("error", set_mpm_error);
     reg_test("error", get_mpm_error);
+    reg_test("error", mpm_str_error);
 }

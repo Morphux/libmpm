@@ -16,6 +16,7 @@
 
 #include <error.h>
 
+
 static u32_t    g_error = ERR_NO_ERROR;
 static const char *g_str_errors[] = {
     SET_ERR_STR(ERR_NO_ERROR, "No error"),
@@ -33,6 +34,7 @@ static const char *g_str_errors[] = {
     SET_ERR_STR(ERR_BAD_JSON, "JSON file wrongly formatted"),
     SET_ERR_STR(ERR_BAD_JSON_TYPE, "Unexecpted JSON type")
 };
+static char g_str_error[ERROR_MAX_LEN] = "";
 
 void set_mpm_error(mpm_error_t err_num) {
     g_error = err_num;
@@ -49,4 +51,16 @@ const char *mpm_strerror(mpm_error_t err_num) {
         ret = g_str_errors[err_num];
     g_error = ERR_NO_ERROR;
     return ret;
+}
+
+void mpm_set_str_error(const char *str, ...) {
+    va_list     ap;
+
+    va_start(ap, str);
+    vsnprintf(g_str_error, ERROR_MAX_LEN, str, ap);
+    va_end(ap);
+}
+
+char *mpm_get_str_error(void) {
+    return g_str_error;
 }
