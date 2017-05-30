@@ -22,6 +22,7 @@
 # include <confuse.h>
 # include <morphux.h>
 # include <fcntl.h>
+# include <error.h>
 
 
 # define CONFIG_DEF_PATH                "/etc/mpm/mpm.conf"
