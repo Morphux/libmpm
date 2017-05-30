@@ -5,6 +5,7 @@ int		main(void) {
 
     mpm_init();
 
+    register_test_error();
 	register_flags_test();
 	register_test_database();
 	register_test_files();

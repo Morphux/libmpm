@@ -47,6 +47,6 @@ const char *mpm_strerror(mpm_error_t err_num) {
 
     if (err_num > 0 && err_num < ERR_LAST)
         ret = g_str_errors[err_num];
-    err_num = ERR_NO_ERROR;
+    g_error = ERR_NO_ERROR;
     return ret;
 }
