@@ -105,7 +105,10 @@ config_t *parse_config(const char *path, u8_t *ret) {
     config->fn = malloc(strlen(path != NULL ? path : CONFIG_DEF_PATH) + 1);
     strcpy(config->fn, path != NULL ? path : CONFIG_DEF_PATH);
     if (*ret != 0)
+    {
+        set_mpm_error(ERR_BAD_CONFIG);
         config_get_error_string(config);
+    }
 
     return config;
 }

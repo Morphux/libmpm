@@ -20,14 +20,20 @@ static u32_t    g_error = ERR_NO_ERROR;
 static const char *g_str_errors[] = {
     SET_ERR_STR(ERR_NO_ERROR, "No error"),
     SET_ERR_STR(ERR_MEMORY, "Insufficient memory"),
+    SET_ERR_STR(ERR_BAD_PTR, "Bad pointer"),
     SET_ERR_STR(ERR_CHDIR_FAILED, "Can't change directory"),
     SET_ERR_STR(ERR_EXEC_FAILED, "A binary execution failed"),
     SET_ERR_STR(ERR_ARCHIVE_EXTRACT, "An archive extraction failed"),
-    SET_ERR_STR(ERR_INSTALLATION_FAILED, "An installation failed")
+    SET_ERR_STR(ERR_INSTALLATION_FAILED, "An installation failed"),
+    SET_ERR_STR(ERR_BAD_CONFIG, "Bad configuration")
 };
 
 void set_mpm_error(mpm_error_t err_num) {
     g_error = err_num;
+}
+
+u32_t get_mpm_error(void) {
+    return g_error;
 }
 
 const char *mpm_strerror(mpm_error_t err_num) {

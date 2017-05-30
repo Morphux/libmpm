@@ -26,6 +26,8 @@ typedef enum u32_t {
     ERR_NO_ERROR = 0,
     /* Insufficient memory */
     ERR_MEMORY,
+    /* Bad pointer */
+    ERR_BAD_PTR,
     /* chdir(2) call failed */
     ERR_CHDIR_FAILED,
     /* A binary execution failed */
@@ -34,6 +36,8 @@ typedef enum u32_t {
     ERR_ARCHIVE_EXTRACT,
     /* An installation failed */
     ERR_INSTALLATION_FAILED,
+    /* Bad configuration */
+    ERR_BAD_CONFIG,
     /* Always keep this one last */
     ERR_LAST
 } mpm_error_t;
@@ -44,6 +48,15 @@ typedef enum u32_t {
  * \param err_num Error number
  */
 void set_mpm_error(mpm_error_t err_num);
+# define SET_ERR(num) set_mpm_error(num)
+
+/*!
+ * \brief Get the error number
+ *
+ * \return The error number
+ */
+mpm_error_t get_mpm_error(void);
+# define MPM_ERR() get_mpm_error()
 
 /*!
  * \brief Return a string from an error code

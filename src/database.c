@@ -72,10 +72,12 @@ database_t *mpm_database_open(u8_t *ret, const char *fn) {
     *ret = 0;
     ptr = malloc(sizeof(database_t));
     assert(ptr != NULL);
+
     if (fn != NULL)
         error = sqlite3_open(fn, &ptr->sql);
     else
         error = sqlite3_open(DB_FN, &ptr->sql);
+
     if (error != 0)
         goto error;
     return ptr;
@@ -101,7 +103,10 @@ u8_t mpm_database_close(database_t *ptr) {
 u8_t mpm_database_exec(database_t *ptr, const char *query, SQL_CALLBACK_PTR(cl),
                             void *ct, char **err) {
     if (ptr == NULL || query == NULL)
+    {
+        set_mpm_error(ERR_BAD_PTR);
         return 1;
+    }
 
     return sqlite3_exec(ptr->sql, query, cl, ct, err);
 }
@@ -112,7 +117,10 @@ u8_t mpm_get_package_by_id(database_t *ptr, u64_t id, mlist_t **pkg) {
     u8_t        ret;
 
     if (ptr == NULL)
+    {
+        set_mpm_error(ERR_BAD_PTR);
         return 1;
+    }
 
     *pkg = NULL;
     asprintf(&query, QUERY_GET_PACKAGE_BY_ID(id));
@@ -126,7 +134,10 @@ u8_t mpm_get_package_by_name(database_t *ptr, const char *name, mlist_t **pkg) {
     u8_t        ret;
 
     if (ptr == NULL)
+    {
+        set_mpm_error(ERR_BAD_PTR);
         return 1;
+    }
 
     *pkg = NULL;
     asprintf(&query, QUERY_GET_PACKAGE_BY_NAME(name));
@@ -137,7 +148,10 @@ u8_t mpm_get_package_by_name(database_t *ptr, const char *name, mlist_t **pkg) {
 
 package_t *sql_to_package(package_t *ptr, char *name, char *val) {
     if (ptr == NULL)
+    {
+        set_mpm_error(ERR_BAD_PTR);
         return ptr;
+    }
 
     /* TODO: Get all columns */
     if (strcmp(name, PKG_COL_ID) == 0)
@@ -197,7 +211,10 @@ u8_t mpm_database_init(database_t *ptr) {
     u8_t        ret = 0;
 
     if (ptr == NULL)
-     return 1;
+    {
+        set_mpm_error(ERR_BAD_PTR);
+        return 1;
+    }
 
     for (u8_t i = 0; i < sizeof(query_table) / sizeof(query_table[0]); i++)
     {
@@ -220,7 +237,10 @@ u8_t mpm_database_add_pkg(database_t *ptr, package_t *pkg) {
     u8_t        ret;
 
     if (pkg == NULL || ptr == NULL)
+    {
+        set_mpm_error(ERR_BAD_PTR);
         return 1;
+    }
 
     deps = NULL;
     files = NULL;
@@ -248,7 +268,10 @@ u8_t mpm_get_file_by_id(database_t *ptr, u64_t id, mlist_t **files) {
     u8_t        ret;
 
     if (ptr == NULL)
+    {
+        set_mpm_error(ERR_BAD_PTR);
         return 1;
+    }
 
     *files = NULL;
     asprintf(&query, QUERY_GET_FILES_BY_ID(id));
@@ -262,7 +285,10 @@ u8_t mpm_get_file_by_path(database_t *ptr, const char *path, mlist_t **files) {
     u8_t    ret;
 
     if (ptr == NULL || path == NULL)
+    {
+        set_mpm_error(ERR_BAD_PTR);
         return 1;
+    }
 
     *files = NULL;
     asprintf(&query, QUERY_GET_FILES_BY_PATH(path));
@@ -277,7 +303,10 @@ u8_t mpm_get_file_by_parent_id(database_t *ptr, u64_t id,
     u8_t    ret;
 
     if (ptr == NULL)
+    {
+        set_mpm_error(ERR_BAD_PTR);
         return 1;
+    }
 
     *files = NULL;
     asprintf(&query, QUERY_GET_FILES_BY_PARENT_ID(id));
@@ -291,7 +320,10 @@ u8_t mpm_get_file_by_parent_name(database_t *ptr, const char *name, mlist_t **fi
     u8_t    ret;
 
     if (ptr == NULL || name == NULL)
+    {
+        set_mpm_error(ERR_BAD_PTR);
         return 1;
+    }
 
     *files = NULL;
     asprintf(&query, QUERY_GET_FILES_BY_PARENT_NAME(name));
@@ -302,7 +334,10 @@ u8_t mpm_get_file_by_parent_name(database_t *ptr, const char *name, mlist_t **fi
 
 file_t          *sql_to_file(file_t *ptr, char *name, char *val) {
     if (ptr == NULL)
+    {
+        set_mpm_error(ERR_BAD_PTR);
         return ptr;
+    }
 
     if (strcmp(name, FILE_COL_ID) == 0)
     {
@@ -340,7 +375,10 @@ u8_t mpm_database_add_file(database_t *ptr, file_t *file) {
     u8_t    ret;
 
     if (ptr == NULL || file == NULL)
+    {
+        set_mpm_error(ERR_BAD_PTR);
         return 1;
+    }
 
     asprintf(&query, SQL_INSERT_TABLE FILE_TABLE \
          " (%s, %s, %s, %s, %s) " \
@@ -361,7 +399,10 @@ u8_t mpm_database_add_categ(database_t *ptr, category_t *cat) {
     u8_t    ret;
 
     if (ptr == NULL || cat == NULL)
+    {
+        set_mpm_error(ERR_BAD_PTR);
         return 1;
+    }
 
     asprintf(&query, SQL_INSERT_TABLE CAT_TABLE \
             "(%s, %s, %s) " \
@@ -382,7 +423,10 @@ u8_t mpm_get_categ_by_id(database_t *ptr, u64_t id, mlist_t **cat) {
     u8_t    ret;
 
     if (ptr == NULL)
+    {
+        set_mpm_error(ERR_BAD_PTR);
         return 1;
+    }
 
     *cat = NULL;
     asprintf(&query, QUERY_GET_CATEG_BY_ID(id));
@@ -397,7 +441,11 @@ u8_t mpm_get_categ_by_name(database_t *ptr, const char *name, mlist_t **cat) {
     u8_t    ret;
 
     if (ptr == NULL)
+    {
+        set_mpm_error(ERR_BAD_PTR);
         return 1;
+    }
+
     *cat = NULL;
     asprintf(&query, QUERY_GET_CATEG_BY_NAME(name));
     ret = sqlite3_exec(ptr->sql, query, &callback_categ, cat, NULL);
@@ -408,7 +456,10 @@ u8_t mpm_get_categ_by_name(database_t *ptr, const char *name, mlist_t **cat) {
 
 category_t *sql_to_category(category_t *ptr, char *name, char *val) {
     if (ptr == NULL)
+    {
+        set_mpm_error(ERR_BAD_PTR);
         return ptr;
+    }
 
     if (strcmp(name, CAT_COL_ID) == 0)
     {
