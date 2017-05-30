@@ -22,14 +22,20 @@ MPX_STATIC packer_t *packer_init(const char *str) {
 
     ret = malloc(sizeof(*ret));
     if (ret == NULL)
+    {
+        SET_ERR(ERR_MEMORY);
         return NULL;
+    }
 
     ret->json = NULL;
     ret->str = strdup(str);
     ret->header = NULL;
     ret->out_dir = NULL;
     if (ret->str == NULL)
+    {
+        SET_ERR(ERR_MEMORY);
         goto cleanup;
+    }
 
     return ret;
 
@@ -43,7 +49,10 @@ MPX_STATIC packer_header_package_t *packer_header_package_init(void) {
 
     ret = malloc(sizeof(*ret));
     if (ret == NULL)
+    {
+        SET_ERR(ERR_MEMORY);
         return NULL;
+    }
 
     ret->name = NULL;
     ret->version = NULL;
@@ -70,7 +79,10 @@ MPX_STATIC packer_conf_opt_t *packer_conf_opt_init(const char *str, const char *
 
     ret = malloc(sizeof(*ret));
     if (ret == NULL)
+    {
+        SET_ERR(ERR_MEMORY);
         return NULL;
+    }
 
     ret->name = NULL;
     ret->value = NULL;
@@ -79,6 +91,7 @@ MPX_STATIC packer_conf_opt_t *packer_conf_opt_init(const char *str, const char *
         ret->name = strdup(str);
     if (value != NULL)
         ret->value = strdup(value);
+
     return ret;
 }
 
@@ -97,7 +110,10 @@ MPX_STATIC packer_header_comp_t *packer_header_comp_init(void) {
 
     ret = malloc(sizeof(*ret));
     if (ret == NULL)
+    {
+        SET_ERR(ERR_MEMORY);
         return NULL;
+    }
 
     ret->configure = NULL;
     ret->make = NULL;
@@ -128,7 +144,10 @@ MPX_STATIC packer_header_deps_t *packer_header_deps_init(void) {
 
     ret = malloc(sizeof(*ret));
     if (ret == NULL)
+    {
+        SET_ERR(ERR_MEMORY);
         return NULL;
+    }
 
     ret->list = NULL;
     return ret;
@@ -147,7 +166,10 @@ MPX_STATIC packer_header_t *packer_header_init(void) {
 
     ret = malloc(sizeof(*ret));
     if (ret == NULL)
+    {
+        SET_ERR(ERR_MEMORY);
         return NULL;
+    }
 
     ret->package = NULL;
     ret->compilation = NULL;
@@ -170,7 +192,11 @@ packer_t *packer_init_dir(const char *dir) {
 
     ret = packer_init(dir);
     if (ret == NULL)
+    {
+        SET_ERR(ERR_MEMORY);
         return NULL;
+    }
+
     ret->type = PACKER_TYPE_DIRECTORY;
     return ret;
 }
@@ -180,7 +206,11 @@ packer_t *packer_init_archive(const char *path) {
 
     ret = packer_init(path);
     if (ret == NULL)
+    {
+        SET_ERR(ERR_MEMORY);
         return NULL;
+    }
+
     ret->type = PACKER_TYPE_ARCHIVE;
     return ret;
 }
@@ -205,7 +235,10 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
 
     /* Can't raise an assertion since NULL is a valid type in JSON */
     if (obj == NULL || json_object_get_type(obj) != json_type_object)
+    {
+        SET_ERR(ERR_BAD_JSON_TYPE);
         return false;
+    }
 
     it = json_object_iter_begin(obj);
     it_end = json_object_iter_end(obj);
@@ -220,7 +253,10 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
         {
 
             if (json_object_get_type(tmp) != json_type_array)
+            {
+                SET_ERR(ERR_BAD_JSON_TYPE);
                 goto cleanup;
+            }
 
             for (size_t i = 0; i < json_object_array_length(tmp); i++)
             {
@@ -238,7 +274,11 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
                     {
                         array_tmp = json_object_iter_peek_value(&it_arr);
                         if (json_object_get_type(array_tmp) != json_type_string)
+                        {
+                            SET_ERR(ERR_BAD_JSON_TYPE);
                             goto cleanup;
+                        }
+
                         opt = packer_conf_opt_init(json_object_iter_peek_name(&it_arr),
                             json_object_get_string(array_tmp));
                         list_add(ctx->header->compilation->configure, opt, sizeof(*opt));
@@ -254,13 +294,20 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
                     free(opt);
                 }
                 else
+                {
+                    SET_ERR(ERR_BAD_JSON);
                     goto cleanup;
+                }
             }
         }
         else if (strcmp(name, PACKER_CONF_COMP_MAKE_TOKEN) == 0)
         {
             if (json_object_get_type(tmp) != json_type_string)
+            {
+                SET_ERR(ERR_BAD_JSON_TYPE);
                 goto cleanup;
+            }
+
             if (json_object_get_string_len(tmp) == 0)
                 ctx->header->compilation->make = strdup(PACKER_MAKE_DEF);
             else
@@ -269,7 +316,10 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
         else if (strcmp(name, PACKER_CONF_COMP_TEST_TOKEN) == 0)
         {
             if (json_object_get_type(tmp) != json_type_string)
+            {
+                SET_ERR(ERR_BAD_JSON_TYPE);
                 goto cleanup;
+            }
 
             if (json_object_get_string_len(tmp) == 0)
                 ctx->header->compilation->test = strdup(PACKER_TEST_DEF);
@@ -279,7 +329,10 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
         else if (strcmp(name, PACKER_CONF_COMP_INST_TOKEN) == 0)
         {
             if (json_object_get_type(tmp) != json_type_string)
+            {
+                SET_ERR(ERR_BAD_JSON_TYPE);
                 goto cleanup;
+            }
 
             if (json_object_get_string_len(tmp) == 0)
                 ctx->header->compilation->install = strdup(PACKER_INST_DEF);
@@ -289,7 +342,10 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
         else if (strcmp(name, PACKER_CONF_COMP_ENV_TOKEN) == 0)
         {
             if (json_object_get_type(tmp) != json_type_array)
+            {
+                SET_ERR(ERR_BAD_JSON_TYPE);
                 goto cleanup;
+            }
 
             for (size_t i = 0; i < json_object_array_length(tmp); i++)
             {
@@ -307,7 +363,11 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
                     {
                         array_tmp = json_object_iter_peek_value(&it_arr);
                         if (json_object_get_type(array_tmp) != json_type_string)
+                        {
+                            SET_ERR(ERR_BAD_JSON_TYPE);
                             goto cleanup;
+                        }
+
                         opt = packer_conf_opt_init(json_object_iter_peek_name(&it_arr),
                             json_object_get_string(array_tmp));
                         list_add(ctx->header->compilation->env, opt, sizeof(*opt));
@@ -323,12 +383,19 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
                     free(opt);
                 }
                 else
+                {
+                    SET_ERR(ERR_BAD_JSON);
                     goto cleanup;
+                }
             }
         }
         /* Wrong token */
         else
+        {
+            SET_ERR(ERR_BAD_JSON);
             goto cleanup;
+        }
+
         json_object_iter_next(&it);
 
     }
@@ -348,14 +415,21 @@ MPX_STATIC bool packer_read_config_deps(packer_t *ctx, struct json_object *obj) 
 
     /* Can't raise an assertion since NULL is a valid type in JSON */
     if (obj == NULL || json_object_get_type(obj) != json_type_array)
+    {
+        SET_ERR(ERR_BAD_JSON_TYPE);
         return false;
+    }
 
     ctx->header->dependencies = packer_header_deps_init();
     for (len = json_object_array_length(obj), i = 0; i < len; i++)
     {
         tmp = json_object_array_get_idx(obj, i);
         if (json_object_get_type(tmp) != json_type_string)
+        {
+            SET_ERR(ERR_BAD_JSON_TYPE);
             goto cleanup;
+        }
+
         list_add(ctx->header->dependencies->list, (char *)json_object_get_string(tmp),
             json_object_get_string_len(tmp) + 1);
     }
@@ -376,7 +450,10 @@ MPX_STATIC bool packer_read_config_package(packer_t *ctx, struct json_object *ob
 
     /* Can't raise an assertion since NULL is a valid type in JSON */
     if (obj == NULL || json_object_get_type(obj) != json_type_object)
+    {
+        SET_ERR(ERR_BAD_JSON_TYPE);
         return false;
+    }
 
     it = json_object_iter_begin(obj);
     it_end = json_object_iter_end(obj);
@@ -389,44 +466,65 @@ MPX_STATIC bool packer_read_config_package(packer_t *ctx, struct json_object *ob
         if (strcmp(name, PACKER_CONF_PACKAGE_NAME_TOKEN) == 0)
         {
             if (json_object_get_type(tmp) != json_type_string)
+            {
+                SET_ERR(ERR_BAD_JSON_TYPE);
                 goto cleanup;
+            }
             ctx->header->package->name = strdup(json_object_get_string(tmp));
         }
         else if (strcmp(name, PACKER_CONF_PACKAGE_VERSION_TOKEN) == 0)
         {
             if (json_object_get_type(tmp) != json_type_string)
+            {
+                SET_ERR(ERR_BAD_JSON_TYPE);
                 goto cleanup;
+            }
             ctx->header->package->version = strdup(json_object_get_string(tmp));
         }
         else if (strcmp(name, PACKER_CONF_PACKAGE_DESC_TOKEN) == 0)
         {
             if (json_object_get_type(tmp) != json_type_string)
+            {
+                SET_ERR(ERR_BAD_JSON_TYPE);
                 goto cleanup;
+            }
             ctx->header->package->description = strdup(json_object_get_string(tmp));
         }
         else if (strcmp(name, PACKER_CONF_PACKAGE_SBU_TOKEN) == 0)
         {
             if (json_object_get_type(tmp) != json_type_double
                 && json_object_get_type(tmp) != json_type_int)
+            {
+                SET_ERR(ERR_BAD_JSON_TYPE);
                 goto cleanup;
+            }
             ctx->header->package->_sbu = json_object_get_double(tmp);
         }
         else if (strcmp(name, PACKER_CONF_PACKAGE_CATEG_TOKEN) == 0)
         {
             if (json_object_get_type(tmp) != json_type_string)
+            {
+                SET_ERR(ERR_BAD_JSON_TYPE);
                 goto cleanup;
+            }
             ctx->header->package->categ = strdup(json_object_get_string(tmp));
         }
         else if (strcmp(name, PACKER_CONF_PACKAGE_INST_SIZE_TOKEN) == 0)
         {
             if (json_object_get_type(tmp) != json_type_double
                 && json_object_get_type(tmp) != json_type_int)
+            {
+                SET_ERR(ERR_BAD_JSON_TYPE);
                 goto cleanup;
+            }
             ctx->header->package->inst_size = json_object_get_double(tmp);
         }
         /* Wrong token */
         else
+        {
+            SET_ERR(ERR_BAD_JSON);
             goto cleanup;
+        }
         json_object_iter_next(&it);
     }
     return true;
@@ -466,7 +564,10 @@ MPX_STATIC bool packer_read_config_file(packer_t *ctx) {
         }
         /* Wrong token */
         else
+        {
+            SET_ERR(ERR_BAD_JSON);
             goto cleanup;
+        }
         json_object_iter_next(&it);
     }
     return true;
@@ -491,11 +592,17 @@ bool packer_read_dir(packer_t *ctx) {
         goto error;
 
     if (chdir(ctx->str) == -1)
+    {
+        SET_ERR(ERR_CHDIR_FAILED);
         goto error;
+    }
 
     ctx->json = json_object_from_file(PACKER_DEF_CONF_FN);
     if (ctx->json == NULL)
+    {
+        SET_ERR(ERR_BAD_JSON);
         goto error;
+    }
 
     chdir(old_pwd);
     return packer_read_config_file(ctx);
@@ -616,11 +723,17 @@ bool packer_create_archive(packer_t *ctx, const char *archive_path) {
 
     assert(archive_path == NULL || ctx != NULL);
     if (ctx->type != PACKER_TYPE_DIRECTORY)
+    {
+        SET_ERR(ERR_BAD_ARCHIVE_TYPE);
         return false;
+    }
 
     fd = fopen(archive_path, "w+");
     if (fd == NULL)
+    {
+        SET_ERR(ERR_OPEN);
         return false;
+    }
 
     write_package_header(fd, ctx);
     if (write_packer_sources(fd, ctx, PACKER_SRC_DIR) == false)
@@ -652,23 +765,29 @@ MPX_STATIC int read_package_header_package(const char *file, packer_t *ctx)
 
     pkg->name = strdup(file + ret);
     if (pkg->name == NULL)
+    {
+        SET_ERR(ERR_MEMORY);
         goto cleanup;
+    }
 
     ret += strlen(pkg->name) + 1;
 
     pkg->version = strdup(file + ret);
     if (pkg->version == NULL)
         goto cleanup;
+
     ret += strlen(pkg->version) + 1;
 
     pkg->description = strdup(file + ret);
     if (pkg->description == NULL)
         goto cleanup;
+
     ret += strlen(pkg->description) + 1;
 
     pkg->categ = strdup(file + ret);
     if (pkg->categ == NULL)
         goto cleanup;
+
     ret += strlen(pkg->categ) + 1;
 
     memcpy(&sbu, file + ret, sizeof(sbu));
@@ -683,6 +802,7 @@ MPX_STATIC int read_package_header_package(const char *file, packer_t *ctx)
     return ret;
 
 cleanup:
+    SET_ERR(ERR_MEMORY);
     packer_header_package_free(pkg);
     return 0;
 }
@@ -700,7 +820,10 @@ MPX_STATIC bool read_conf_opt(char *file, mlist_t **list, int *ret) {
     {
         opt = malloc(sizeof(*opt));
         if (opt == NULL)
+        {
+            SET_ERR(ERR_MEMORY);
             goto cleanup;
+        }
 
         tmp = file + *ret;
         *ret += strlen(tmp) + 1;
@@ -711,6 +834,7 @@ MPX_STATIC bool read_conf_opt(char *file, mlist_t **list, int *ret) {
             opt->value = strdup(tmp);
             if (opt->value == NULL)
             {
+                SET_ERR(ERR_MEMORY);
                 free(opt);
                 goto cleanup;
             }
@@ -722,6 +846,7 @@ MPX_STATIC bool read_conf_opt(char *file, mlist_t **list, int *ret) {
             opt->name = strdup(tmp);
             if (opt->name == NULL)
             {
+                SET_ERR(ERR_MEMORY);
                 free(opt);
                 goto cleanup;
             }
@@ -731,6 +856,7 @@ MPX_STATIC bool read_conf_opt(char *file, mlist_t **list, int *ret) {
             {
                 free(opt->name);
                 free(opt);
+                SET_ERR(ERR_MEMORY);
                 goto cleanup;
             }
         }
@@ -760,18 +886,27 @@ MPX_STATIC int read_package_header_compilation(char *file, packer_t *ctx)
 
     comp->make = strdup(file + ret);
     if (comp->make == NULL)
+    {
+        SET_ERR(ERR_MEMORY);
         goto cleanup;
+    }
 
     ret += strlen(comp->make) + 1;
 
     comp->test = strdup(file + ret);
     if (comp->test == NULL)
+    {
+        SET_ERR(ERR_MEMORY);
         goto cleanup;
+    }
     ret += strlen(comp->test) + 1;
 
     comp->install = strdup(file + ret);
     if (comp->install == NULL)
+    {
+        SET_ERR(ERR_MEMORY);
         goto cleanup;
+    }
     ret += strlen(comp->install) + 1;
 
     if (read_conf_opt(file, &comp->env, &ret) != true)
@@ -802,7 +937,10 @@ MPX_STATIC int read_package_header_dependencies(const char *file, packer_t *ctx)
     {
         tmp = strdup(file + ret);
         if (tmp == NULL)
+        {
+            SET_ERR(ERR_MEMORY);
             goto cleanup;
+        }
         ret += strlen(tmp) + 1;
         list_add(deps->list, tmp, strlen(tmp) + 1);
         free(tmp);
@@ -821,10 +959,16 @@ MPX_STATIC bool read_package_header(char *file_content, packer_t *ctx, int *s_re
     int  ret = 0, tmp;
 
     if (file_content == NULL)
+    {
+        SET_ERR(ERR_BAD_PTR);
         return false;
+    }
 
     if (strncmp(file_content, PACKER_MPX_MAGIC, sizeof(PACKER_MPX_MAGIC) - 1) != 0)
+    {
+        SET_ERR(ERR_NOT_A_PACKAGE);
         goto cleanup;
+    }
 
     ret += sizeof(PACKER_MPX_MAGIC) - 1;
 
@@ -867,7 +1011,10 @@ bool packer_read_archive_header(packer_t *ctx) {
 
     archive = mpm_read_file_from_fn(ctx->str);
     if (archive == NULL)
+    {
+        SET_ERR(ERR_MEMORY);
         return false;
+    }
 
     ret = read_package_header(archive, ctx, &cur);
     free(archive);
@@ -884,11 +1031,17 @@ bool packer_extract_archive(packer_t *ctx, const char *dir) {
     getcwd(old_pwd, sizeof(old_pwd));
 
     if (ctx->type != PACKER_TYPE_ARCHIVE)
+    {
+        SET_ERR(ERR_BAD_ARCHIVE_TYPE);
         return false;
+    }
 
     fd = open(ctx->str, O_RDONLY);
     if (fd == -1)
+    {
+        SET_ERR(ERR_OPEN);
         return false;
+    }
 
     archive = mpm_read_file_from_fd(fd);
     size = mpm_get_file_size_from_fd(fd);
@@ -905,13 +1058,19 @@ bool packer_extract_archive(packer_t *ctx, const char *dir) {
         closedir(p_dir);
 
     if (chdir(dir) == -1)
+    {
+        SET_ERR(ERR_CHDIR_FAILED);
         goto cleanup;
+    }
 
     asprintf(&ctx->out_dir, "%s/%s-%s/", dir,
         ctx->header->package->name, ctx->header->package->version);
 
     if (mkdir(ctx->out_dir, S_IRWXU | S_IRWXG | S_IRWXO) == -1)
+    {
+        SET_ERR(ERR_MKDIR_FAILED);
         goto cleanup;
+    }
 
     chdir(ctx->out_dir);
 

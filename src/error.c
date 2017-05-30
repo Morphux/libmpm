@@ -22,10 +22,16 @@ static const char *g_str_errors[] = {
     SET_ERR_STR(ERR_MEMORY, "Insufficient memory"),
     SET_ERR_STR(ERR_BAD_PTR, "Bad pointer"),
     SET_ERR_STR(ERR_CHDIR_FAILED, "Can't change directory"),
+    SET_ERR_STR(ERR_OPEN, "Can't open a file"),
+    SET_ERR_STR(ERR_MKDIR_FAILED, "Can't create a directory"),
     SET_ERR_STR(ERR_EXEC_FAILED, "A binary execution failed"),
     SET_ERR_STR(ERR_ARCHIVE_EXTRACT, "An archive extraction failed"),
+    SET_ERR_STR(ERR_BAD_ARCHIVE_TYPE, "Bad archive type"),
+    SET_ERR_STR(ERR_NOT_A_PACKAGE, "File is not a Morphux package"),
     SET_ERR_STR(ERR_INSTALLATION_FAILED, "An installation failed"),
-    SET_ERR_STR(ERR_BAD_CONFIG, "Bad configuration")
+    SET_ERR_STR(ERR_BAD_CONFIG, "Bad configuration"),
+    SET_ERR_STR(ERR_BAD_JSON, "JSON file wrongly formatted"),
+    SET_ERR_STR(ERR_BAD_JSON_TYPE, "Unexecpted JSON type")
 };
 
 void set_mpm_error(mpm_error_t err_num) {

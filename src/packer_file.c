@@ -32,13 +32,17 @@ packer_file_t *packer_file_init(const char *file, const char *dir) {
 
     ret = calloc(1, sizeof(*ret));
     if (ret == NULL)
+    {
+        SET_ERR(ERR_MEMORY);
         return NULL;
+    }
 
     ret->fn = malloc(strlen(file) + strlen(dir) + 1);
 
     if (ret->fn == NULL)
     {
         free(ret);
+        SET_ERR(ERR_MEMORY);
         return NULL;
     }
 
@@ -138,6 +142,7 @@ bool get_file_information(packer_file_t *file) {
     if (chunk == NULL)
     {
         free(file_content);
+        SET_ERR(ERR_MEMORY);
         return false;
     }
 
@@ -160,6 +165,7 @@ bool get_file_information(packer_file_t *file) {
     {
         free(file_content);
         free(chunk);
+        SET_ERR(ERR_MEMORY);
         return false;
     }
 
@@ -183,11 +189,17 @@ bool packer_file_from_binary_to_disk(const char *content, off_t *ctr) {
 
     file.fn = strdup(content + *ctr);
     if (file.fn == NULL)
+    {
+        SET_ERR(ERR_MEMORY);
         return false;
+    }
 
     fd = recursive_file_open(file.fn);
     if (fd == NULL)
+    {
+        SET_ERR(ERR_OPEN);
         goto cleanup;
+    }
 
     *ctr += strlen(file.fn) + 1;
 

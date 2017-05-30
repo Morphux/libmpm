@@ -30,14 +30,26 @@ typedef enum u32_t {
     ERR_BAD_PTR,
     /* chdir(2) call failed */
     ERR_CHDIR_FAILED,
+    /* Cannot open a file */
+    ERR_OPEN,
+    /* Cannot create a directory */
+    ERR_MKDIR_FAILED,
     /* A binary execution failed */
     ERR_EXEC_FAILED,
     /* An extract of an archive failed */
     ERR_ARCHIVE_EXTRACT,
+    /* Wrong archive type */
+    ERR_BAD_ARCHIVE_TYPE,
+    /* File is not an .mpx archive */
+    ERR_NOT_A_PACKAGE,
     /* An installation failed */
     ERR_INSTALLATION_FAILED,
     /* Bad configuration */
     ERR_BAD_CONFIG,
+    /* Bad JSON */
+    ERR_BAD_JSON,
+    /* Bad JSON type */
+    ERR_BAD_JSON_TYPE,
     /* Always keep this one last */
     ERR_LAST
 } mpm_error_t;
