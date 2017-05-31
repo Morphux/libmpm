@@ -20,7 +20,7 @@
 # include <morphux.h>
 
 # define ERROR_MAX_LEN 250
-# define SET_ERR_STR(num, str) [num] = str
+# define __SET_ERR_STR(num, str) [num] = str
 
 typedef enum u32_t {
     /* No Error */
@@ -88,10 +88,14 @@ const char *mpm_strerror(mpm_error_t err_num);
  * \note Support printf format
  */
 void mpm_set_str_error(const char *str, ...);
+# define SET_ERR_STR_FMT(format, ...) mpm_set_str_error(format, __VA_ARGS__)
+# define SET_ERR_STR(format) mpm_set_str_error(format)
+
 
 /*!
  * \brief Get an error string, previously set
  */
 char *mpm_get_str_error(void);
+# define GET_ERR_STR() mpm_get_str_error()
 
 #endif

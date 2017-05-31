@@ -36,7 +36,8 @@ typedef enum {
     INST_STATE_INSTALLATION,
     INST_STATE_AFTER,
     INST_STATE_DB,
-    INST_STATE_DONE
+    INST_STATE_DONE,
+    INST_STATE_LAST
 } install_state_t;
 
 typedef struct compile_s {
@@ -133,6 +134,15 @@ bool after_package(compile_t *ctx);
  *
  * \return true on success, false on failure
  */
-bool install_archive(packer_t *ctx);
+bool install_archive(packer_t *ctx, compile_t *ptr);
+
+/*!
+ * \brief install_state_t to human readable string
+ *
+ * \param num Install state
+ *
+ * \return String
+ */
+const char *install_state_to_str(install_state_t num);
 
 #endif /* COMPILE_H */

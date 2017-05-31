@@ -16,26 +16,6 @@
 
 #include <compile.h>
 
-static const char *g_install_states_str[] = {
-    __SET_ERR_STR(INST_STATE_NONE, "None"),
-    __SET_ERR_STR(INST_STATE_BEFORE, "Before script"),
-    __SET_ERR_STR(INST_STATE_PATCHING, "Patching"),
-    __SET_ERR_STR(INST_STATE_CONFIGURATION, "Configuration"),
-    __SET_ERR_STR(INST_STATE_COMPILATION, "Compilation"),
-    __SET_ERR_STR(INST_STATE_INSTALLATION, "Installation"),
-    __SET_ERR_STR(INST_STATE_AFTER, "After scripts"),
-    __SET_ERR_STR(INST_STATE_DB, "Database operations"),
-    __SET_ERR_STR(INST_STATE_DONE, "Done")
-};
-
-const char *install_state_to_str(install_state_t num) {
-    const char *ret = NULL;
-
-    if (num >= 0 && num < INST_STATE_LAST)
-        ret = g_install_states_str[num];
-    return ret;
-}
-
 compile_t *package_install_init(packer_t *ctx) {
     compile_t           *ret = NULL;
     packer_conf_opt_t   *opt = NULL;
@@ -56,7 +36,7 @@ compile_t *package_install_init(packer_t *ctx) {
     {
         free(ret);
         SET_ERR(ERR_CHDIR_FAILED);
-        SET_ERR_STR_FMT("Cannot enter directory '%s'", ctx->out_dir);
+        SET_ERR_STR("Cannot enter directory %s", ctx->out_dir);
         return NULL;
     }
     if (ctx->header->compilation->env == NULL)
@@ -77,7 +57,7 @@ bool package_install_cleanup(compile_t *ctx) {
     if (chdir(ctx->old_pwd) != 0)
     {
         SET_ERR(ERR_CHDIR_FAILED);
-        SET_ERR_STR_FMT("Cannot enter directory '%s'", ctx->old_pwd);
+        SET_ERR_STR("Cannot enter directory %s", ctx->old_pwd);
         return false;
     }
 
@@ -93,7 +73,7 @@ bool before_package(compile_t *ctx) {
     if (exec_line("sh " COMP_BEFORE_SCRIPT) != 0)
     {
         SET_ERR(ERR_EXEC_FAILED);
-        SET_ERR_STR_FMT("Execution failed for '%s'", "sh " COMP_BEFORE_SCRIPT);
+        SET_ERR_STR("Execution failed for '%s'", "sh " COMP_BEFORE_SCRIPT);
         return false;
     }
 
@@ -115,7 +95,6 @@ bool patch_package(compile_t *ctx) {
     if (chdir(PACKER_SRC_DIR) == -1)
     {
         SET_ERR(ERR_CHDIR_FAILED);
-        SET_ERR_STR_FMT("Cannot enter directory '%s'", PACKER_SRC_DIR);
         goto end;
     }
 
@@ -131,7 +110,6 @@ bool patch_package(compile_t *ctx) {
             if (exec_line(cmd) != 0)
             {
                 SET_ERR(ERR_EXEC_FAILED);
-                SET_ERR_STR_FMT("Execution failed for '%s'", cmd);
                 free(cmd);
                 goto end;
             }
@@ -142,7 +120,6 @@ bool patch_package(compile_t *ctx) {
     if (chdir("..") == -1)
     {
         SET_ERR(ERR_CHDIR_FAILED);
-        SET_ERR_STR("Cannot enter the directory '..'");
         goto end;
     }
 
@@ -169,7 +146,6 @@ bool configure_package(compile_t *ctx) {
     if (chdir(PACKER_SRC_DIR) == -1)
     {
         SET_ERR(ERR_CHDIR_FAILED);
-        SET_ERR_STR_FMT("Cannot enter the directory '%s'", PACKER_SRC_DIR);
         goto end;
     }
 
@@ -187,10 +163,7 @@ bool configure_package(compile_t *ctx) {
     if (exec_list(cmd) == 0)
         ret = true;
     else
-    {
         SET_ERR(ERR_EXEC_FAILED);
-        SET_ERR_STR_FMT("Execution failed for '%s'", cmd);
-    }
 
     list_free(cmd, NULL);
 
@@ -211,14 +184,12 @@ bool make_package(compile_t *ctx) {
     if (chdir(PACKER_SRC_DIR))
     {
         SET_ERR(ERR_CHDIR_FAILED);
-        SET_ERR_STR_FMT("Cannot enter the directory '%s'", PACKER_SRC_DIR);
         return false;
     }
 
     if (exec_line(ctx->package->header->compilation->make) != 0)
     {
         SET_ERR(ERR_EXEC_FAILED);
-        SET_ERR_STR_FMT("Execution failed for '%s'", ctx->package->header->compilation->make);
         status = false;
     }
 
@@ -239,14 +210,12 @@ bool install_package(compile_t *ctx) {
     if (chdir(PACKER_SRC_DIR))
     {
         SET_ERR(ERR_CHDIR_FAILED);
-        SET_ERR_STR_FMT("Cannot enter the directory '%s'", PACKER_SRC_DIR);
         return false;
     }
 
     if (exec_line(ctx->package->header->compilation->install) != 0)
     {
         SET_ERR(ERR_EXEC_FAILED);
-        SET_ERR_STR_FMT("Execution failed for '%s'", ctx->package->header->compilation->install);
         status = false;
     }
 
@@ -264,7 +233,6 @@ bool after_package(compile_t *ctx) {
     if (exec_line("sh " COMP_AFTER_SCRIPT) != 0)
     {
         SET_ERR(ERR_EXEC_FAILED);
-        SET_ERR_STR_FMT("Execution failed for '%s'\n", "sh " COMP_BEFORE_SCRIPT);
         return false;
     }
 
@@ -273,14 +241,14 @@ end:
     return true;
 }
 
-bool install_archive(packer_t *ctx, compile_t *ptr) {
+bool install_archive(packer_t *ctx) {
     bool        ret = false;
+    compile_t   *ptr = NULL;
 
     if (packer_extract_archive(ctx, DEFAULT_EXTRACT_DIR) == false)
     {
-        SET_ERR_STR("Cannot extract archive\n");
-        SET_ERR(ERR_ARCHIVE_EXTRACT);
         packer_free(ctx);
+        SET_ERR(ERR_ARCHIVE_EXTRACT);
         return ret;
     }
 
@@ -315,15 +283,8 @@ bool install_archive(packer_t *ctx, compile_t *ptr) {
 
 end:
     if (ret != true)
-    {
-        SET_ERR_STR_FMT("Installation failed at step: %s",
-            install_state_to_str(ptr->state));
         SET_ERR(ERR_INSTALLATION_FAILED);
-    }
-    else
-    {
-        recursive_delete(ctx->out_dir);
-        package_install_cleanup(ptr);
-    }
+    recursive_delete(ctx->out_dir);
+    package_install_cleanup(ptr);
     return ret;
 }

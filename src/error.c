@@ -19,20 +19,20 @@
 
 static u32_t    g_error = ERR_NO_ERROR;
 static const char *g_str_errors[] = {
-    SET_ERR_STR(ERR_NO_ERROR, "No error"),
-    SET_ERR_STR(ERR_MEMORY, "Insufficient memory"),
-    SET_ERR_STR(ERR_BAD_PTR, "Bad pointer"),
-    SET_ERR_STR(ERR_CHDIR_FAILED, "Can't change directory"),
-    SET_ERR_STR(ERR_OPEN, "Can't open a file"),
-    SET_ERR_STR(ERR_MKDIR_FAILED, "Can't create a directory"),
-    SET_ERR_STR(ERR_EXEC_FAILED, "A binary execution failed"),
-    SET_ERR_STR(ERR_ARCHIVE_EXTRACT, "An archive extraction failed"),
-    SET_ERR_STR(ERR_BAD_ARCHIVE_TYPE, "Bad archive type"),
-    SET_ERR_STR(ERR_NOT_A_PACKAGE, "File is not a Morphux package"),
-    SET_ERR_STR(ERR_INSTALLATION_FAILED, "An installation failed"),
-    SET_ERR_STR(ERR_BAD_CONFIG, "Bad configuration"),
-    SET_ERR_STR(ERR_BAD_JSON, "JSON file wrongly formatted"),
-    SET_ERR_STR(ERR_BAD_JSON_TYPE, "Unexecpted JSON type")
+    __SET_ERR_STR(ERR_NO_ERROR, "No error"),
+    __SET_ERR_STR(ERR_MEMORY, "Insufficient memory"),
+    __SET_ERR_STR(ERR_BAD_PTR, "Bad pointer"),
+    __SET_ERR_STR(ERR_CHDIR_FAILED, "Can't change directory"),
+    __SET_ERR_STR(ERR_OPEN, "Can't open a file"),
+    __SET_ERR_STR(ERR_MKDIR_FAILED, "Can't create a directory"),
+    __SET_ERR_STR(ERR_EXEC_FAILED, "A binary execution failed"),
+    __SET_ERR_STR(ERR_ARCHIVE_EXTRACT, "An archive extraction failed"),
+    __SET_ERR_STR(ERR_BAD_ARCHIVE_TYPE, "Bad archive type"),
+    __SET_ERR_STR(ERR_NOT_A_PACKAGE, "File is not a Morphux package"),
+    __SET_ERR_STR(ERR_INSTALLATION_FAILED, "An installation failed"),
+    __SET_ERR_STR(ERR_BAD_CONFIG, "Bad configuration"),
+    __SET_ERR_STR(ERR_BAD_JSON, "JSON file wrongly formatted"),
+    __SET_ERR_STR(ERR_BAD_JSON_TYPE, "Unexecpted JSON type")
 };
 static char g_str_error[ERROR_MAX_LEN] = "";
 

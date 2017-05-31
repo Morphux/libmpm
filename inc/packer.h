@@ -98,6 +98,8 @@ typedef struct packer_header_s {
     packer_header_deps_t    *dependencies; /*!< Package dependencies */
 } packer_header_t;
 
+#define __pkg_name header->package->name
+
 typedef struct packer_s {
     char            *str;    /*!< Directory, or path of the package */
     json_object     *json;   /*!< JSON object */
