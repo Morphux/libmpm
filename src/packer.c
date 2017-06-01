@@ -587,6 +587,7 @@ MPX_STATIC bool packer_read_config_file(packer_t *ctx) {
         else
         {
             SET_ERR(ERR_BAD_JSON);
+            SET_ERR_STR_FMT("Unknown global JSON token: %s", name);
             goto cleanup;
         }
         json_object_iter_next(&it);
@@ -615,6 +616,7 @@ bool packer_read_dir(packer_t *ctx) {
     if (chdir(ctx->str) == -1)
     {
         SET_ERR(ERR_CHDIR_FAILED);
+        SET_ERR_STR_FMT("Can't go to the directory %s", ctx->str);
         goto error;
     }
 
@@ -622,6 +624,7 @@ bool packer_read_dir(packer_t *ctx) {
     if (ctx->json == NULL)
     {
         SET_ERR(ERR_BAD_JSON);
+        SET_ERR_STR_FMT("Error at parsing JSON in: %s", PACKER_DEF_CONF_FN);
         goto error;
     }
 
@@ -753,6 +756,7 @@ bool packer_create_archive(packer_t *ctx, const char *archive_path) {
     if (fd == NULL)
     {
         SET_ERR(ERR_OPEN);
+        SET_ERR_STR_FMT("Can't open file %s", archive_path);
         return false;
     }
 
@@ -988,6 +992,7 @@ MPX_STATIC bool read_package_header(char *file_content, packer_t *ctx, int *s_re
     if (strncmp(file_content, PACKER_MPX_MAGIC, sizeof(PACKER_MPX_MAGIC) - 1) != 0)
     {
         SET_ERR(ERR_NOT_A_PACKAGE);
+        SET_ERR_STR("Not a MPX archive");
         goto cleanup;
     }
 
@@ -1054,7 +1059,6 @@ bool packer_extract_archive(packer_t *ctx, const char *dir) {
     if (ctx->type != PACKER_TYPE_ARCHIVE)
     {
         SET_ERR(ERR_BAD_ARCHIVE_TYPE);
-        SET_ERR_STR("Not an MPX archive");
         return false;
     }
 
