@@ -237,6 +237,7 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
     if (obj == NULL || json_object_get_type(obj) != json_type_object)
     {
         SET_ERR(ERR_BAD_JSON_TYPE);
+        SET_ERR_STR("Bad global JSON type for compilation section.");
         return false;
     }
 
@@ -255,6 +256,7 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
             if (json_object_get_type(tmp) != json_type_array)
             {
                 SET_ERR(ERR_BAD_JSON_TYPE);
+                SET_ERR_STR_FMT("Bad JSON type for %s, expected an array", name);
                 goto cleanup;
             }
 
@@ -276,6 +278,7 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
                         if (json_object_get_type(array_tmp) != json_type_string)
                         {
                             SET_ERR(ERR_BAD_JSON_TYPE);
+                            SET_ERR_STR("Bad JSON type for configure array, expected a string");
                             goto cleanup;
                         }
 
@@ -296,6 +299,7 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
                 else
                 {
                     SET_ERR(ERR_BAD_JSON);
+                    SET_ERR_STR("Unknown JSON type in configure section");
                     goto cleanup;
                 }
             }
@@ -305,6 +309,7 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
             if (json_object_get_type(tmp) != json_type_string)
             {
                 SET_ERR(ERR_BAD_JSON_TYPE);
+                SET_ERR_STR_FMT("Bad JSON type for %s, expected a string", name);
                 goto cleanup;
             }
 
@@ -318,6 +323,7 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
             if (json_object_get_type(tmp) != json_type_string)
             {
                 SET_ERR(ERR_BAD_JSON_TYPE);
+                SET_ERR_STR_FMT("Bad JSON type for %s, expected a string", name);
                 goto cleanup;
             }
 
@@ -331,6 +337,7 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
             if (json_object_get_type(tmp) != json_type_string)
             {
                 SET_ERR(ERR_BAD_JSON_TYPE);
+                SET_ERR_STR_FMT("Bad JSON type for %s, expected a string", name);
                 goto cleanup;
             }
 
@@ -344,6 +351,7 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
             if (json_object_get_type(tmp) != json_type_array)
             {
                 SET_ERR(ERR_BAD_JSON_TYPE);
+                SET_ERR_STR_FMT("Bad JSON type for %s, expected an array", name);
                 goto cleanup;
             }
 
@@ -365,6 +373,7 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
                         if (json_object_get_type(array_tmp) != json_type_string)
                         {
                             SET_ERR(ERR_BAD_JSON_TYPE);
+                            SET_ERR_STR("Bad JSON type in the env array, expected string");
                             goto cleanup;
                         }
 
@@ -385,6 +394,7 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
                 else
                 {
                     SET_ERR(ERR_BAD_JSON);
+                    SET_ERR_STR("Bad JSON type in the env array, expected a string / array");
                     goto cleanup;
                 }
             }
@@ -393,6 +403,7 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
         else
         {
             SET_ERR(ERR_BAD_JSON);
+            SET_ERR_STR_FMT("Unknown JSON token: %s", name);
             goto cleanup;
         }
 
@@ -1033,6 +1044,7 @@ bool packer_extract_archive(packer_t *ctx, const char *dir) {
     if (ctx->type != PACKER_TYPE_ARCHIVE)
     {
         SET_ERR(ERR_BAD_ARCHIVE_TYPE);
+        SET_ERR_STR("Not an MPX archive");
         return false;
     }
 
@@ -1040,6 +1052,7 @@ bool packer_extract_archive(packer_t *ctx, const char *dir) {
     if (fd == -1)
     {
         SET_ERR(ERR_OPEN);
+        SET_ERR_STR_FMT("Can't open archive '%s'", ctx->str);
         return false;
     }
 
@@ -1060,6 +1073,7 @@ bool packer_extract_archive(packer_t *ctx, const char *dir) {
     if (chdir(dir) == -1)
     {
         SET_ERR(ERR_CHDIR_FAILED);
+        SET_ERR_STR_FMT("Cannot go in the directory '%s'\n", dir);
         goto cleanup;
     }
 
@@ -1069,6 +1083,7 @@ bool packer_extract_archive(packer_t *ctx, const char *dir) {
     if (mkdir(ctx->out_dir, S_IRWXU | S_IRWXG | S_IRWXO) == -1)
     {
         SET_ERR(ERR_MKDIR_FAILED);
+        SET_ERR_STR_FMT("Cannot create directory '%s'\n", ctx->out_dir);
         goto cleanup;
     }
 

@@ -74,6 +74,9 @@ compile_t *package_install_init(packer_t *ctx) {
 }
 
 bool package_install_cleanup(compile_t *ctx) {
+    if (ctx == NULL)
+        return true;
+
     if (chdir(ctx->old_pwd) != 0)
     {
         SET_ERR(ERR_CHDIR_FAILED);
@@ -278,8 +281,6 @@ bool install_archive(packer_t *ctx, compile_t *ptr) {
 
     if (packer_extract_archive(ctx, DEFAULT_EXTRACT_DIR) == false)
     {
-        SET_ERR_STR("Cannot extract archive\n");
-        SET_ERR(ERR_ARCHIVE_EXTRACT);
         packer_free(ctx);
         return ret;
     }

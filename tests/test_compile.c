@@ -191,46 +191,64 @@ TEST(package_install_cleanup) {
 
 TEST(full_install) {
     packer_t    *ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
+    compile_t   *ptr = NULL;
 
-    TEST_ASSERT(install_archive(ctx) == true, "An error happened")
+    TEST_ASSERT_FMT(install_archive(ctx, ptr) == true, "An error happened: %s", GET_ERR_STR());
     return TEST_SUCCESS;
 }
 
 TEST(full_install_2) {
-    packer_t    *ctx;
+    packer_t    *ctx = NULL;
+    compile_t   *ptr = NULL;
 
     ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
 
     set_malloc_fail(0);
-    TEST_ASSERT(install_archive(ctx) == false, "Error did not raise");
+    TEST_ASSERT(install_archive(ctx, ptr) == false, "Error did not raise");
+    package_install_cleanup(ptr);
+    recursive_delete(DEFAULT_EXTRACT_DIR "/test-2.0");
 
     ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
     set_malloc_fail(9);
-    TEST_ASSERT(install_archive(ctx) == false, "Error did not raise");
+    TEST_ASSERT(install_archive(ctx, ptr) == false, "Error did not raise");
+    package_install_cleanup(ptr);
+    recursive_delete(DEFAULT_EXTRACT_DIR "/test-2.0");
 
     ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
     set_fork_fail(0);
-    TEST_ASSERT(install_archive(ctx) == false, "Error did not raise");
+    TEST_ASSERT(install_archive(ctx, ptr) == false, "Error did not raise");
+    package_install_cleanup(ptr);
+    recursive_delete(DEFAULT_EXTRACT_DIR "/test-2.0");
 
     ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
     set_fork_fail(1);
-    TEST_ASSERT(install_archive(ctx) == false, "Error did not raise");
+    TEST_ASSERT(install_archive(ctx, ptr) == false, "Error did not raise");
+    package_install_cleanup(ptr);
+    recursive_delete(DEFAULT_EXTRACT_DIR "/test-2.0");
 
     ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
     set_fork_fail(2);
-    TEST_ASSERT(install_archive(ctx) == false, "Error did not raise");
+    TEST_ASSERT(install_archive(ctx, ptr) == false, "Error did not raise");
+    package_install_cleanup(ptr);
+    recursive_delete(DEFAULT_EXTRACT_DIR "/test-2.0");
 
     ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
     set_fork_fail(3);
-    TEST_ASSERT(install_archive(ctx) == false, "Error did not raise");
+    TEST_ASSERT(install_archive(ctx, ptr) == false, "Error did not raise");
+    package_install_cleanup(ptr);
+    recursive_delete(DEFAULT_EXTRACT_DIR "/test-2.0");
 
     ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
     set_fork_fail(4);
-    TEST_ASSERT(install_archive(ctx) == false, "Error did not raise");
+    TEST_ASSERT(install_archive(ctx, ptr) == false, "Error did not raise");
+    package_install_cleanup(ptr);
+    recursive_delete(DEFAULT_EXTRACT_DIR "/test-2.0");
 
     ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
     set_fork_fail(5);
-    TEST_ASSERT(install_archive(ctx) == false, "Error did not raise");
+    TEST_ASSERT(install_archive(ctx, ptr) == false, "Error did not raise");
+    package_install_cleanup(ptr);
+    recursive_delete(DEFAULT_EXTRACT_DIR "/test-2.0");
 
     return TEST_SUCCESS;
 }
