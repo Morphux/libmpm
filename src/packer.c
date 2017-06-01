@@ -428,6 +428,7 @@ MPX_STATIC bool packer_read_config_deps(packer_t *ctx, struct json_object *obj) 
     if (obj == NULL || json_object_get_type(obj) != json_type_array)
     {
         SET_ERR(ERR_BAD_JSON_TYPE);
+        SET_ERR_STR("Bad JSON type for the dependencies, expected an array");
         return false;
     }
 
@@ -438,6 +439,7 @@ MPX_STATIC bool packer_read_config_deps(packer_t *ctx, struct json_object *obj) 
         if (json_object_get_type(tmp) != json_type_string)
         {
             SET_ERR(ERR_BAD_JSON_TYPE);
+            SET_ERR_STR("Bad JSON type for the dependencies array, expected a string");
             goto cleanup;
         }
 
@@ -463,6 +465,7 @@ MPX_STATIC bool packer_read_config_package(packer_t *ctx, struct json_object *ob
     if (obj == NULL || json_object_get_type(obj) != json_type_object)
     {
         SET_ERR(ERR_BAD_JSON_TYPE);
+        SET_ERR_STR("Bad JSON type for the package section, expected an object");
         return false;
     }
 
@@ -479,6 +482,7 @@ MPX_STATIC bool packer_read_config_package(packer_t *ctx, struct json_object *ob
             if (json_object_get_type(tmp) != json_type_string)
             {
                 SET_ERR(ERR_BAD_JSON_TYPE);
+                SET_ERR_STR_FMT("Wrong type for %s, expected a string", name);
                 goto cleanup;
             }
             ctx->header->package->name = strdup(json_object_get_string(tmp));
@@ -488,6 +492,7 @@ MPX_STATIC bool packer_read_config_package(packer_t *ctx, struct json_object *ob
             if (json_object_get_type(tmp) != json_type_string)
             {
                 SET_ERR(ERR_BAD_JSON_TYPE);
+                SET_ERR_STR_FMT("Wrong type for %s, expected a string", name);
                 goto cleanup;
             }
             ctx->header->package->version = strdup(json_object_get_string(tmp));
@@ -497,6 +502,7 @@ MPX_STATIC bool packer_read_config_package(packer_t *ctx, struct json_object *ob
             if (json_object_get_type(tmp) != json_type_string)
             {
                 SET_ERR(ERR_BAD_JSON_TYPE);
+                SET_ERR_STR_FMT("Wrong type for %s, expected a string", name);
                 goto cleanup;
             }
             ctx->header->package->description = strdup(json_object_get_string(tmp));
@@ -507,6 +513,7 @@ MPX_STATIC bool packer_read_config_package(packer_t *ctx, struct json_object *ob
                 && json_object_get_type(tmp) != json_type_int)
             {
                 SET_ERR(ERR_BAD_JSON_TYPE);
+                SET_ERR_STR_FMT("Wrong type for %s, expected a int / double", name);
                 goto cleanup;
             }
             ctx->header->package->_sbu = json_object_get_double(tmp);
@@ -516,6 +523,7 @@ MPX_STATIC bool packer_read_config_package(packer_t *ctx, struct json_object *ob
             if (json_object_get_type(tmp) != json_type_string)
             {
                 SET_ERR(ERR_BAD_JSON_TYPE);
+                SET_ERR_STR_FMT("Wrong type for %s, expected a string", name);
                 goto cleanup;
             }
             ctx->header->package->categ = strdup(json_object_get_string(tmp));
@@ -526,6 +534,7 @@ MPX_STATIC bool packer_read_config_package(packer_t *ctx, struct json_object *ob
                 && json_object_get_type(tmp) != json_type_int)
             {
                 SET_ERR(ERR_BAD_JSON_TYPE);
+                SET_ERR_STR_FMT("Wrong type for %s, expected a string", name);
                 goto cleanup;
             }
             ctx->header->package->inst_size = json_object_get_double(tmp);
@@ -534,6 +543,7 @@ MPX_STATIC bool packer_read_config_package(packer_t *ctx, struct json_object *ob
         else
         {
             SET_ERR(ERR_BAD_JSON);
+            SET_ERR_STR_FMT("Unknown JSON token: %s", name);
             goto cleanup;
         }
         json_object_iter_next(&it);
