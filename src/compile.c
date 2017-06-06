@@ -16,6 +16,10 @@
 
 #include <compile.h>
 
+/**
+ * Compilation states, in string
+ * @see: install_state_t enum for more information
+ */
 static const char *g_install_states_str[] = {
     __SET_ERR_STR(INST_STATE_NONE, "None"),
     __SET_ERR_STR(INST_STATE_BEFORE, "Before script"),
@@ -26,11 +30,13 @@ static const char *g_install_states_str[] = {
     __SET_ERR_STR(INST_STATE_AFTER, "After scripts"),
     __SET_ERR_STR(INST_STATE_DB, "Database operations"),
     __SET_ERR_STR(INST_STATE_DONE, "Done")
+    /* Don't need a INST_STATE_LAST */
 };
 
 const char *install_state_to_str(install_state_t num) {
     const char *ret = NULL;
 
+    /* Check for potential overflow */
     if (num >= 0 && num < INST_STATE_LAST)
         ret = g_install_states_str[num];
     return ret;
@@ -51,7 +57,10 @@ compile_t *package_install_init(packer_t *ctx) {
     ret->package = ctx;
     ret->state = INST_STATE_NONE;
 
+    /* Saving the current pwd */
     getcwd(ret->old_pwd, sizeof(ret->old_pwd));
+
+    /* Try to go to the extracted archive directory */
     if (chdir(ctx->out_dir) != 0)
     {
         free(ret);
@@ -62,6 +71,7 @@ compile_t *package_install_init(packer_t *ctx) {
     if (ctx->header->compilation->env == NULL)
         return ret;
 
+    /* Set the environements variable, specified by the package */
     list_for_each(ctx->header->compilation->env, tmp, opt)
     {
         if (opt->name != NULL)
@@ -90,9 +100,11 @@ bool package_install_cleanup(compile_t *ctx) {
 }
 
 bool before_package(compile_t *ctx) {
+    /* Test the presence of the before script */
     if (file_exist(COMP_BEFORE_SCRIPT) == false)
         goto end;
 
+    /* Exec the script */
     if (exec_line("sh " COMP_BEFORE_SCRIPT) != 0)
     {
         SET_ERR(ERR_EXEC_FAILED);
@@ -115,6 +127,7 @@ bool patch_package(compile_t *ctx) {
     if (dir == NULL)
         return true;
 
+    /* Trying to go in the srcs/ directory */
     if (chdir(PACKER_SRC_DIR) == -1)
     {
         SET_ERR(ERR_CHDIR_FAILED);
@@ -122,15 +135,20 @@ bool patch_package(compile_t *ctx) {
         goto end;
     }
 
+    /* While on every patch */
     while ((dinfo = readdir(dir)))
     {
         /* Skip .* files */
         if (strlen(dinfo->d_name) > 0 && dinfo->d_name[0] == '.')
             continue ;
 
+        /* Ignore directories */
         if (dinfo->d_type != DT_DIR)
         {
+            /* Create the command */
             asprintf(&cmd, "%s ../%s%s", PATCH_CMD, PACKER_PATCH_DIR, dinfo->d_name);
+
+            /* Execute the command */
             if (exec_line(cmd) != 0)
             {
                 SET_ERR(ERR_EXEC_FAILED);
@@ -142,6 +160,7 @@ bool patch_package(compile_t *ctx) {
         }
     }
 
+    /* Trying to go back in the main directory */
     if (chdir("..") == -1)
     {
         SET_ERR(ERR_CHDIR_FAILED);
@@ -169,6 +188,7 @@ bool configure_package(compile_t *ctx) {
         goto end;
     }
 
+    /* Trying to go in the srcs/ directory */
     if (chdir(PACKER_SRC_DIR) == -1)
     {
         SET_ERR(ERR_CHDIR_FAILED);
@@ -176,17 +196,24 @@ bool configure_package(compile_t *ctx) {
         goto end;
     }
 
+    /* Since we don't know the size of the configure, we're using a list for it */
     list_add(cmd, CONFIGURE_CMD, sizeof(CONFIGURE_CMD) + 1);
 
+    /* While on each parameter */
     list_for_each(ctx->package->header->compilation->configure, tmp, opt) {
+
+        /* If the parameter got an argument */
         if (opt->name != NULL)
             asprintf(&arg, "--%s=%s", opt->name, opt->value);
         else
             asprintf(&arg, "--%s", opt->value);
+
+        /* Adding to the list */
         list_add(cmd, arg, strlen(arg) + 1);
         free(arg);
     }
 
+    /* Execute the command (from a list) */
     if (exec_list(cmd) == 0)
         ret = true;
     else
@@ -197,6 +224,7 @@ bool configure_package(compile_t *ctx) {
 
     list_free(cmd, NULL);
 
+    /* Go back on the main directory */
     chdir("..");
 
 end:
@@ -211,6 +239,7 @@ bool make_package(compile_t *ctx) {
     if (STR_NULL_OR_EMPTY(ctx->package->header->compilation->make))
         goto end;
 
+    /* Trying to go in the srcs/ directory */
     if (chdir(PACKER_SRC_DIR))
     {
         SET_ERR(ERR_CHDIR_FAILED);
@@ -218,6 +247,7 @@ bool make_package(compile_t *ctx) {
         return false;
     }
 
+    /* Execute the makefile */
     if (exec_line(ctx->package->header->compilation->make) != 0)
     {
         SET_ERR(ERR_EXEC_FAILED);
@@ -225,6 +255,7 @@ bool make_package(compile_t *ctx) {
         status = false;
     }
 
+    /* Go back to the main directory */
     chdir("..");
 
 end:
@@ -239,6 +270,7 @@ bool install_package(compile_t *ctx) {
     if (STR_NULL_OR_EMPTY(ctx->package->header->compilation->install))
         goto end;
 
+    /* Trying to go in the srcs/ directory */
     if (chdir(PACKER_SRC_DIR))
     {
         SET_ERR(ERR_CHDIR_FAILED);
@@ -246,6 +278,7 @@ bool install_package(compile_t *ctx) {
         return false;
     }
 
+    /* Execute the installation command line */
     if (exec_line(ctx->package->header->compilation->install) != 0)
     {
         SET_ERR(ERR_EXEC_FAILED);
@@ -253,6 +286,7 @@ bool install_package(compile_t *ctx) {
         status = false;
     }
 
+    /* Go back to the main directory */
     chdir("..");
 
 end:
@@ -261,9 +295,11 @@ end:
 }
 
 bool after_package(compile_t *ctx) {
+    /* Testing if the file is there */
     if (file_exist(COMP_AFTER_SCRIPT) == false)
         goto end;
 
+    /* Execute the before script */
     if (exec_line("sh " COMP_AFTER_SCRIPT) != 0)
     {
         SET_ERR(ERR_EXEC_FAILED);
@@ -279,12 +315,14 @@ end:
 bool install_archive(packer_t *ctx, compile_t *ptr) {
     bool        ret = false;
 
+    /* Extract the given archive */
     if (packer_extract_archive(ctx, DEFAULT_EXTRACT_DIR) == false)
     {
         packer_free(ctx);
         return ret;
     }
 
+    /* Init the installation process */
     ptr = package_install_init(ctx);
     if (ptr == NULL)
     {
@@ -315,12 +353,14 @@ bool install_archive(packer_t *ctx, compile_t *ptr) {
     ret = true;
 
 end:
+    /* Installation as failed */
     if (ret != true)
     {
         SET_ERR_STR_FMT("Installation failed at step: %s",
             install_state_to_str(ptr->state));
         SET_ERR(ERR_INSTALLATION_FAILED);
     }
+    /* All good, we clean up the installation directory */
     else
     {
         recursive_delete(ctx->out_dir);

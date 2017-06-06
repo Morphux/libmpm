@@ -17,7 +17,7 @@
 #include <category.h>
 
 int mpm_category_free(void *tmp) {
-    category_t	*ptr = tmp;
+    category_t  *ptr = tmp;
 
     if (ptr)
     {
