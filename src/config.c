@@ -23,6 +23,8 @@ static void config_error_cb(cfg_t *ptr, const char *fmt, va_list ap) {
 
     (void)ptr;
     vsnprintf(err, 250, fmt, ap);
+
+    /* Prevent buffer overflow */
     if (strlen(err) < 250)
         strcpy(g_error, err);
 }
@@ -96,14 +98,19 @@ config_t *parse_config(const char *path, u8_t *ret) {
     assert(ret != NULL);
     config = malloc(sizeof(config_t));
     assert(config != NULL);
+
+    /* Structure initialization */
     config->fn = NULL;
     config->err = NULL;
     config->ptr = cfg_init(opts, CFGF_NONE);
     cfg_set_error_function(config->ptr, &config_error_cb);
+
+    /* Parse the config file */
     *ret = cfg_parse(config->ptr, path != NULL ? path : CONFIG_DEF_PATH);
 
     config->fn = malloc(strlen(path != NULL ? path : CONFIG_DEF_PATH) + 1);
     strcpy(config->fn, path != NULL ? path : CONFIG_DEF_PATH);
+
     if (*ret != 0)
     {
         set_mpm_error(ERR_BAD_CONFIG);

@@ -22,12 +22,16 @@ SQL_CALLBACK_DEF(callback_files) {
 
     ptr = malloc(sizeof(file_t));
     assert(ptr != NULL);
+    /* Init the file structure */
     mpm_file_init(ptr);
 
+    /* Iterating over each column */
     for (u8_t i = 0; i < col_num; i++)
         sql_to_file(ptr, col_name[i], col_txt[i]);
 
+    /* Add the list to the context */
     list_add(*(head), ptr, sizeof(file_t));
+
     free(ptr);
     return 0;
 }
@@ -38,11 +42,14 @@ SQL_CALLBACK_DEF(callback_package) {
 
     ptr = malloc(sizeof(package_t));
     assert(ptr != NULL);
+    /* Init the package structure */
     mpm_package_init(ptr);
 
+    /* Iterating over each column */
     for (u8_t i = 0; i < col_num; i++)
         sql_to_package(ptr, col_name[i], col_txt[i]);
 
+    /* Add the list to the context */
     list_add(*(head), ptr, sizeof(package_t));
     free(ptr);
     return 0;
@@ -54,11 +61,14 @@ SQL_CALLBACK_DEF(callback_categ) {
 
     ptr = malloc(sizeof(category_t));
     assert(ptr != NULL);
+    /* Init the category structure */
     mpm_category_init(ptr);
 
+    /* Iterating over each column */
     for (u8_t i = 0; i < col_num; i++)
         ptr = sql_to_category(ptr, col_name[i], col_txt[i]);
 
+    /* Add the list to the context */
     list_add(*(head), ptr, sizeof(category_t));
     free(ptr);
     return 0;
@@ -73,13 +83,16 @@ database_t *mpm_database_open(u8_t *ret, const char *fn) {
     ptr = malloc(sizeof(database_t));
     assert(ptr != NULL);
 
+    /* If the caller gave a filename, try to open with this one */
     if (fn != NULL)
         error = sqlite3_open(fn, &ptr->sql);
+    /* Else, open with the default path */
     else
         error = sqlite3_open(DB_FN, &ptr->sql);
 
     if (error != 0)
         goto error;
+
     return ptr;
 
 error:
@@ -123,8 +136,12 @@ u8_t mpm_get_package_by_id(database_t *ptr, u64_t id, mlist_t **pkg) {
     }
 
     *pkg = NULL;
+    /* Contructing the query */
     asprintf(&query, QUERY_GET_PACKAGE_BY_ID(id));
+
+    /* Executing the query */
     ret = sqlite3_exec(ptr->sql, query, &callback_package, pkg, NULL);
+
     free(query);
     return ret;
 }
@@ -140,8 +157,12 @@ u8_t mpm_get_package_by_name(database_t *ptr, const char *name, mlist_t **pkg) {
     }
 
     *pkg = NULL;
+    /* Contructing the query */
     asprintf(&query, QUERY_GET_PACKAGE_BY_NAME(name));
+
+    /* Executing the query */
     ret = sqlite3_exec(ptr->sql, query, &callback_package, pkg, NULL);
+
     free(query);
     return ret;
 }
@@ -247,6 +268,7 @@ u8_t mpm_database_add_pkg(database_t *ptr, package_t *pkg) {
     binaries = NULL;
     config = NULL;
     docs = NULL;
+    /* Construct the query */
     asprintf(&query, SQL_INSERT_TABLE PKG_TABLE \
             " (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) " \
             "VALUES (\"%s\", \"%s\", \"%s\", \"%s\", %d, \"%s\", \"%s\", \"%s\", \"%s\", \"%s\");",
@@ -256,9 +278,10 @@ u8_t mpm_database_add_pkg(database_t *ptr, package_t *pkg) {
             pkg->name, pkg->version, pkg->categ->name, pkg->desc, 
             pkg->state, deps, files, binaries, config, docs);
 
+    /* Execute the query */
     ret = mpm_database_exec(ptr, query, NULL, NULL, &err);
     free(query);
-    assert(ret == 0 && err == NULL);
+
     sqlite3_free(err);
     return ret;
 }
@@ -274,9 +297,13 @@ u8_t mpm_get_file_by_id(database_t *ptr, u64_t id, mlist_t **files) {
     }
 
     *files = NULL;
+    /* Construct the query */
     asprintf(&query, QUERY_GET_FILES_BY_ID(id));
+
+    /* Execute the query */
     ret = sqlite3_exec(ptr->sql, query, &callback_files, files, NULL);
     free(query);
+
     return ret;
 }
 
@@ -291,9 +318,13 @@ u8_t mpm_get_file_by_path(database_t *ptr, const char *path, mlist_t **files) {
     }
 
     *files = NULL;
+    /* Construct the query */
     asprintf(&query, QUERY_GET_FILES_BY_PATH(path));
+
+    /* Execute the query */
     ret = sqlite3_exec(ptr->sql, query, &callback_files, files, NULL);
     free(query);
+
     return ret;
 }
 
@@ -309,9 +340,13 @@ u8_t mpm_get_file_by_parent_id(database_t *ptr, u64_t id,
     }
 
     *files = NULL;
+    /* Construct the query */
     asprintf(&query, QUERY_GET_FILES_BY_PARENT_ID(id));
+
+    /* Execute the query */
     ret = sqlite3_exec(ptr->sql, query, &callback_files, files, NULL);
     free(query);
+
     return ret;
 }
 
@@ -326,9 +361,13 @@ u8_t mpm_get_file_by_parent_name(database_t *ptr, const char *name, mlist_t **fi
     }
 
     *files = NULL;
+    /* Construct the query */
     asprintf(&query, QUERY_GET_FILES_BY_PARENT_NAME(name));
+
+    /* Execute the query */
     ret = sqlite3_exec(ptr->sql, query, &callback_files, files, NULL);
     free(query);
+
     return ret;
 }
 
@@ -380,6 +419,7 @@ u8_t mpm_database_add_file(database_t *ptr, file_t *file) {
         return 1;
     }
 
+    /* Construct the query */
     asprintf(&query, SQL_INSERT_TABLE FILE_TABLE \
          " (%s, %s, %s, %s, %s) " \
          "VALUES (\"%s\", \"%d\", \"%lld\", \"%s\", \"%s\");",
@@ -387,10 +427,12 @@ u8_t mpm_database_add_file(database_t *ptr, file_t *file) {
          FILE_COL_HASH,
          file->path, file->type, file->parent->id, file->parent_name,
          file->hash);
+
+    /* Execute the query */
     ret = mpm_database_exec(ptr, query, NULL, NULL, &err);
     free(query);
-    assert(ret == 0 && err == NULL);
     sqlite3_free(err);
+
     return ret;
 }
 
@@ -404,16 +446,19 @@ u8_t mpm_database_add_categ(database_t *ptr, category_t *cat) {
         return 1;
     }
 
+    /* Construct the query */
     asprintf(&query, SQL_INSERT_TABLE CAT_TABLE \
             "(%s, %s, %s) " \
             "VALUES (\"%s\", \"%lld\", \"%s\");",
             CAT_COL_NAME, CAT_COL_PARENT, CAT_COL_PARENT_NAME,
             cat->name, cat->parent->id, cat->parent->name
     );
+
+    /* Execute the query */
     ret = mpm_database_exec(ptr, query, NULL, NULL, &err);
     free(query);
-    assert(ret == 0 && err == NULL);
     sqlite3_free(err);
+
     return ret;
 }
 
@@ -429,9 +474,13 @@ u8_t mpm_get_categ_by_id(database_t *ptr, u64_t id, mlist_t **cat) {
     }
 
     *cat = NULL;
+    /* Construct the query */
     asprintf(&query, QUERY_GET_CATEG_BY_ID(id));
+
+    /* Execute the query */
     ret = sqlite3_exec(ptr->sql, query, &callback_categ, cat, NULL);
     free(query);
+
     return ret;
 }
 
@@ -447,9 +496,13 @@ u8_t mpm_get_categ_by_name(database_t *ptr, const char *name, mlist_t **cat) {
     }
 
     *cat = NULL;
+    /* Construct the query */
     asprintf(&query, QUERY_GET_CATEG_BY_NAME(name));
+
+    /* Execute the query */
     ret = sqlite3_exec(ptr->sql, query, &callback_categ, cat, NULL);
     free(query);
+
     return ret;
 }
 
