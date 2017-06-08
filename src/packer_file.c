@@ -71,11 +71,14 @@ bool read_files_from_dir(const char *dir_name, mlist_t **files, mlist_t **dirs) 
     if (dir == NULL)
         return true;
 
+    /* Read each file in the directory */
     while ((dinfo = readdir(dir)))
     {
+        /* Skip files beginning with '.' */
         if (strlen(dinfo->d_name) > 0 && dinfo->d_name[0] == '.')
             continue ;
 
+        /* Format the path if it's a directory */
         if (dinfo->d_type == DT_DIR)
         {
             size_t tmp = strlen(dinfo->d_name);
@@ -88,6 +91,7 @@ bool read_files_from_dir(const char *dir_name, mlist_t **files, mlist_t **dirs) 
         if (file == NULL)
             goto error;
 
+        /* Add the directory in the linked list for future calls */
         if (dinfo->d_type == DT_DIR)
         {
             list_add((*dirs), file->fn, strlen(file->fn) + 1);
@@ -125,6 +129,8 @@ bool get_file_information(packer_file_t *file) {
         return false;
 
     file_size = f_stat.st_size;
+
+    /* Get the file content */
     file_content = mpm_read_file_from_fn(file->fn);
     if (file_content == NULL)
     {
@@ -134,6 +140,7 @@ bool get_file_information(packer_file_t *file) {
         return true;
     }
 
+    /* Compute the sum */
     crypto_hash_sha256((unsigned char *)file->sum,
         (const unsigned char *)file_content,
         file_size);
@@ -187,6 +194,7 @@ bool packer_file_from_binary_to_disk(const char *content, off_t *ctr) {
     unsigned char   out[_CHUNK_SIZE];
     FILE            *fd;
 
+    /* Get the file name */
     file.fn = strdup(content + *ctr);
     if (file.fn == NULL)
     {
@@ -194,6 +202,7 @@ bool packer_file_from_binary_to_disk(const char *content, off_t *ctr) {
         return false;
     }
 
+    /* Open a file, create directories before if needed (mkdir -p) */
     fd = recursive_file_open(file.fn);
     if (fd == NULL)
     {
@@ -231,11 +240,13 @@ bool packer_file_from_binary_to_disk(const char *content, off_t *ctr) {
         stream.avail_out = 0;
         *ctr += file.compressed_size;
 
+        /* Decompress while there still is data */
         while (stream.avail_out == 0)
         {
             stream.avail_out = _CHUNK_SIZE;
             stream.next_out = out;
             inflate(&stream, Z_NO_FLUSH);
+            /* Write the decompressed chunk to the disk */
             if (_CHUNK_SIZE - stream.avail_out > 0)
                 fwrite(out, _CHUNK_SIZE - stream.avail_out, 1, fd);
         }

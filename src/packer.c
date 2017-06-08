@@ -819,6 +819,7 @@ MPX_STATIC bool write_packer_sources(FILE *fd, packer_t *ctx, const char *dir_na
         if (list_size(files_list) == 0)
             continue;
 
+        /* For each file found, write it to the archive */
         list_for_each(files_list, tmp2, file) {
             fprintf(fd, "%s%c", file->fn, 0);
             fwrite(&file->mode, sizeof(file->mode), 1, fd);
@@ -830,6 +831,8 @@ MPX_STATIC bool write_packer_sources(FILE *fd, packer_t *ctx, const char *dir_na
                 fwrite(file->content, file->compressed_size, 1, fd);
             }
         }
+
+        /* Cleanup the written files */
         list_free(files_list, packer_file_free);
         files_list = NULL;
     }
@@ -855,6 +858,7 @@ bool packer_create_archive(packer_t *ctx, const char *archive_path) {
         return false;
     }
 
+    /* Create the archive file */
     fd = fopen(archive_path, "w+");
     if (fd == NULL)
     {
@@ -863,13 +867,18 @@ bool packer_create_archive(packer_t *ctx, const char *archive_path) {
         return false;
     }
 
+    /* Write header */
     write_package_header(fd, ctx);
+
+    /* Write srcs/ */
     if (write_packer_sources(fd, ctx, PACKER_SRC_DIR) == false)
         goto error;
 
+    /* Write patches/ */
     if (write_packer_sources(fd, ctx, PACKER_PATCH_DIR) == false)
         goto error;
 
+    /* Write scripts/ */
     if (write_packer_sources(fd, ctx, PACKER_SCRIPT_DIR) == false)
         goto error;
 
@@ -885,7 +894,7 @@ MPX_STATIC int read_package_header_package(const char *file, packer_t *ctx)
 {
     int                         ret = 0;
     packer_header_package_t     *pkg = NULL;
-    double              sbu, inst_size;
+    double                      sbu, inst_size;
 
     pkg = packer_header_package_init();
     if (pkg == NULL)
@@ -893,10 +902,7 @@ MPX_STATIC int read_package_header_package(const char *file, packer_t *ctx)
 
     pkg->name = strdup(file + ret);
     if (pkg->name == NULL)
-    {
-        SET_ERR(ERR_MEMORY);
         goto cleanup;
-    }
 
     ret += strlen(pkg->name) + 1;
 
@@ -944,6 +950,7 @@ MPX_STATIC bool read_conf_opt(char *file, mlist_t **list, int *ret) {
     size = ntohl(size);
     *ret += sizeof(size);
 
+    /* Iterate over each configure parameter */
     for (u32_t i = 0; i < size; i++)
     {
         opt = malloc(sizeof(*opt));
@@ -956,9 +963,11 @@ MPX_STATIC bool read_conf_opt(char *file, mlist_t **list, int *ret) {
         tmp = file + *ret;
         *ret += strlen(tmp) + 1;
 
+        /* Find the ':' (option:value delimeter) */
         ptr = strchr(tmp, ':');
         if (ptr == NULL)
         {
+            /* If there is none, simply copy the string */
             opt->value = strdup(tmp);
             if (opt->value == NULL)
             {
@@ -970,6 +979,7 @@ MPX_STATIC bool read_conf_opt(char *file, mlist_t **list, int *ret) {
         }
         else
         {
+            /* Copy the name */
             *ptr = 0;
             opt->name = strdup(tmp);
             if (opt->name == NULL)
@@ -979,6 +989,7 @@ MPX_STATIC bool read_conf_opt(char *file, mlist_t **list, int *ret) {
                 goto cleanup;
             }
 
+            /* Copy the value */
             opt->value = strdup(ptr + 1);
             if (opt->value == NULL)
             {
@@ -988,6 +999,8 @@ MPX_STATIC bool read_conf_opt(char *file, mlist_t **list, int *ret) {
                 goto cleanup;
             }
         }
+
+        /* Add the option to the context */
         list_add(*(list), opt, sizeof(*opt));
         free(opt);
     }
@@ -1057,12 +1070,17 @@ MPX_STATIC int read_package_header_dependencies(const char *file, packer_t *ctx)
     deps = packer_header_deps_init();
     if (deps == NULL)
         return 0;
+
+    /* Get the list size */
     memcpy(&list_len, file, sizeof(u32_t));
+    /* Endianness */
     list_len = ntohl(list_len);
     ret += sizeof(u32_t);
 
+    /* Iterate over each string */
     for (u32_t i = 0; i < list_len; i++)
     {
+        /* Copy the dependency string */
         tmp = strdup(file + ret);
         if (tmp == NULL)
         {
@@ -1070,6 +1088,8 @@ MPX_STATIC int read_package_header_dependencies(const char *file, packer_t *ctx)
             goto cleanup;
         }
         ret += strlen(tmp) + 1;
+
+        /* Add it to the context */
         list_add(deps->list, tmp, strlen(tmp) + 1);
         free(tmp);
     }
@@ -1092,6 +1112,7 @@ MPX_STATIC bool read_package_header(char *file_content, packer_t *ctx, int *s_re
         return false;
     }
 
+    /* Test the 3 bytes magic */
     if (strncmp(file_content, PACKER_MPX_MAGIC, sizeof(PACKER_MPX_MAGIC) - 1) != 0)
     {
         SET_ERR(ERR_NOT_A_PACKAGE);
@@ -1138,6 +1159,7 @@ bool packer_read_archive_header(packer_t *ctx) {
     if (ctx->type != PACKER_TYPE_ARCHIVE)
         return false;
 
+    /* Get file content */
     archive = mpm_read_file_from_fn(ctx->str);
     if (archive == NULL)
     {
@@ -1157,6 +1179,7 @@ bool packer_extract_archive(packer_t *ctx, const char *dir) {
     off_t               size, ctr;
     char                old_pwd[PATH_MAX];
 
+    /* Save the current working directory */
     getcwd(old_pwd, sizeof(old_pwd));
 
     if (ctx->type != PACKER_TYPE_ARCHIVE)
@@ -1165,6 +1188,7 @@ bool packer_extract_archive(packer_t *ctx, const char *dir) {
         return false;
     }
 
+    /* Open the archive */
     fd = open(ctx->str, O_RDONLY);
     if (fd == -1)
     {
@@ -1173,6 +1197,7 @@ bool packer_extract_archive(packer_t *ctx, const char *dir) {
         return false;
     }
 
+    /* Get the archive binary content */
     archive = mpm_read_file_from_fd(fd);
     size = mpm_get_file_size_from_fd(fd);
 
@@ -1181,12 +1206,16 @@ bool packer_extract_archive(packer_t *ctx, const char *dir) {
 
     ctr = t_ctr;
 
+    /* Open the extract directory */
     DIR *p_dir = opendir(dir);
+
+    /* If it's non-existent, create it */
     if (p_dir == NULL)
         mkdir(dir, S_IRWXU | S_IRWXG | S_IRWXO);
     else
         closedir(p_dir);
 
+    /* Go to the extract directory */
     if (chdir(dir) == -1)
     {
         SET_ERR(ERR_CHDIR_FAILED);
@@ -1194,9 +1223,11 @@ bool packer_extract_archive(packer_t *ctx, const char *dir) {
         goto cleanup;
     }
 
+    /* Create the package directory name */
     asprintf(&ctx->out_dir, "%s/%s-%s/", dir,
         ctx->header->package->name, ctx->header->package->version);
 
+    /* Create the actual directory */
     if (mkdir(ctx->out_dir, S_IRWXU | S_IRWXG | S_IRWXO) == -1)
     {
         SET_ERR(ERR_MKDIR_FAILED);
@@ -1204,8 +1235,10 @@ bool packer_extract_archive(packer_t *ctx, const char *dir) {
         goto cleanup;
     }
 
+    /* Go in the directory */
     chdir(ctx->out_dir);
 
+    /* Read each file, and dump them to the disk */
     while (size > ctr)
     {
         if (packer_file_from_binary_to_disk(archive, &ctr) == false)
