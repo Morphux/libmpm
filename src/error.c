@@ -18,6 +18,10 @@
 
 
 static u32_t    g_error = ERR_NO_ERROR;
+
+/**
+ * Array of strings, used to translate errors in an human readable string
+ */
 static const char *g_str_errors[] = {
     __SET_ERR_STR(ERR_NO_ERROR, "No error"),
     __SET_ERR_STR(ERR_MEMORY, "Insufficient memory"),
@@ -47,8 +51,10 @@ u32_t get_mpm_error(void) {
 const char *mpm_strerror(mpm_error_t err_num) {
     const char *ret = NULL;
 
+    /* Check for pontentials overflow */
     if (err_num > 0 && err_num < ERR_LAST)
         ret = g_str_errors[err_num];
+
     g_error = ERR_NO_ERROR;
     return ret;
 }

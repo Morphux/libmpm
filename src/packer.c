@@ -28,9 +28,10 @@ MPX_STATIC packer_t *packer_init(const char *str) {
     }
 
     ret->json = NULL;
-    ret->str = strdup(str);
     ret->header = NULL;
     ret->out_dir = NULL;
+
+    ret->str = strdup(str);
     if (ret->str == NULL)
     {
         SET_ERR(ERR_MEMORY);
@@ -241,18 +242,25 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
         return false;
     }
 
+    /* Get the first and last element */
     it = json_object_iter_begin(obj);
     it_end = json_object_iter_end(obj);
+
     ctx->header->compilation = packer_header_comp_init();
+
+    /* Iterating for each member */
     while (!json_object_iter_equal(&it, &it_end))
     {
         name = json_object_iter_peek_name(&it);
         tmp = json_object_iter_peek_value(&it);
 
+        /* Skip NULL (JSON null) values */
         JSON_SKIP_NULL(tmp, it);
+
         if (strcmp(name, PACKER_CONF_COMP_CONF_TOKEN) == 0)
         {
 
+            /* Element type is unexpected */
             if (json_object_get_type(tmp) != json_type_array)
             {
                 SET_ERR(ERR_BAD_JSON_TYPE);
@@ -260,21 +268,31 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
                 goto cleanup;
             }
 
+            /* Iteraite over each element of the array */
             for (size_t i = 0; i < json_object_array_length(tmp); i++)
             {
                 struct json_object  *array_ent, *array_tmp;
                 packer_conf_opt_t   *opt = NULL;
 
+                /* Get ID of the current member */
                 array_ent = json_object_array_get_idx(tmp, i);
+
+                /**
+                 * If it's an array, we need to read each member
+                 */
                 if (json_object_get_type(array_ent) == json_type_object)
                 {
                     struct json_object_iterator     it_arr, it_arr_end;
 
+                    /* Get the first and last member */
                     it_arr = json_object_iter_begin(array_ent);
                     it_arr_end = json_object_iter_end(array_ent);
                     while (!json_object_iter_equal(&it_arr, &it_arr_end))
                     {
+                        /* Get the value */
                         array_tmp = json_object_iter_peek_value(&it_arr);
+
+                        /* Member type is unexpected */
                         if (json_object_get_type(array_tmp) != json_type_string)
                         {
                             SET_ERR(ERR_BAD_JSON_TYPE);
@@ -282,17 +300,25 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
                             goto cleanup;
                         }
 
+                        /* Get the value */
                         opt = packer_conf_opt_init(json_object_iter_peek_name(&it_arr),
                             json_object_get_string(array_tmp));
+
+                        /* Add to the context */
                         list_add(ctx->header->compilation->configure, opt, sizeof(*opt));
                         free(opt);
+
+                        /* Get the next member */
                         json_object_iter_next(&it_arr);
                     }
                 }
                 else if (json_object_get_type(array_ent) == json_type_string)
                 {
+                    /* Get the value */
                     opt = packer_conf_opt_init(NULL,
                         json_object_get_string(array_ent));
+
+                    /* Add to the context */
                     list_add(ctx->header->compilation->configure, opt, sizeof(*opt));
                     free(opt);
                 }
@@ -306,6 +332,7 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
         }
         else if (strcmp(name, PACKER_CONF_COMP_MAKE_TOKEN) == 0)
         {
+            /* Member type is unexpected */
             if (json_object_get_type(tmp) != json_type_string)
             {
                 SET_ERR(ERR_BAD_JSON_TYPE);
@@ -313,6 +340,7 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
                 goto cleanup;
             }
 
+            /* If the string is empty, set the default Make command */
             if (json_object_get_string_len(tmp) == 0)
                 ctx->header->compilation->make = strdup(PACKER_MAKE_DEF);
             else
@@ -320,6 +348,7 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
         }
         else if (strcmp(name, PACKER_CONF_COMP_TEST_TOKEN) == 0)
         {
+            /* Member type is unexpected */
             if (json_object_get_type(tmp) != json_type_string)
             {
                 SET_ERR(ERR_BAD_JSON_TYPE);
@@ -327,6 +356,7 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
                 goto cleanup;
             }
 
+            /* If the string is empty, set the default test command */
             if (json_object_get_string_len(tmp) == 0)
                 ctx->header->compilation->test = strdup(PACKER_TEST_DEF);
             else
@@ -334,6 +364,7 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
         }
         else if (strcmp(name, PACKER_CONF_COMP_INST_TOKEN) == 0)
         {
+            /* Member type is unexpected */
             if (json_object_get_type(tmp) != json_type_string)
             {
                 SET_ERR(ERR_BAD_JSON_TYPE);
@@ -341,6 +372,7 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
                 goto cleanup;
             }
 
+            /* If the string is empty, set the default install command */
             if (json_object_get_string_len(tmp) == 0)
                 ctx->header->compilation->install = strdup(PACKER_INST_DEF);
             else
@@ -348,6 +380,7 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
         }
         else if (strcmp(name, PACKER_CONF_COMP_ENV_TOKEN) == 0)
         {
+            /* Member type is unexpected */
             if (json_object_get_type(tmp) != json_type_array)
             {
                 SET_ERR(ERR_BAD_JSON_TYPE);
@@ -355,21 +388,29 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
                 goto cleanup;
             }
 
+            /* Iterate over each member of the array */
             for (size_t i = 0; i < json_object_array_length(tmp); i++)
             {
                 struct json_object      *array_ent, *array_tmp;
                 packer_conf_opt_t       *opt = NULL;
 
+                /* Get the current member ID */
                 array_ent = json_object_array_get_idx(tmp, i);
                 if (json_object_get_type(array_ent) == json_type_object)
                 {
                     struct json_object_iterator     it_arr, it_arr_end;
 
+                    /* Get the first and last member */
                     it_arr = json_object_iter_begin(array_ent);
                     it_arr_end = json_object_iter_end(array_ent);
+
+                    /* Iterate over each member */
                     while (!json_object_iter_equal(&it_arr, &it_arr_end))
                     {
+                        /* Get the value */
                         array_tmp = json_object_iter_peek_value(&it_arr);
+
+                        /* Member type is unexpected */
                         if (json_object_get_type(array_tmp) != json_type_string)
                         {
                             SET_ERR(ERR_BAD_JSON_TYPE);
@@ -377,17 +418,25 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
                             goto cleanup;
                         }
 
+                        /* Get the value */
                         opt = packer_conf_opt_init(json_object_iter_peek_name(&it_arr),
                             json_object_get_string(array_tmp));
+
+                        /* Add it to the context */
                         list_add(ctx->header->compilation->env, opt, sizeof(*opt));
                         free(opt);
+
+                        /* Iterate over next member */
                         json_object_iter_next(&it_arr);
                     }
                 }
                 else if (json_object_get_type(array_ent) == json_type_string)
                 {
+                    /* Get the value */
                     opt = packer_conf_opt_init(NULL,
                         json_object_get_string(array_ent));
+
+                    /* Add it to the context */
                     list_add(ctx->header->compilation->env, opt, sizeof(*opt));
                     free(opt);
                 }
@@ -407,6 +456,7 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
             goto cleanup;
         }
 
+        /* Get next member */
         json_object_iter_next(&it);
 
     }
@@ -433,9 +483,14 @@ MPX_STATIC bool packer_read_config_deps(packer_t *ctx, struct json_object *obj) 
     }
 
     ctx->header->dependencies = packer_header_deps_init();
+
+    /* Iterate over each member of the array */
     for (len = json_object_array_length(obj), i = 0; i < len; i++)
     {
+        /* Get the current ID of the member */
         tmp = json_object_array_get_idx(obj, i);
+
+        /* Member got an unexpected type */
         if (json_object_get_type(tmp) != json_type_string)
         {
             SET_ERR(ERR_BAD_JSON_TYPE);
@@ -443,6 +498,7 @@ MPX_STATIC bool packer_read_config_deps(packer_t *ctx, struct json_object *obj) 
             goto cleanup;
         }
 
+        /* Add it to the context */
         list_add(ctx->header->dependencies->list, (char *)json_object_get_string(tmp),
             json_object_get_string_len(tmp) + 1);
     }
@@ -469,46 +525,60 @@ MPX_STATIC bool packer_read_config_package(packer_t *ctx, struct json_object *ob
         return false;
     }
 
+    /* Get the first and last member */
     it = json_object_iter_begin(obj);
     it_end = json_object_iter_end(obj);
     ctx->header->package = packer_header_package_init();
 
+    /* Iterating over each member */
     while (!json_object_iter_equal(&it, &it_end))
     {
+        /* Get name and value */
         name = json_object_iter_peek_name(&it);
         tmp = json_object_iter_peek_value(&it);
+
         if (strcmp(name, PACKER_CONF_PACKAGE_NAME_TOKEN) == 0)
         {
+            /* Member type is unexpected */
             if (json_object_get_type(tmp) != json_type_string)
             {
                 SET_ERR(ERR_BAD_JSON_TYPE);
                 SET_ERR_STR_FMT("Wrong type for %s, expected a string", name);
                 goto cleanup;
             }
+
+            /* Add it to the context */
             ctx->header->package->name = strdup(json_object_get_string(tmp));
         }
         else if (strcmp(name, PACKER_CONF_PACKAGE_VERSION_TOKEN) == 0)
         {
+            /* Member type is unexpected */
             if (json_object_get_type(tmp) != json_type_string)
             {
                 SET_ERR(ERR_BAD_JSON_TYPE);
                 SET_ERR_STR_FMT("Wrong type for %s, expected a string", name);
                 goto cleanup;
             }
+
+            /* Add it to the context */
             ctx->header->package->version = strdup(json_object_get_string(tmp));
         }
         else if (strcmp(name, PACKER_CONF_PACKAGE_DESC_TOKEN) == 0)
         {
+            /* Member type is unexpected */
             if (json_object_get_type(tmp) != json_type_string)
             {
                 SET_ERR(ERR_BAD_JSON_TYPE);
                 SET_ERR_STR_FMT("Wrong type for %s, expected a string", name);
                 goto cleanup;
             }
+
+            /* Add it to the context */
             ctx->header->package->description = strdup(json_object_get_string(tmp));
         }
         else if (strcmp(name, PACKER_CONF_PACKAGE_SBU_TOKEN) == 0)
         {
+            /* Member type is unexpected */
             if (json_object_get_type(tmp) != json_type_double
                 && json_object_get_type(tmp) != json_type_int)
             {
@@ -516,20 +586,26 @@ MPX_STATIC bool packer_read_config_package(packer_t *ctx, struct json_object *ob
                 SET_ERR_STR_FMT("Wrong type for %s, expected a int / double", name);
                 goto cleanup;
             }
+
+            /* Add it to the context */
             ctx->header->package->_sbu = json_object_get_double(tmp);
         }
         else if (strcmp(name, PACKER_CONF_PACKAGE_CATEG_TOKEN) == 0)
         {
+            /* Member type is unexpected */
             if (json_object_get_type(tmp) != json_type_string)
             {
                 SET_ERR(ERR_BAD_JSON_TYPE);
                 SET_ERR_STR_FMT("Wrong type for %s, expected a string", name);
                 goto cleanup;
             }
+
+            /* Add it to the context */
             ctx->header->package->categ = strdup(json_object_get_string(tmp));
         }
         else if (strcmp(name, PACKER_CONF_PACKAGE_INST_SIZE_TOKEN) == 0)
         {
+            /* Member type is unexpected */
             if (json_object_get_type(tmp) != json_type_double
                 && json_object_get_type(tmp) != json_type_int)
             {
@@ -537,6 +613,8 @@ MPX_STATIC bool packer_read_config_package(packer_t *ctx, struct json_object *ob
                 SET_ERR_STR_FMT("Wrong type for %s, expected a string", name);
                 goto cleanup;
             }
+
+            /* Add it to the context */
             ctx->header->package->inst_size = json_object_get_double(tmp);
         }
         /* Wrong token */
@@ -546,6 +624,8 @@ MPX_STATIC bool packer_read_config_package(packer_t *ctx, struct json_object *ob
             SET_ERR_STR_FMT("Unknown JSON token: %s", name);
             goto cleanup;
         }
+
+        /* Get next member */
         json_object_iter_next(&it);
     }
     return true;
@@ -561,13 +641,19 @@ MPX_STATIC bool packer_read_config_file(packer_t *ctx) {
     const char                      *name;
 
     assert(ctx != NULL);
+
+    /* Get first and last member */
     it = json_object_iter_begin(ctx->json);
     it_end = json_object_iter_end(ctx->json);
+
     ctx->header = packer_header_init();
 
+    /* Iterating over each member */
     while (!json_object_iter_equal(&it, &it_end))
     {
+        /* Get the member's name */
         name = json_object_iter_peek_name(&it);
+
         if (strcmp(name, PACKER_CONF_PACKAGE_TOKEN) == 0)
         {
             if (!packer_read_config_package(ctx, json_object_iter_peek_value(&it)))
@@ -590,6 +676,8 @@ MPX_STATIC bool packer_read_config_file(packer_t *ctx) {
             SET_ERR_STR_FMT("Unknown global JSON token: %s", name);
             goto cleanup;
         }
+
+        /* Get next member */
         json_object_iter_next(&it);
     }
     return true;
@@ -620,6 +708,7 @@ bool packer_read_dir(packer_t *ctx) {
         goto error;
     }
 
+    /* Get the JSON object */
     ctx->json = json_object_from_file(PACKER_DEF_CONF_FN);
     if (ctx->json == NULL)
     {
@@ -644,19 +733,27 @@ MPX_STATIC void write_package_header(FILE *fd, packer_t *ctx) {
     u32_t               list_len = 0, conf_len = 0;
     double              sbu, inst_size;
 
+    /* Write 3 bytes magic */
     fprintf(fd, PACKER_MPX_MAGIC);
+
     fprintf(fd, "%s%c", h->package->name, 0);
     fprintf(fd, "%s%c", h->package->version, 0);
     fprintf(fd, "%s%c", h->package->description, 0);
     fprintf(fd, "%s%c", h->package->categ, 0);
 
+    /* Endianness of the SBU */
     sbu = htonl(h->package->_sbu);
     fwrite(&sbu, sizeof(sbu), 1, fd);
+
+    /* Endianness of the installation size */
     inst_size = htonl(h->package->inst_size);
     fwrite(&inst_size, sizeof(inst_size), 1, fd);
 
+    /* Endianness of the configuration list len */
     conf_len = htonl(list_size(h->compilation->configure));
     fwrite(&conf_len, sizeof(u32_t), 1, fd);
+
+    /* If configure is not null, write it to the archive */
     if (list_size(h->compilation->configure) != 0)
     {
         list_for_each(h->compilation->configure, tmp, opt) {
@@ -670,8 +767,10 @@ MPX_STATIC void write_package_header(FILE *fd, packer_t *ctx) {
     fprintf(fd, "%s%c", STR_OR_EMPTY(h->compilation->test), 0);
     fprintf(fd, "%s%c", STR_OR_EMPTY(h->compilation->install), 0);
 
+    /* Endianness of the environnement list len */
     conf_len = htonl(list_size(h->compilation->env));
     fwrite(&conf_len, sizeof(u32_t), 1, fd);
+
     if (list_size(h->compilation->env) != 0)
     {
         list_for_each(h->compilation->env, tmp, opt)
@@ -683,6 +782,7 @@ MPX_STATIC void write_package_header(FILE *fd, packer_t *ctx) {
         }
     }
 
+    /* Endianness of the dependencies list */
     list_len = htonl(list_size(h->dependencies->list));
     fwrite(&list_len, sizeof(u32_t), 1, fd);
 
@@ -707,8 +807,11 @@ MPX_STATIC bool write_packer_sources(FILE *fd, packer_t *ctx, const char *dir_na
     assert(old_pwd != NULL);
 
     chdir(ctx->str);
+
+    /* Add the dir to the linked list, to begin with */
     list_add(dirs, (void *)dir_name, strlen(dir_name) + 1);
 
+    /* Iterating while there are dir to read in */
     list_for_each(dirs, tmp, dir) {
         if (read_files_from_dir(dir, &files_list, &dirs) == false)
             goto error;
