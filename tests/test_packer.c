@@ -302,34 +302,6 @@ TEST(packer_header_init) {
     return TEST_SUCCESS;
 }
 
-MPX_STATIC packer_header_package_t *packer_header_package_init(void);
-TEST(packer_header_package_init) {
-    set_malloc_fail(0);
-    TEST_ASSERT(packer_header_package_init() == NULL, "Error not raised");
-    return TEST_SUCCESS;
-}
-
-MPX_STATIC packer_conf_opt_t *packer_conf_opt_init(const char *str, const char *value);
-TEST(packer_conf_opt_init) {
-    set_malloc_fail(0);
-    TEST_ASSERT(packer_conf_opt_init(NULL, NULL) == NULL, "Error not raised");
-    return TEST_SUCCESS;
-}
-
-MPX_STATIC packer_header_comp_t *packer_header_comp_init(void);
-TEST(packer_header_comp_init) {
-    set_malloc_fail(0);
-    TEST_ASSERT(packer_header_comp_init() == NULL, "Error not raised");
-    return TEST_SUCCESS;
-}
-
-MPX_STATIC packer_header_deps_t *packer_header_deps_init(void);
-TEST(packer_header_deps_init) {
-    set_malloc_fail(0);
-    TEST_ASSERT(packer_header_deps_init() == NULL, "Error not raised");
-    return TEST_SUCCESS;
-}
-
 #define PACKAGE_OUTPUT_FN "package" PACKER_DEF_EXT
 
 TEST(packer_create_archive_1) {
@@ -561,8 +533,8 @@ TEST(packer_read_archive_header) {
     TEST_ASSERT(packer_read_archive_header(ctx) == false, "Error did not raise");
 
     TEST_ASSERT(packer_read_archive_header(ctx) != false, "Something happend");
-    TEST_ASSERT(strcmp(ctx->header->package->name, "test") == 0, "Name is wrong");
-    TEST_ASSERT(strcmp(ctx->header->package->version, "2.0") == 0, "Name is wrong");
+    TEST_ASSERT(strcmp(ctx->header->package.name, "test") == 0, "Name is wrong");
+    TEST_ASSERT(strcmp(ctx->header->package.version, "2.0") == 0, "Name is wrong");
 
     packer_free(ctx);
     return TEST_SUCCESS;
@@ -668,10 +640,6 @@ void register_test_packer(void) {
     reg_test("packer", packer_init_1);
     reg_test("packer", packer_init_2);
     reg_test("packer", packer_header_init);
-    reg_test("packer", packer_header_package_init);
-    reg_test("packer", packer_conf_opt_init);
-    reg_test("packer", packer_header_comp_init);
-    reg_test("packer", packer_header_deps_init);
     reg_test("packer", packer_create_archive_1);
     reg_test("packer", packer_create_archive_2);
     reg_test("packer", packer_create_archive_3);

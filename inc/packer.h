@@ -60,45 +60,43 @@ typedef enum packer_type_e {
 # define PACKER_CONF_COMP_ENV_TOKEN              "env"
 # define PACKER_CONF_DEPS_TOKEN                 "dependencies"
 
-# define JSON_SKIP_NULL(obj, it)    if (json_object_get_type(obj) == json_type_null) \
-                                { \
-                                    json_object_iter_next(&(it)); \
-                                    continue; \
-                                } \
-
-typedef struct packer_header_package_s {
-    char    *name;        /*!< Name of the package */
-    char    *version;     /*!< Version of the package */
-    char    *description; /*!< Description of the package */
-    double  _sbu;         /*!< SBU (Installation time) */
-    char    *categ;       /*!< Category of the package */
-    double  inst_size;    /*!< Installation size */
-} packer_header_package_t;
-
-typedef struct packer_conf_opt_s {
-    char    *name;  /*!< Name of the option (can be NULL) */
-    char    *value; /*!< Value of the option */
-} packer_conf_opt_t;
-
-typedef struct packer_header_comp_s {
-    mlist_t     *configure; /*!< Configure options */
-    char        *make;      /*!< Make options */
-    char        *test;      /*!< Test instructions */
-    char        *install;   /*!< Install instructions */
-    mlist_t     *env;       /*!< Environnement variables */
-} packer_header_comp_t;
-
-typedef struct packer_header_deps_s {
-    mlist_t     *list; /*!< List of strings, containing the dependencies */
-} packer_header_deps_t;
+# define JSON_SKIP_NULL(obj, it) \
+        if (json_object_get_type(obj) == json_type_null) \
+        { \
+            json_object_iter_next(&(it)); \
+            continue; \
+        } \
 
 typedef struct packer_header_s {
-    packer_header_package_t *package;      /*!< Package header section */
-    packer_header_comp_t    *compilation;  /*!< Compilation header section */
-    packer_header_deps_t    *dependencies; /*!< Package dependencies */
-} packer_header_t;
 
-#define __pkg_name header->package->name
+    struct package_header_package_s {
+        char    *name;        /*!< Name of the package */
+# define __pkg_name header->package.name
+        char    *version;     /*!< Version of the package */
+# define __pkg_version header->package.version
+        char    *description; /*!< Description of the package */
+# define __pkg_desc header->package.description
+        double  _sbu;         /*!< SBU (Installation time) */
+# define __pkg_sbu header->package._sbu
+        char    *categ;       /*!< Category of the package */
+# define __pkg_categ header->package.categ
+        double  inst_size;    /*!< Installation size */
+# define __pkg_inst_size header->package.inst_size
+    } package;
+
+    struct package_header_comp_s {
+        mlist_t     *configure; /*!< Configure options */
+        char        *make;      /*!< Make options */
+        char        *test;      /*!< Test instructions */
+        char        *install;   /*!< Install instructions */
+        mlist_t     *env;       /*!< Environnement variables */
+    } compilation;
+
+    struct packer_header_deps_s {
+        mlist_t     *list; /*!< List of strings, containing the dependencies */
+    } dependencies;
+
+} packer_header_t;
 
 typedef struct packer_s {
     char            *str;    /*!< Directory, or path of the package */
@@ -110,6 +108,80 @@ typedef struct packer_s {
 
 
 # include <libmpm.h>
+
+/*!
+ * \brief Init a packer_header_package_s structure
+ *
+ * \param ptr Pointer to the header structure
+ */
+static inline void packer_header_package_init(packer_header_t *ptr) {
+    ptr->package.name = NULL;
+    ptr->package.version = NULL;
+    ptr->package.description = NULL;
+    ptr->package.categ = NULL;
+    ptr->package._sbu = 0;
+    ptr->package.inst_size = 0;
+}
+
+/*!
+ * \brief Free an allocated packer_header_package_s structure
+ *
+ * \param ptr Pointer to the header structure
+ */
+static inline void packer_header_package_free(packer_header_t *ptr) {
+    free(ptr->package.name);
+    free(ptr->package.version);
+    free(ptr->package.description);
+    free(ptr->package.categ);
+}
+
+/*!
+ * \brief Init a packer_header_comp_s structure
+ *
+ * \param ptr Pointer to the header structure
+ */
+static inline void packer_header_comp_init(packer_header_t *ptr) {
+    ptr->compilation.configure = NULL;
+    ptr->compilation.make = NULL;
+    ptr->compilation.test = NULL;
+    ptr->compilation.install = NULL;
+    ptr->compilation.env = NULL;
+}
+
+/*!
+ * \brief Free a packer_header_comp_s structure
+ *
+ * \param ptr Pointer to the header structure
+ */
+static inline void packer_header_comp_free(packer_header_t *ptr) {
+    if (ptr->compilation.configure)
+        list_free(ptr->compilation.configure, &vector_string_free);
+
+    if (ptr->compilation.env)
+        list_free(ptr->compilation.env, &vector_string_free);
+
+    free(ptr->compilation.make);
+    free(ptr->compilation.test);
+    free(ptr->compilation.install);
+}
+
+/*!
+ * \brief initialize a packer_header_deps_s structure
+ *
+ * \param ptr Pointer to the header structure
+ */
+static inline void packer_header_deps_init(packer_header_t *ptr) {
+    ptr->dependencies.list = NULL;
+}
+
+/*!
+ * \brief Free a packer_header_deps_s structure
+ *
+ * \param ptr Pointer to the header structure
+ */
+static inline void packer_header_deps_free(packer_header_t *ptr) {
+    list_free(ptr->dependencies.list, NULL);
+}
 
 /*!
  * \brief Allocate, fill and init a packer_t structure

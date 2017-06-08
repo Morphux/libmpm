@@ -67,10 +67,10 @@ TEST(configure_package) {
     ptr = package_install_init(ctx);
     TEST_ASSERT(ptr != NULL, "An error happened");
 
-    tmp = ptr->package->header->compilation->configure;
-    ptr->package->header->compilation->configure = NULL;
+    tmp = ptr->package->header->compilation.configure;
+    ptr->package->header->compilation.configure = NULL;
     TEST_ASSERT(configure_package(ptr) == true, "Return is wrong");
-    ptr->package->header->compilation->configure = tmp;
+    ptr->package->header->compilation.configure = tmp;
 
     set_chdir_fail(0);
     TEST_ASSERT(configure_package(ptr) == false, "Error did not raise");
@@ -89,10 +89,10 @@ TEST(make_package) {
     ptr = package_install_init(ctx);
     TEST_ASSERT(ptr != NULL, "An error happened");
 
-    tmp = ptr->package->header->compilation->make;
-    ptr->package->header->compilation->make = NULL;
+    tmp = ptr->package->header->compilation.make;
+    ptr->package->header->compilation.make = NULL;
     TEST_ASSERT(make_package(ptr) == true, "An error happened");
-    ptr->package->header->compilation->make = tmp;
+    ptr->package->header->compilation.make = tmp;
 
     set_chdir_fail(0);
     TEST_ASSERT(make_package(ptr) == false, "Error did not raise");
@@ -114,10 +114,10 @@ TEST(install_package) {
     ptr = package_install_init(ctx);
     TEST_ASSERT(ptr != NULL, "An error happened");
 
-    tmp = ptr->package->header->compilation->install;
-    ptr->package->header->compilation->install = NULL;
+    tmp = ptr->package->header->compilation.install;
+    ptr->package->header->compilation.install = NULL;
     TEST_ASSERT(install_package(ptr) == true, "An error happened");
-    ptr->package->header->compilation->install = tmp;
+    ptr->package->header->compilation.install = tmp;
 
     set_chdir_fail(0);
     TEST_ASSERT(install_package(ptr) == false, "Error did not raise");
@@ -159,12 +159,12 @@ TEST(package_install_init) {
     set_chdir_fail(0);
     TEST_ASSERT(package_install_init(ctx) == NULL, "Error did not raise");
 
-    tmp = ctx->header->compilation->env;
-    ctx->header->compilation->env = NULL;
+    tmp = ctx->header->compilation.env;
+    ctx->header->compilation.env = NULL;
 
     ptr = package_install_init(ctx);
     TEST_ASSERT(ptr != NULL, "Error did not raise");
-    ctx->header->compilation->env = tmp;
+    ctx->header->compilation.env = tmp;
 
     TEST_ASSERT(package_install_cleanup(ptr) == true, "An error happened");
     recursive_delete(OUTPUT_DIR);

@@ -44,7 +44,7 @@ const char *install_state_to_str(install_state_t num) {
 
 compile_t *package_install_init(packer_t *ctx) {
     compile_t           *ret = NULL;
-    packer_conf_opt_t   *opt = NULL;
+    vector_string_t     *opt = NULL;
     mlist_t             *tmp = NULL;
 
     ret = malloc(sizeof(*ret));
@@ -68,16 +68,16 @@ compile_t *package_install_init(packer_t *ctx) {
         SET_ERR_STR_FMT("Cannot enter directory '%s'", ctx->out_dir);
         return NULL;
     }
-    if (ctx->header->compilation->env == NULL)
+    if (ctx->header->compilation.env == NULL)
         return ret;
 
     /* Set the environements variable, specified by the package */
-    list_for_each(ctx->header->compilation->env, tmp, opt)
+    list_for_each(ctx->header->compilation.env, tmp, opt)
     {
-        if (opt->name != NULL)
-            setenv(opt->value, opt->name, 1);
+        if (opt->str1 != NULL)
+            setenv(opt->str2, opt->str1, 1);
         else
-            setenv(opt->value, "", 1);
+            setenv(opt->str2, "", 1);
     }
 
     return ret;
@@ -177,12 +177,12 @@ end:
 
 bool configure_package(compile_t *ctx) {
     mlist_t             *cmd = NULL, *tmp;
-    packer_conf_opt_t   *opt;
+    vector_string_t   *opt;
     char                *arg = NULL;
     bool                ret = false;
 
     /* Nothing to configure, we're good */
-    if (ctx->package->header->compilation->configure == NULL)
+    if (ctx->package->header->compilation.configure == NULL)
     {
         ret = true;
         goto end;
@@ -200,13 +200,13 @@ bool configure_package(compile_t *ctx) {
     list_add(cmd, CONFIGURE_CMD, sizeof(CONFIGURE_CMD) + 1);
 
     /* While on each parameter */
-    list_for_each(ctx->package->header->compilation->configure, tmp, opt) {
+    list_for_each(ctx->package->header->compilation.configure, tmp, opt) {
 
         /* If the parameter got an argument */
-        if (opt->name != NULL)
-            asprintf(&arg, "--%s=%s", opt->name, opt->value);
+        if (opt->str1 != NULL)
+            asprintf(&arg, "--%s=%s", opt->str1, opt->str2);
         else
-            asprintf(&arg, "--%s", opt->value);
+            asprintf(&arg, "--%s", opt->str2);
 
         /* Adding to the list */
         list_add(cmd, arg, strlen(arg) + 1);
@@ -236,7 +236,7 @@ bool make_package(compile_t *ctx) {
     bool status = true;
 
     /* Nothing to compile, we're good */
-    if (STR_NULL_OR_EMPTY(ctx->package->header->compilation->make))
+    if (STR_NULL_OR_EMPTY(ctx->package->header->compilation.make))
         goto end;
 
     /* Trying to go in the srcs/ directory */
@@ -248,10 +248,10 @@ bool make_package(compile_t *ctx) {
     }
 
     /* Execute the makefile */
-    if (exec_line(ctx->package->header->compilation->make) != 0)
+    if (exec_line(ctx->package->header->compilation.make) != 0)
     {
         SET_ERR(ERR_EXEC_FAILED);
-        SET_ERR_STR_FMT("Execution failed for '%s'", ctx->package->header->compilation->make);
+        SET_ERR_STR_FMT("Execution failed for '%s'", ctx->package->header->compilation.make);
         status = false;
     }
 
@@ -267,7 +267,7 @@ bool install_package(compile_t *ctx) {
     bool status = true;
 
     /* Nothing to install, we're good */
-    if (STR_NULL_OR_EMPTY(ctx->package->header->compilation->install))
+    if (STR_NULL_OR_EMPTY(ctx->package->header->compilation.install))
         goto end;
 
     /* Trying to go in the srcs/ directory */
@@ -279,10 +279,10 @@ bool install_package(compile_t *ctx) {
     }
 
     /* Execute the installation command line */
-    if (exec_line(ctx->package->header->compilation->install) != 0)
+    if (exec_line(ctx->package->header->compilation.install) != 0)
     {
         SET_ERR(ERR_EXEC_FAILED);
-        SET_ERR_STR_FMT("Execution failed for '%s'", ctx->package->header->compilation->install);
+        SET_ERR_STR_FMT("Execution failed for '%s'", ctx->package->header->compilation.install);
         status = false;
     }
 
