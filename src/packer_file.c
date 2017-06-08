@@ -125,6 +125,9 @@ bool get_file_information(packer_file_t *file) {
     char            *chunk = NULL;
     off_t           file_size;
 
+    if (file == NULL)
+        return false;
+
     if (stat(file->fn, &f_stat) == -1)
         return false;
 

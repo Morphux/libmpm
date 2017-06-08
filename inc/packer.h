@@ -129,10 +129,13 @@ static inline void packer_header_package_init(packer_header_t *ptr) {
  * \param ptr Pointer to the header structure
  */
 static inline void packer_header_package_free(packer_header_t *ptr) {
-    free(ptr->package.name);
-    free(ptr->package.version);
-    free(ptr->package.description);
-    free(ptr->package.categ);
+    if (ptr == NULL)
+        return ;
+
+    FREE(ptr->package.name);
+    FREE(ptr->package.version);
+    FREE(ptr->package.description);
+    FREE(ptr->package.categ);
 }
 
 /*!
@@ -154,15 +157,20 @@ static inline void packer_header_comp_init(packer_header_t *ptr) {
  * \param ptr Pointer to the header structure
  */
 static inline void packer_header_comp_free(packer_header_t *ptr) {
+    if (ptr == NULL)
+        return ;
+
     if (ptr->compilation.configure)
         list_free(ptr->compilation.configure, &vector_string_free);
 
     if (ptr->compilation.env)
         list_free(ptr->compilation.env, &vector_string_free);
 
-    free(ptr->compilation.make);
-    free(ptr->compilation.test);
-    free(ptr->compilation.install);
+    ptr->compilation.env = NULL;
+    ptr->compilation.configure = NULL;
+    FREE(ptr->compilation.make);
+    FREE(ptr->compilation.test);
+    FREE(ptr->compilation.install);
 }
 
 /*!
@@ -180,7 +188,10 @@ static inline void packer_header_deps_init(packer_header_t *ptr) {
  * \param ptr Pointer to the header structure
  */
 static inline void packer_header_deps_free(packer_header_t *ptr) {
+    if (ptr == NULL)
+        return ;
     list_free(ptr->dependencies.list, NULL);
+    ptr->dependencies.list = NULL;
 }
 
 /*!

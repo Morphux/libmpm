@@ -589,7 +589,8 @@ TEST(packer_file_from_binary_to_disk) {
 TEST(get_file_information) {
     packer_file_t   *file;
 
-    file = malloc(sizeof(file));
+    file = malloc(sizeof(*file));
+    TEST_ASSERT(file != NULL, "Malloc failed");
     file->fn = strdup(PACKAGE_OUTPUT_FN);
 
     set_stat_fail(0);

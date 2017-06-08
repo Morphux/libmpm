@@ -55,6 +55,10 @@ MPX_STATIC packer_header_t *packer_header_init(void) {
         return NULL;
     }
 
+    packer_header_package_init(ret);
+    packer_header_comp_init(ret);
+    packer_header_deps_init(ret);
+
     return ret;
 }
 
@@ -125,8 +129,6 @@ MPX_STATIC bool packer_read_config_comp(packer_t *ctx, struct json_object *obj) 
     /* Get the first and last element */
     it = json_object_iter_begin(obj);
     it_end = json_object_iter_end(obj);
-
-    packer_header_comp_init(ctx->header);
 
     /* Iterating for each member */
     while (!json_object_iter_equal(&it, &it_end))
@@ -359,8 +361,6 @@ MPX_STATIC bool packer_read_config_deps(packer_t *ctx, struct json_object *obj) 
         return false;
     }
 
-    packer_header_deps_init(ctx->header);
-
     /* Iterate over each member of the array */
     for (len = json_object_array_length(obj), i = 0; i < len; i++)
     {
@@ -404,7 +404,6 @@ MPX_STATIC bool packer_read_config_package(packer_t *ctx, struct json_object *ob
     /* Get the first and last member */
     it = json_object_iter_begin(obj);
     it_end = json_object_iter_end(obj);
-    packer_header_package_init(ctx->header);
 
     /* Iterating over each member */
     while (!json_object_iter_equal(&it, &it_end))
@@ -770,7 +769,8 @@ MPX_STATIC int read_package_header_package(const char *file, packer_t *ctx)
     int                         ret = 0;
     double                      sbu, inst_size;
 
-    packer_header_package_init(ctx->header);
+    if (ctx == NULL)
+        return ret;
 
     ctx->__pkg_name = strdup(file + ret);
     if (ctx->__pkg_name == NULL)
@@ -808,7 +808,8 @@ MPX_STATIC int read_package_header_package(const char *file, packer_t *ctx)
 
 cleanup:
     SET_ERR(ERR_MEMORY);
-    packer_header_package_free(ctx->header);
+    if (ctx != NULL)
+        packer_header_package_free(ctx->header);
     return 0;
 }
 
@@ -875,7 +876,8 @@ MPX_STATIC int read_package_header_compilation(char *file, packer_t *ctx)
 {
     int                         ret = 0;
 
-    packer_header_comp_init(ctx->header);
+    if (ctx == NULL)
+        return ret;
 
     if (read_conf_opt(file, &ctx->header->compilation.configure, &ret) != true)
         goto cleanup;
@@ -911,7 +913,8 @@ MPX_STATIC int read_package_header_compilation(char *file, packer_t *ctx)
     return ret;
 
 cleanup:
-    packer_header_comp_free(ctx->header);
+    if (ctx != NULL)
+        packer_header_comp_free(ctx->header);
     return 0;
 }
 
@@ -919,8 +922,6 @@ MPX_STATIC int read_package_header_dependencies(const char *file, packer_t *ctx)
     int                         ret = 0;
     u32_t                       list_len = 0;
     char                        *tmp = NULL;
-
-    packer_header_deps_init(ctx->header);
 
     /* Get the list size */
     memcpy(&list_len, file, sizeof(u32_t));
@@ -948,7 +949,8 @@ MPX_STATIC int read_package_header_dependencies(const char *file, packer_t *ctx)
     return ret;
 
 cleanup:
-    packer_header_deps_free(ctx->header);
+    if (ctx != NULL)
+        packer_header_deps_free(ctx->header);
     return 0;
 }
 
@@ -956,7 +958,7 @@ MPX_STATIC bool read_package_header(char *file_content, packer_t *ctx, int *s_re
 {
     int  ret = 0, tmp;
 
-    if (file_content == NULL)
+    if (file_content == NULL || ctx == NULL)
     {
         SET_ERR(ERR_BAD_PTR);
         return false;
@@ -996,8 +998,11 @@ MPX_STATIC bool read_package_header(char *file_content, packer_t *ctx, int *s_re
     return true;
 
 cleanup:
-    packer_header_free(ctx->header);
-    ctx->header = NULL;
+    if (ctx != NULL)
+    {
+        packer_header_free(ctx->header);
+        ctx->header = NULL;
+    }
     return false;
 }
 
@@ -1005,6 +1010,9 @@ bool packer_read_archive_header(packer_t *ctx) {
     char    *archive = NULL;
     bool    ret;
     int     cur = 0;
+
+    if (ctx == NULL)
+        return false;
 
     if (ctx->type != PACKER_TYPE_ARCHIVE)
         return false;
@@ -1028,6 +1036,9 @@ bool packer_extract_archive(packer_t *ctx, const char *dir) {
     char                *archive = NULL;
     off_t               size, ctr;
     char                old_pwd[PATH_MAX];
+
+    if (ctx == NULL)
+        return false;
 
     /* Save the current working directory */
     getcwd(old_pwd, sizeof(old_pwd));
