@@ -426,29 +426,6 @@ TEST(packer_read_package_header_compilation) {
     TEST_ASSERT(read_package_header_compilation(file, NULL) == 0, "Wrong return");
     memcpy(file + sizeof(i), tmp, sizeof(tmp));
 
-    set_strdup_fail(0);
-    TEST_ASSERT(read_package_header_compilation(file, NULL) == 0, "Wrong return");
-    memcpy(file + sizeof(i), tmp, sizeof(tmp));
-
-    set_strdup_fail(1);
-    TEST_ASSERT(read_package_header_compilation(file, NULL) == 0, "Wrong return");
-    memcpy(file + sizeof(i), tmp, sizeof(tmp));
-
-    set_strdup_fail(2);
-    TEST_ASSERT(read_package_header_compilation(file, NULL) == 0, "Wrong return");
-    memcpy(file + sizeof(i), tmp, sizeof(tmp));
-
-    set_strdup_fail(3);
-    TEST_ASSERT(read_package_header_compilation(file, NULL) == 0, "Wrong return");
-    memcpy(file + sizeof(i), tmp, sizeof(tmp));
-
-    set_strdup_fail(4);
-    TEST_ASSERT(read_package_header_compilation(file, NULL) == 0, "Wrong return");
-    memcpy(file + sizeof(i), tmp, sizeof(tmp));
-
-    set_strdup_fail(5);
-    TEST_ASSERT(read_package_header_compilation(file, NULL) == 0, "Wrong return");
-
     free(file);
     return TEST_SUCCESS;
 }
@@ -459,15 +436,6 @@ TEST(packer_read_package_header_package) {
 
     set_malloc_fail(0);
     TEST_ASSERT(read_package_header_package(tmp, NULL) == 0, "Wrong return");
-    set_strdup_fail(0);
-    TEST_ASSERT(read_package_header_package(tmp, NULL) == 0, "Wrong return");
-    set_strdup_fail(1);
-    TEST_ASSERT(read_package_header_package(tmp, NULL) == 0, "Wrong return");
-    set_strdup_fail(2);
-    TEST_ASSERT(read_package_header_package(tmp, NULL) == 0, "Wrong return");
-    set_strdup_fail(3);
-    TEST_ASSERT(read_package_header_package(tmp, NULL) == 0, "Wrong return");
-
     return TEST_SUCCESS;
 }
 MPX_STATIC bool read_package_header(char *file_content, packer_t *ctx, int *s_ret);
@@ -516,7 +484,7 @@ TEST(packer_file_init) {
 TEST(packer_extract_archive_1) {
     packer_t    *ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
 
-    TEST_ASSERT(packer_extract_archive(ctx, "/tmp") == true, "Wrong return");
+    TEST_ASSERT_FMT(packer_extract_archive(ctx, "/tmp") == true, "Wrong return: %s\n", GET_ERR_STR());
     packer_free(ctx);
     return TEST_SUCCESS;
 }
@@ -549,26 +517,6 @@ TEST(packer_extract_archive_2) {
 
     ctx = packer_init_archive("Not a valid file");
     TEST_ASSERT(packer_extract_archive(ctx, NULL) == false, "Error did not raise");
-    packer_free(ctx);
-
-    recursive_delete("/tmp/test-2.0");
-    set_mkdir_fail(-1);
-    ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
-    set_strdup_fail(20);
-    TEST_ASSERT(packer_extract_archive(ctx, "/tmp") == false, "Error did not raise");
-    packer_free(ctx);
-
-    ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
-    set_malloc_fail(0);
-    TEST_ASSERT(packer_extract_archive(ctx, NULL) == false, "Error did not raise");
-    packer_free(ctx);
-
-    ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
-    TEST_ASSERT(packer_extract_archive(ctx, "/totally/not/valid/dir") == false, "Error did not raise");
-    packer_free(ctx);
-
-    ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
-    TEST_ASSERT(packer_extract_archive(ctx, "/") == false, "Error did not raise");
     packer_free(ctx);
 
     return TEST_SUCCESS;

@@ -210,6 +210,7 @@ bool packer_file_from_binary_to_disk(const char *content, off_t *ctr) {
     if (fd == NULL)
     {
         SET_ERR(ERR_OPEN);
+        SET_ERR_STR_FMT("Cannot open the file '%s'", file.fn);
         goto cleanup;
     }
 

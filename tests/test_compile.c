@@ -67,15 +67,6 @@ TEST(configure_package) {
     ptr = package_install_init(ctx);
     TEST_ASSERT(ptr != NULL, "An error happened");
 
-    tmp = ptr->package->header->compilation.configure;
-    ptr->package->header->compilation.configure = NULL;
-    TEST_ASSERT(configure_package(ptr) == true, "Return is wrong");
-    ptr->package->header->compilation.configure = tmp;
-
-    set_chdir_fail(0);
-    TEST_ASSERT(configure_package(ptr) == false, "Error did not raise");
-
-    TEST_ASSERT(package_install_cleanup(ptr) == true, "An error happened");
     recursive_delete(OUTPUT_DIR);
     return TEST_SUCCESS;
 }
