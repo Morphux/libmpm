@@ -160,10 +160,10 @@ static inline void packer_header_comp_free(packer_header_t *ptr) {
     if (ptr == NULL)
         return ;
 
-    if (ptr->compilation.configure)
+    if (ptr->compilation.configure != NULL)
         list_free(ptr->compilation.configure, &vector_string_free);
 
-    if (ptr->compilation.env)
+    if (ptr->compilation.env != NULL)
         list_free(ptr->compilation.env, &vector_string_free);
 
     ptr->compilation.env = NULL;

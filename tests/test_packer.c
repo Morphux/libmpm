@@ -532,8 +532,33 @@ TEST(get_file_information) {
     return TEST_SUCCESS;
 }
 
+TEST(packer_inlines_frees) {
+    vector_string_t     *str = NULL, *str2 = NULL;
+
+    str = vector_string_init("one", "two");
+    str2 = vector_string_init("one", "two");
+
+    packer_header_package_free(NULL);
+    packer_header_comp_free(NULL);
+    packer_header_package_free(NULL);
+    packer_header_deps_free(NULL);
+
+    packer_header_t     ptr;
+
+
+    packer_header_comp_init(&ptr);
+
+    list_add(ptr.compilation.configure, str, sizeof(*str));
+    list_add(ptr.compilation.env, str2, sizeof(*str2));
+
+    packer_header_comp_free(&ptr);
+
+    return TEST_SUCCESS;
+}
+
 TEST(packer_create_archive_cleanup) {
     recursive_delete("/tmp/test-2.0");
+    set_malloc_fail(-1);
     unlink(PACKAGE_OUTPUT_FN);
     return TEST_SUCCESS;
 }
@@ -588,5 +613,6 @@ void register_test_packer(void) {
     reg_test("packer", packer_read_archive_header);
     reg_test("packer", packer_file_from_binary_to_disk);
     reg_test("packer", get_file_information);
+    reg_test("packer", packer_inlines_frees);
     reg_test("packer", packer_create_archive_cleanup);
 }
