@@ -342,23 +342,6 @@ TEST(packer_create_archive_2) {
 
     ptr = packer_init_dir("packer/right/");
     TEST_ASSERT(packer_read_dir(ptr) == true, "An error happened");
-
-    set_malloc_fail(2);
-    TEST_ASSERT(packer_create_archive(ptr, "package_2.mpx") == false,
-                    "Error did not raise")
-
-    set_malloc_fail(3);
-    TEST_ASSERT(packer_create_archive(ptr, "package_2.mpx") == false,
-                    "Error did not raise")
-
-   set_malloc_fail(8);
-    TEST_ASSERT(packer_create_archive(ptr, "package_2.mpx") == false,
-                    "Error did not raise")
-
-    set_malloc_fail(15);
-    TEST_ASSERT(packer_create_archive(ptr, "package_2.mpx") == false,
-                    "Error did not raise")
-
     packer_free(ptr);
     unlink("tests/package_2.mpx");
     return TEST_SUCCESS;
