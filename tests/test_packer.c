@@ -494,6 +494,9 @@ TEST(packer_read_archive_header) {
 TEST(packer_extract_archive_2) {
     packer_t    *ctx = NULL;
 
+    recursive_delete("/tmp/test-2.0");
+    TEST_ASSERT(packer_extract_archive(NULL, NULL) == false, "Error did not raise");
+
     ctx = packer_init_dir("Test");
     TEST_ASSERT(packer_extract_archive(ctx, NULL) == false, "Error did not raise");
     packer_free(ctx);
@@ -501,6 +504,31 @@ TEST(packer_extract_archive_2) {
     ctx = packer_init_archive("Not a valid file");
     TEST_ASSERT(packer_extract_archive(ctx, NULL) == false, "Error did not raise");
     packer_free(ctx);
+    recursive_delete("/tmp/test-2.0");
+
+    ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
+    set_malloc_fail(0);
+    TEST_ASSERT(packer_extract_archive(ctx, NULL) == false, "Error did not raise");
+    packer_free(ctx);
+    recursive_delete("/tmp/test-2.0");
+
+    ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
+    set_chdir_fail(0);
+    TEST_ASSERT(packer_extract_archive(ctx, "/tmp/") == false, "Error did not raise");
+    packer_free(ctx);
+    recursive_delete("/tmp/test-2.0");
+
+    ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
+    set_mkdir_fail(0);
+    TEST_ASSERT(packer_extract_archive(ctx, "/tmp/") == false, "Error did not raise");
+    packer_free(ctx);
+    recursive_delete("/tmp/test-2.0");
+
+    ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
+    set_fchmod_fail(0);
+    TEST_ASSERT(packer_extract_archive(ctx, "/tmp") == false, "Error did not raise");
+    packer_free(ctx);
+    recursive_delete("/tmp/test-2.0");
 
     return TEST_SUCCESS;
 }
