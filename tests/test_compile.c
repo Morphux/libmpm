@@ -9,6 +9,7 @@ TEST(init_compile) {
     packer_t        *ptr;
 
     set_mkdir_fail(-1);
+    set_malloc_fail(-1);
     getcwd(g_old_pwd, sizeof(g_old_pwd));
     recursive_delete(OUTPUT_DIR);
     ptr = packer_init_dir("packer/compilation/");

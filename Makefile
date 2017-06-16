@@ -95,7 +95,7 @@ check:
 
 coverage:
 	make -C lib/libmorphux/ test
-	$(MAKE) fclean all OFLAGS="-std=gnu99 -g -O0 -coverage -lcov -DCOMPILE_WITH_TEST"
+	$(MAKE) fclean all OFLAGS="-std=gnu99 -g -O0 -coverage -lcov -DCOMPILE_WITH_TEST -fno-inline"
 	make -C tests coverage
 	cd tests && ./test
 	gcov -o src/ $(SRCS)
