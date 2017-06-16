@@ -129,7 +129,10 @@ bool get_file_information(packer_file_t *file) {
         return false;
 
     if (stat(file->fn, &f_stat) == -1)
+    {
+        SET_ERR_STR_FMT("Cannot open file: %s", file->fn);
         return false;
+    }
 
     file_size = f_stat.st_size;
 
