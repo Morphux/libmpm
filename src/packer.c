@@ -825,13 +825,6 @@ MPX_STATIC bool read_conf_opt(char *file, mlist_t **list, int *ret) {
     /* Iterate over each configure parameter */
     for (u32_t i = 0; i < size; i++)
     {
-        opt = malloc(sizeof(*opt));
-        if (opt == NULL)
-        {
-            SET_ERR(ERR_MEMORY);
-            goto cleanup;
-        }
-
         tmp = file + *ret;
         *ret += strlen(tmp) + 1;
 
