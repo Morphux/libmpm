@@ -873,7 +873,9 @@ MPX_STATIC int read_package_header_compilation(char *file, packer_t *ctx)
         return ret;
 
     if (read_conf_opt(file, &ctx->header->compilation.configure, &ret) != true)
+    {
         goto cleanup;
+    }
 
     ctx->header->compilation.make = strdup(file + ret);
     if (ctx->header->compilation.make == NULL)
@@ -984,7 +986,6 @@ MPX_STATIC bool read_package_header(char *file_content, packer_t *ctx, int *s_re
     tmp = read_package_header_dependencies(file_content + ret, ctx);
     if (tmp == 0)
         goto cleanup;
-
     ret += tmp;
 
     *s_ret = ret;

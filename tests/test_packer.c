@@ -415,10 +415,31 @@ TEST(packer_read_package_header_compilation) {
 
 MPX_STATIC int read_package_header_package(const char *file, packer_t *ctx);
 TEST(packer_read_package_header_package) {
-    char tmp[] = "Name\0Version\0Desc\0";
+    set_malloc_fail(-1);
+    set_strdup_fail(-1);
 
-    set_malloc_fail(0);
+    char tmp[] = "Name\0Version\0Desc\0";
+    packer_t *ctx = packer_init_archive("Test");
+
+    TEST_ASSERT(ctx != NULL, "Can't init archive");
+
+    ctx->header = packer_header_init();
+
     TEST_ASSERT(read_package_header_package(tmp, NULL) == 0, "Wrong return");
+
+    set_strdup_fail(0);
+    TEST_ASSERT(read_package_header_package(tmp, ctx) == 0, "Wrong return");
+
+    set_strdup_fail(1);
+    TEST_ASSERT(read_package_header_package(tmp, ctx) == 0, "Wrong return");
+
+    set_strdup_fail(2);
+    TEST_ASSERT(read_package_header_package(tmp, ctx) == 0, "Wrong return");
+
+    set_strdup_fail(3);
+    TEST_ASSERT(read_package_header_package(tmp, ctx) == 0, "Wrong return");
+
+    set_malloc_fail(-1);
     return TEST_SUCCESS;
 }
 MPX_STATIC bool read_package_header(char *file_content, packer_t *ctx, int *s_ret);
@@ -429,21 +450,34 @@ TEST(packer_read_package_header) {
 
     TEST_ASSERT(read_package_header(NULL, ctx, &ret) == false, "Wrong return");
     TEST_ASSERT(read_package_header("pasmpx", ctx, &ret) == false, "Wrong return");
+    packer_free(ctx);
 
+    ctx = packer_init_archive("Test");
     set_malloc_fail(0);
     TEST_ASSERT(read_package_header(file, ctx, &ret) == false, "Wrong return");
-
-    set_malloc_fail(1);
-    TEST_ASSERT(read_package_header(file, ctx, &ret) == false, "Wrong return");
-
-    set_malloc_fail(2);
-    TEST_ASSERT(read_package_header(file, ctx, &ret) == false, "Wrong return");
-
-    set_malloc_fail(9);
-    TEST_ASSERT(read_package_header(file, ctx, &ret) == false, "Wrong return");
-
-    free(file);
     packer_free(ctx);
+    free(file);
+
+    ctx = packer_init_archive("Test");
+    file = mpm_read_file_from_fn(PACKAGE_OUTPUT_FN);
+    set_strdup_fail(0);
+    TEST_ASSERT(read_package_header(file, ctx, &ret) == false, "Wrong return");
+    packer_free(ctx);
+    free(file);
+
+    ctx = packer_init_archive("Test");
+    file = mpm_read_file_from_fn(PACKAGE_OUTPUT_FN);
+    set_strdup_fail(8);
+    TEST_ASSERT(read_package_header(file, ctx, &ret) == false, "Wrong return");
+    packer_free(ctx);
+    free(file);
+
+    ctx = packer_init_archive("Test");
+    file = mpm_read_file_from_fn(PACKAGE_OUTPUT_FN);
+    set_strdup_fail(15);
+    TEST_ASSERT(read_package_header(file, ctx, &ret) == false, "Wrong return");
+    packer_free(ctx);
+    free(file);
 
     return TEST_SUCCESS;
 }
@@ -465,8 +499,11 @@ TEST(packer_file_init) {
 }
 
 TEST(packer_extract_archive_1) {
+    set_strdup_fail(-1);
+
     packer_t    *ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
 
+    SET_ERR_STR("");
     TEST_ASSERT_FMT(packer_extract_archive(ctx, "/tmp") == true, "Wrong return: %s\n", GET_ERR_STR());
     packer_free(ctx);
     return TEST_SUCCESS;
