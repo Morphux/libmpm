@@ -387,27 +387,45 @@ TEST(packer_read_package_header_dependencies) {
     return TEST_SUCCESS;
 }
 
+MPX_STATIC void packer_header_free(packer_header_t *ptr);
 MPX_STATIC int read_package_header_compilation(char *file, packer_t *ctx);
 TEST(packer_read_package_header_compilation) {
     char        *file;
     char        tmp[] = "TEst:123\0Oui\0make\0test\0install\0Test:123";
-    u32_t       i = htonl(2);
+    u32_t       i = htonl(1);
+    packer_t    ctx;
+
+    set_malloc_fail(-1);
 
     file = malloc(sizeof(i) + sizeof(tmp));
     memcpy(file, &i, sizeof(i));
     memcpy(file + sizeof(i), tmp, sizeof(tmp));
 
-    set_malloc_fail(0);
     TEST_ASSERT(read_package_header_compilation(file, NULL) == 0, "Wrong return");
-    memcpy(file + sizeof(i), tmp, sizeof(tmp));
 
-    set_malloc_fail(1);
-    TEST_ASSERT(read_package_header_compilation(file, NULL) == 0, "Wrong return");
+    ctx.header = packer_header_init();
+    set_strdup_fail(2);
+    TEST_ASSERT(read_package_header_compilation(file, &ctx) == 0, "Wrong return");
     memcpy(file + sizeof(i), tmp, sizeof(tmp));
+    packer_header_free(ctx.header);
 
-    set_malloc_fail(3);
-    TEST_ASSERT(read_package_header_compilation(file, NULL) == 0, "Wrong return");
+    ctx.header = packer_header_init();
+    set_strdup_fail(3);
+    TEST_ASSERT(read_package_header_compilation(file, &ctx) == 0, "Wrong return");
     memcpy(file + sizeof(i), tmp, sizeof(tmp));
+    packer_header_free(ctx.header);
+
+    ctx.header = packer_header_init();
+    set_strdup_fail(4);
+    TEST_ASSERT(read_package_header_compilation(file, &ctx) == 0, "Wrong return");
+    memcpy(file + sizeof(i), tmp, sizeof(tmp));
+    packer_header_free(ctx.header);
+
+    ctx.header = packer_header_init();
+    set_strdup_fail(5);
+    TEST_ASSERT(read_package_header_compilation(file, &ctx) == 0, "Wrong return");
+    memcpy(file + sizeof(i), tmp, sizeof(tmp));
+    packer_header_free(ctx.header);
 
     free(file);
     return TEST_SUCCESS;
