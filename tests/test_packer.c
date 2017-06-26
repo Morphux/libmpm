@@ -358,6 +358,28 @@ TEST(packer_create_archive_3) {
     return TEST_SUCCESS;
 }
 
+TEST(packer_create_archive_4) {
+    packer_t *ptr;
+
+    ptr = packer_init_dir("packer/right/");
+    packer_read_dir(ptr);
+
+    set_stat_fail(0);
+    TEST_ASSERT(packer_create_archive(ptr, "package_2.mpx") == false,
+        "An error happened");
+
+    set_stat_fail(2);
+    TEST_ASSERT(packer_create_archive(ptr, "package_2.mpx") == false,
+        "An error happened");
+
+    set_stat_fail(4);
+    TEST_ASSERT(packer_create_archive(ptr, "package_2.mpx") == false,
+        "An error happened");
+    packer_free(ptr);
+    return TEST_SUCCESS;
+}
+
+
 MPX_STATIC bool write_packer_sources(FILE *fd, packer_t *ctx, const char *dir_name);
 TEST(packer_write_packer_sources) {
     FILE        *fd = fopen("package_2.mpx", "w+");
@@ -704,6 +726,7 @@ void register_test_packer(void) {
     reg_test("packer", packer_create_archive_1);
     reg_test("packer", packer_create_archive_2);
     reg_test("packer", packer_create_archive_3);
+    reg_test("packer", packer_create_archive_4);
     reg_test("packer", packer_write_packer_sources);
     reg_test("packer", packer_create_archive_wrong_fn);
     reg_test("packer", packer_create_archive_wrong_type);
