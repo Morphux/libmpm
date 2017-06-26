@@ -604,6 +604,20 @@ TEST(get_file_information) {
     return TEST_SUCCESS;
 }
 
+MPX_STATIC bool read_conf_opt(char *file, mlist_t **list, int *ret);
+TEST(read_conf_opt) {
+    char        file[250];
+    int         ptr = 0;
+    mlist_t     *head = NULL;
+    u32_t       size = htonl(1);
+
+    memcpy(file, &size, sizeof(size));
+    memcpy(file + sizeof(size), "test:something", sizeof("test:something"));
+    set_malloc_fail(0);
+    TEST_ASSERT(read_conf_opt(file, &head, &ptr) == false, "Error did not raise");
+    return TEST_SUCCESS;
+}
+
 TEST(packer_inlines_frees) {
     vector_string_t     *str = NULL, *str2 = NULL;
 
@@ -685,6 +699,7 @@ void register_test_packer(void) {
     reg_test("packer", packer_read_archive_header);
     reg_test("packer", packer_file_from_binary_to_disk);
     reg_test("packer", get_file_information);
+    reg_test("packer", read_conf_opt);
     reg_test("packer", packer_inlines_frees);
     reg_test("packer", packer_create_archive_cleanup);
 }
