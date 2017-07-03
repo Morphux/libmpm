@@ -156,6 +156,7 @@ bool patch_package(compile_t *ctx) {
                 free(cmd);
                 goto end;
             }
+
             free(cmd);
         }
     }

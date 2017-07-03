@@ -54,6 +54,10 @@ TEST(patch_package) {
     set_chdir_fail(1);
     TEST_ASSERT(patch_package(ptr) == false, "Error did not raise");
 
+    chdir("/tmp/test-2.0");
+    set_fork_fail(0);
+    TEST_ASSERT(patch_package(ptr) == false, "Error did not raise");
+
     chdir("/");
     TEST_ASSERT(patch_package(ptr) == true, "Error did not raise");
 
@@ -73,6 +77,18 @@ TEST(configure_package) {
     ptr = package_install_init(ctx);
     TEST_ASSERT(ptr != NULL, "An error happened");
 
+    tmp = ptr->package->header->compilation.configure;
+    ptr->package->header->compilation.configure = NULL;
+    TEST_ASSERT(configure_package(ptr) == true, "Bad return");
+    ptr->package->header->compilation.configure = tmp;
+
+    set_chdir_fail(0);
+    TEST_ASSERT(configure_package(ptr) == false, "Bad return");
+
+    set_fork_fail(0);
+    TEST_ASSERT(configure_package(ptr) == false, "Bad return");
+
+    chdir("/tmp/test-2.0");
     recursive_delete(OUTPUT_DIR);
     return TEST_SUCCESS;
 }
