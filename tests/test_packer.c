@@ -605,6 +605,12 @@ TEST(packer_extract_archive_2) {
 
     ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
     set_mkdir_fail(0);
+    TEST_ASSERT(packer_extract_archive(ctx, "/tmp/some_non_existent_dir") == false, "Error did not raise");
+    packer_free(ctx);
+    recursive_delete("/tmp/some_non_existent_dir");
+
+    ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
+    set_mkdir_fail(0);
     TEST_ASSERT(packer_extract_archive(ctx, "/tmp/") == false, "Error did not raise");
     packer_free(ctx);
     recursive_delete("/tmp/test-2.0");

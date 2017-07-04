@@ -1066,7 +1066,14 @@ bool packer_extract_archive(packer_t *ctx, const char *dir) {
 
     /* If it's non-existent, create it */
     if (p_dir == NULL)
-        mkdir(dir, S_IRWXU | S_IRWXG | S_IRWXO);
+    {
+        if (mkdir(dir, S_IRWXU | S_IRWXG | S_IRWXO) == -1)
+        {
+            SET_ERR(ERR_MKDIR_FAILED);
+            SET_ERR_STR_FMT("Cannot create directory '%s'\n", dir);
+            goto cleanup;
+        }
+    }
     else
         closedir(p_dir);
 
