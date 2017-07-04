@@ -129,8 +129,7 @@ static inline void packer_header_package_init(packer_header_t *ptr) {
  * \param ptr Pointer to the header structure
  */
 static inline void packer_header_package_free(packer_header_t *ptr) {
-    if (ptr == NULL)
-        return ;
+    if (ptr == NULL) return ; /* Coverage */
 
     FREE(ptr->package.name);
     FREE(ptr->package.version);
@@ -157,8 +156,7 @@ static inline void packer_header_comp_init(packer_header_t *ptr) {
  * \param ptr Pointer to the header structure
  */
 static inline void packer_header_comp_free(packer_header_t *ptr) {
-    if (ptr == NULL)
-        return ;
+    if (ptr == NULL) return ; /* Coverage */
 
     list_free(ptr->compilation.configure, &vector_string_free);
     list_free(ptr->compilation.env, &vector_string_free);
@@ -183,8 +181,8 @@ static inline void packer_header_deps_init(packer_header_t *ptr) {
  * \param ptr Pointer to the header structure
  */
 static inline void packer_header_deps_free(packer_header_t *ptr) {
-    if (ptr == NULL)
-        return ;
+    if (ptr == NULL) return ; /* Coverage */
+
     list_free(ptr->dependencies.list, NULL);
     ptr->dependencies.list = NULL;
 }

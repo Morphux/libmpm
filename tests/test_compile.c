@@ -220,13 +220,19 @@ TEST(full_install_2) {
     packer_t    *ctx = NULL;
     compile_t   *ptr = NULL;
 
+    set_malloc_fail(-1);
     chdir(g_old_pwd);
+    SET_ERR_STR("");
+    SET_ERR(0);
     ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
 
-    set_malloc_fail(0);
+    TEST_ASSERT(ctx != NULL, "Cannot create archive");
+
+    set_malloc_fail(18);
     TEST_ASSERT(install_archive(ctx, ptr) == false, "Error did not raise");
     package_install_cleanup(ptr);
     recursive_delete(DEFAULT_EXTRACT_DIR "/test-2.0");
+    chdir(g_old_pwd);
 
     ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
     set_fork_fail(0);
@@ -234,35 +240,45 @@ TEST(full_install_2) {
     package_install_cleanup(ptr);
     recursive_delete(DEFAULT_EXTRACT_DIR "/test-2.0");
 
+    chdir(g_old_pwd);
+    system("ls -la");
     ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
     set_fork_fail(1);
     TEST_ASSERT(install_archive(ctx, ptr) == false, "Error did not raise");
     package_install_cleanup(ptr);
     recursive_delete(DEFAULT_EXTRACT_DIR "/test-2.0");
 
+    chdir(g_old_pwd);
     ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
     set_fork_fail(2);
     TEST_ASSERT(install_archive(ctx, ptr) == false, "Error did not raise");
     package_install_cleanup(ptr);
     recursive_delete(DEFAULT_EXTRACT_DIR "/test-2.0");
 
+    chdir(g_old_pwd);
     ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
     set_fork_fail(3);
     TEST_ASSERT(install_archive(ctx, ptr) == false, "Error did not raise");
     package_install_cleanup(ptr);
     recursive_delete(DEFAULT_EXTRACT_DIR "/test-2.0");
 
+    chdir(g_old_pwd);
     ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
     set_fork_fail(4);
     TEST_ASSERT(install_archive(ctx, ptr) == false, "Error did not raise");
     package_install_cleanup(ptr);
     recursive_delete(DEFAULT_EXTRACT_DIR "/test-2.0");
 
+    chdir(g_old_pwd);
     ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
     set_fork_fail(5);
     TEST_ASSERT(install_archive(ctx, ptr) == false, "Error did not raise");
     package_install_cleanup(ptr);
     recursive_delete(DEFAULT_EXTRACT_DIR "/test-2.0");
+
+    ctx = packer_init_archive(PACKAGE_OUTPUT_FN);
+    TEST_ASSERT(install_archive(ctx, ptr) == false, "Error did not raise");
+    package_install_cleanup(ptr);
 
     return TEST_SUCCESS;
 }
