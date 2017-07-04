@@ -313,7 +313,7 @@ end:
     return true;
 }
 
-bool install_archive(packer_t *ctx, compile_t *ptr) {
+bool install_archive(packer_t *ctx, compile_t **ptr) {
     bool        ret = false;
 
     /* Extract the given archive */
@@ -324,8 +324,8 @@ bool install_archive(packer_t *ctx, compile_t *ptr) {
     }
 
     /* Init the installation process */
-    ptr = package_install_init(ctx);
-    if (ptr == NULL)
+    *ptr = package_install_init(ctx);
+    if (*ptr == NULL)
     {
         SET_ERR(ERR_MEMORY);
         recursive_delete(ctx->out_dir);
@@ -333,39 +333,39 @@ bool install_archive(packer_t *ctx, compile_t *ptr) {
         return ret;
     }
 
-    if (before_package(ptr) == false)
+    if (before_package(*ptr) == false)
         goto end;
 
-    if (patch_package(ptr) == false)
+    if (patch_package(*ptr) == false)
         goto end;
 
-    if (configure_package(ptr) == false)
+    if (configure_package(*ptr) == false)
         goto end;
 
-    if (make_package(ptr) == false)
+    if (make_package(*ptr) == false)
         goto end;
 
-    if (install_package(ptr) == false)
+    if (install_package(*ptr) == false)
         goto end;
 
-    if (after_package(ptr) == false)
+    if (after_package(*ptr) == false)
         goto end;
 
     ret = true;
 
 end:
-    /* Installation as failed */
+    /* Installation has failed */
     if (ret != true)
     {
         SET_ERR_STR_FMT("Installation failed at step: %s",
-            install_state_to_str(ptr->state));
+            install_state_to_str((*ptr)->state));
         SET_ERR(ERR_INSTALLATION_FAILED);
     }
     /* All good, we clean up the installation directory */
     else
     {
         recursive_delete(ctx->out_dir);
-        package_install_cleanup(ptr);
+        package_install_cleanup(*ptr);
     }
     return ret;
 }

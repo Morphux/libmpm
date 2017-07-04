@@ -131,10 +131,11 @@ bool after_package(compile_t *ctx);
  * \brief Extract and Install an .mpx archive
  *
  * \param[in] ctx Archive to install
+ * \param[in] ptr Pointer to compile_t pointer
  *
  * \return true on success, false on failure
  */
-bool install_archive(packer_t *ctx, compile_t *ptr);
+bool install_archive(packer_t *ctx, compile_t **ptr);
 
 /*!
  * \brief install_state_t to human readable string

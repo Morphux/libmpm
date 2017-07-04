@@ -480,6 +480,7 @@ TEST(packer_read_package_header_package) {
     TEST_ASSERT(read_package_header_package(tmp, ctx) == 0, "Wrong return");
 
     set_malloc_fail(-1);
+    packer_free(ctx);
     return TEST_SUCCESS;
 }
 MPX_STATIC bool read_package_header(char *file_content, packer_t *ctx, int *s_ret);
@@ -678,6 +679,8 @@ TEST(packer_inlines_frees) {
     list_add(ptr.compilation.env, str2, sizeof(*str2));
 
     packer_header_comp_free(&ptr);
+    free(str);
+    free(str2);
 
     return TEST_SUCCESS;
 }
