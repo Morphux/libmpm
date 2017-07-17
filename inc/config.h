@@ -25,7 +25,8 @@
 # include <error.h>
 
 
-# define CONFIG_DEF_PATH                "/etc/mpm/mpm.conf"
+# define CONFIG_DEF_FN                  "mpm.conf"
+# define CONFIG_DEF_PATH                "/etc/mpm/" CONFIG_DEF_FN
 
 /* Main section */
 # define CONFIG_MAIN_SEC                "main"
