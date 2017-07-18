@@ -138,3 +138,32 @@ void config_get_error_string(config_t *ptr) {
     asprintf(&ptr->err, "%s:%d: %s", ptr->fn, ptr->ptr->line, g_error);
     strcpy(g_error, "");
 }
+
+char *get_conf_str_from_name(config_t *ptr, const char *str) {
+    size_t      i;
+    char        *section, *member, *dup, *ret;
+    cfg_t       *sec;
+
+    if (ptr == NULL || str == NULL )
+        return NULL;
+
+    dup = strdup(str);
+
+    for (i = 0; dup[i] != '\0' && dup[i] != '.'; i++)
+        ;
+
+    if (dup[i] == '\0')
+    {
+        free(dup);
+        return NULL;
+    }
+
+    dup[i] = '\0';
+    section = dup;
+    member = dup + i + 1;
+    sec = cfg_getsec(ptr->ptr, section);
+    ret = cfg_getstr(sec, member);
+    dup[i] = '.';
+    free(dup);
+    return ret;
+}

@@ -111,4 +111,14 @@ void config_free(config_t **ptr);
  */
 void config_get_error_string(config_t *ptr);
 
+/*!
+ * \brief Get a string of the configuration by its name
+ *
+ * \param ptr Configuration context
+ * \param str Name of the member (Ex: "download.something")
+ *
+ * \return The value on success, NULL on failure
+ */
+char *get_conf_str_from_name(config_t *ptr, const char *str);
+
 #endif /* CONFIG_H */
