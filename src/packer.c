@@ -587,7 +587,7 @@ bool packer_read_dir(packer_t *ctx) {
     if (ctx->json == NULL)
     {
         SET_ERR(ERR_BAD_JSON);
-        SET_ERR_STR_FMT("Error at parsing JSON in: %s", PACKER_DEF_CONF_FN);
+        SET_ERR_STR_FMT("Error at parsing JSON in: %s/%s", ctx->str, PACKER_DEF_CONF_FN);
         goto error;
     }
 

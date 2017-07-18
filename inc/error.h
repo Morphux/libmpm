@@ -96,6 +96,6 @@ void mpm_set_str_error(const char *str, ...);
  * \brief Get an error string, previously set
  */
 char *mpm_get_str_error(void);
-# define GET_ERR_STR() mpm_get_str_error()
+# define GET_ERR_STR() (strlen(mpm_get_str_error()) == 0 ? mpm_strerror(get_mpm_error()) : mpm_get_str_error())
 
 #endif
