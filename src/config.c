@@ -139,15 +139,19 @@ void config_get_error_string(config_t *ptr) {
     strcpy(g_error, "");
 }
 
-char *get_conf_str_from_name(config_t *ptr, const char *str) {
-    size_t      i;
-    char        *section, *member, *dup, *ret;
+static cfg_opt_t *get_opt_from_name(config_t *ptr, const char *str)
+{
     cfg_t       *sec;
+    cfg_opt_t   *opt = NULL;
+    char        *section, *member, *dup;
+    size_t      i;
 
-    if (ptr == NULL || str == NULL )
+    if (str == NULL || ptr == NULL)
         return NULL;
 
     dup = strdup(str);
+    if (dup == NULL)
+        return NULL;
 
     for (i = 0; dup[i] != '\0' && dup[i] != '.'; i++)
         ;
@@ -161,9 +165,27 @@ char *get_conf_str_from_name(config_t *ptr, const char *str) {
     dup[i] = '\0';
     section = dup;
     member = dup + i + 1;
+
     sec = cfg_getsec(ptr->ptr, section);
-    ret = cfg_getstr(sec, member);
-    dup[i] = '.';
+    if (sec == NULL)
+    {
+        free(dup);
+        return NULL;
+    }
+
+    opt = cfg_getopt(sec, member);
     free(dup);
-    return ret;
+    return opt;
+}
+
+char *get_conf_str_from_name(config_t *ptr, const char *str) {
+    cfg_opt_t   *opt = NULL;
+
+    opt = get_opt_from_name(ptr, str);
+    if (opt == NULL)
+        return NULL;
+
+    /* Cannot not be a string */
+    assert(opt->type == CFGT_STR);
+    return cfg_opt_getnstr(opt, 0);
 }
