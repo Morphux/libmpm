@@ -139,6 +139,14 @@ void config_get_error_string(config_t *ptr) {
     strcpy(g_error, "");
 }
 
+/*!
+ * \brief Get an cfg_opt_t pointer from a common name
+ *
+ * \param ptr Configuration context
+ * \param str Name of the member (Ex: "download.something")
+ *
+ * \return A pointer on the option on success, NULL on failure
+ */
 static cfg_opt_t *get_opt_from_name(config_t *ptr, const char *str)
 {
     cfg_t       *sec;
@@ -178,6 +186,13 @@ static cfg_opt_t *get_opt_from_name(config_t *ptr, const char *str)
     return opt;
 }
 
+cfg_type_t get_type_from_name(config_t *ptr, const char *str) {
+    cfg_opt_t   *opt = NULL;
+
+    opt = get_opt_from_name(ptr, str);
+    return opt->type;
+}
+
 char *get_conf_str_from_name(config_t *ptr, const char *str) {
     cfg_opt_t   *opt = NULL;
 
@@ -188,4 +203,17 @@ char *get_conf_str_from_name(config_t *ptr, const char *str) {
     /* Cannot not be a string */
     assert(opt->type == CFGT_STR);
     return cfg_opt_getnstr(opt, 0);
+}
+
+bool get_conf_int_from_name(config_t *ptr, const char *str, int *ret) {
+    cfg_opt_t   *opt = NULL;
+
+    opt = get_opt_from_name(ptr, str);
+    if (opt == NULL)
+        return false;
+
+    /* Cannot not be a int */
+    assert(opt->type == CFGT_INT);
+    *ret =  cfg_opt_getnint(opt, 0);
+    return true;
 }

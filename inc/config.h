@@ -121,4 +121,25 @@ void config_get_error_string(config_t *ptr);
  */
 char *get_conf_str_from_name(config_t *ptr, const char *str);
 
+/*!
+ * \brief Get an integer from the configuarion by its name
+ *
+ * \param ptr Configuration context
+ * \param str Name of the member (Ex: "download.something")
+ * \param ret Pointer to integer
+ *
+ * \return true on success, false on failure
+ */
+bool get_conf_int_from_name(config_t *ptr, const char *str, int *ret);
+
+/*!
+ * \brief Get option type from name
+ *
+ * \param ptr Configuration context
+ * \param str Name of the member (Ex: "download.something")
+ *
+ * \return Type on success, CFGT_NONE on error
+ */
+cfg_type_t get_type_from_name(config_t *ptr, const char *str);
+
 #endif /* CONFIG_H */
