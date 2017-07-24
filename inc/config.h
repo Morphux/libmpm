@@ -142,4 +142,14 @@ bool get_conf_int_from_name(config_t *ptr, const char *str, int *ret);
  */
 cfg_type_t get_type_from_name(config_t *ptr, const char *str);
 
+/*!
+ * \brief Get an cfg_opt_t pointer from a common name
+ *
+ * \param ptr Configuration context
+ * \param str Name of the member (Ex: "download.something")
+ *
+ * \return A pointer on the option on success, NULL on failure
+ */
+cfg_opt_t *get_opt_from_name(config_t *ptr, const char *str);
+
 #endif /* CONFIG_H */
