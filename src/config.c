@@ -29,6 +29,8 @@ static void config_error_cb(cfg_t *ptr, const char *fmt, va_list ap) {
         strcpy(g_error, err);
 }
 
+#define MPM_STR_LIST CFGF_MULTI | CFGF_LIST
+
 config_t *parse_config(const char *path, u8_t *ret) {
     config_t    *config = NULL;
 
@@ -58,8 +60,8 @@ config_t *parse_config(const char *path, u8_t *ret) {
     /* Compile section */
     cfg_opt_t   opts_comp[] = {
         CFG_INT(CONFIG_COMP_SBU,           CONFIG_COMP_SBU_DEF,      CFGF_NONE),
-        CFG_STR_LIST(CONFIG_COMP_CONF_ARG, CONFIG_COMP_CONF_ARG_DEF, CFGF_NONE),
-        CFG_STR_LIST(CONFIG_COMP_MAKE_ARG, CONFIG_COMP_MAKE_ARG_DEF, CFGF_NONE),
+        CFG_STR_LIST(CONFIG_COMP_CONF_ARG, CONFIG_COMP_CONF_ARG_DEF, MPM_STR_LIST),
+        CFG_STR_LIST(CONFIG_COMP_MAKE_ARG, CONFIG_COMP_MAKE_ARG_DEF, MPM_STR_LIST),
         CFG_END()
     };
 
