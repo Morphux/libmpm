@@ -85,6 +85,7 @@ typedef struct config_s {
     cfg_t       *ptr;
     char        *fn;
     char        *err;
+    bool        need_save;
 } config_t;
 
 /*!

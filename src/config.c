@@ -102,6 +102,7 @@ config_t *parse_config(const char *path, u8_t *ret) {
     /* Structure initialization */
     config->fn = NULL;
     config->err = NULL;
+    config->need_save = false;
     config->ptr = cfg_init(opts, CFGF_NONE);
     cfg_set_error_function(config->ptr, &config_error_cb);
 
