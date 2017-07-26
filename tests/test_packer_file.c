@@ -5,7 +5,6 @@ TEST(read_files_from_dir) {
 
     set_stat_fail(0);
     TEST_ASSERT(read_files_from_dir("/tmp/", &files, &dirs) == false, "Error did not raise");
-    list_free(dirs, free);
     return TEST_SUCCESS;
 }
 
