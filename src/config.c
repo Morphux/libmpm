@@ -183,6 +183,9 @@ cfg_type_t get_type_from_name(config_t *ptr, const char *str) {
     cfg_opt_t   *opt = NULL;
 
     opt = get_opt_from_name(ptr, str);
+    if (opt == NULL)
+        return CFGT_NONE;
+
     return opt->type;
 }
 
@@ -200,6 +203,8 @@ char *get_conf_str_from_name(config_t *ptr, const char *str) {
 
 bool get_conf_int_from_name(config_t *ptr, const char *str, int *ret) {
     cfg_opt_t   *opt = NULL;
+
+    assert(ret != NULL);
 
     opt = get_opt_from_name(ptr, str);
     if (opt == NULL)
