@@ -153,4 +153,25 @@ cfg_type_t get_type_from_name(config_t *ptr, const char *str);
  */
 cfg_opt_t *get_opt_from_name(config_t *ptr, const char *str);
 
+/*!
+ * \brief Set an int from a common conf name
+ *
+ * \param ptr Configuration context
+ * \param str Name of the member
+ * \param val Value to set
+ *
+ * \return true on success, false on failure
+ */
+bool set_conf_int_from_name(config_t *ptr, const char *str, int val);
+
+/*!
+ * \brief Set a string from a common conf name
+ *
+ * \param ptr Configuration context
+ * \param str Name of the member
+ * \param val Value to See
+ *
+ * \return true on success, false on failure
+ */
+bool set_conf_str_from_name(config_t *ptr, const char *str, const char *val);
 #endif /* CONFIG_H */

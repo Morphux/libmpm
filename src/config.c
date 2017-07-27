@@ -217,3 +217,29 @@ bool get_conf_int_from_name(config_t *ptr, const char *str, int *ret) {
     *ret = cfg_opt_getnint(opt, 0);
     return true;
 }
+
+bool set_conf_int_from_name(config_t *ptr, const char *str, int val) {
+    cfg_opt_t   *opt = NULL;
+
+    opt = get_opt_from_name(ptr, str);
+    if (opt == NULL)
+        return false;
+
+    assert(opt->type == CFGT_INT);
+    if (cfg_opt_setnint(opt, val, 0) == CFG_SUCCESS)
+        return true;
+    return false;
+}
+
+bool set_conf_str_from_name(config_t *ptr, const char *str, const char *val) {
+    cfg_opt_t   *opt = NULL;
+
+    opt = get_opt_from_name(ptr, str);
+    if (opt == NULL)
+        return false;
+
+    assert(opt->type != CFGT_STR);
+    if (cfg_opt_setnstr(opt, val, 0) == CFG_SUCCESS)
+        return true;
+    return false;
+}
