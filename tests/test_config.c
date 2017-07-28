@@ -83,6 +83,18 @@ TEST(config_get_type_from_name) {
     return TEST_SUCCESS;
 }
 
+TEST(config_set_conf_int_from_name) {
+    TEST_ASSERT(set_conf_int_from_name(g_conf_test, "fwefefwe", 12) == false, "Expected a false value");
+    TEST_ASSERT(set_conf_int_from_name(g_conf_test, "compile.sbu", 12) == true, "Expected a true value");
+    return TEST_SUCCESS;
+}
+
+TEST(config_set_conf_str_from_name) {
+    TEST_ASSERT(set_conf_str_from_name(g_conf_test, "fwefefwe", "blah") == false, "Expected a false value");
+    TEST_ASSERT(set_conf_str_from_name(g_conf_test, "log.directory", "blah") == true, "Expected a true value");
+    return TEST_SUCCESS;
+}
+
 TEST(config_get_cleanup) {
     config_free(&g_conf_test);
     return TEST_SUCCESS;
@@ -97,5 +109,7 @@ void register_test_config(void) {
     reg_test("config", config_get_conf_str_from_name);
     reg_test("config", config_get_conf_int_from_name);
     reg_test("config", config_get_type_from_name);
+    reg_test("config", config_set_conf_int_from_name);
+    reg_test("config", config_set_conf_str_from_name);
     reg_test("config", config_get_cleanup);
 }

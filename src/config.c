@@ -226,9 +226,7 @@ bool set_conf_int_from_name(config_t *ptr, const char *str, int val) {
         return false;
 
     assert(opt->type == CFGT_INT);
-    if (cfg_opt_setnint(opt, val, 0) == CFG_SUCCESS)
-        return true;
-    return false;
+    return (cfg_opt_setnint(opt, val, 0) == CFG_SUCCESS);
 }
 
 bool set_conf_str_from_name(config_t *ptr, const char *str, const char *val) {
@@ -238,8 +236,6 @@ bool set_conf_str_from_name(config_t *ptr, const char *str, const char *val) {
     if (opt == NULL)
         return false;
 
-    assert(opt->type != CFGT_STR);
-    if (cfg_opt_setnstr(opt, val, 0) == CFG_SUCCESS)
-        return true;
-    return false;
+    assert(opt->type == CFGT_STR);
+    return (cfg_opt_setnstr(opt, val, 0) == CFG_SUCCESS);
 }
