@@ -23,6 +23,7 @@
 # include <sys/types.h>
 # include <dirent.h>
 # include <error.h>
+# include <arpa/inet.h>
 
 typedef struct packer_file_s {
     char    *fn;                           /*!< Filename, with relative path (Ex: srcs/main.c ) */
