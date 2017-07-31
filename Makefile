@@ -101,6 +101,10 @@ coverage:
 	gcov -o src/ $(SRCS)
 	make -C tests fclean
 
+test:
+	make -C lib/libmorphux/ test
+	$(MAKE) fclean all OFLAGS="-std=gnu99 -g -O0 -coverage -lcov -DCOMPILE_WITH_TEST -fno-inline"
+
 clean:
 	rm -f $(OBJS)
 	rm -f *.gcov
