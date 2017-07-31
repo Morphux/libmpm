@@ -221,13 +221,16 @@ bool packer_file_from_binary_to_disk(const char *content, off_t *ctr) {
 
     /* File mode */
     memcpy(&file.mode, content + *ctr, sizeof(file.mode));
+    file.mode = ntohl(file.mode);
     *ctr += sizeof(file.mode);
 
     /* File content size */
     memcpy(&file.compressed_size, content + *ctr, sizeof(file.compressed_size));
+    file.compressed_size = ntohl(file.compressed_size);
     *ctr += sizeof(file.compressed_size);
 
     memcpy(&file.file_size, content + *ctr, sizeof(file.file_size));
+    file.file_size = ntohl(file.file_size);
     *ctr += sizeof(file.file_size);
 
     /* Init Zstream */

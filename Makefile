@@ -103,7 +103,7 @@ coverage:
 
 test:
 	make -C lib/libmorphux/ test
-	$(MAKE) fclean all OFLAGS="-std=gnu99 -g -O0 -coverage -lcov -DCOMPILE_WITH_TEST -fno-inline"
+	$(MAKE) fclean all OFLAGS="-std=gnu99 -g -O0 -DCOMPILE_WITH_TEST -fno-inline"
 
 clean:
 	rm -f $(OBJS)

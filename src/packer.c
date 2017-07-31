@@ -696,13 +696,19 @@ MPX_STATIC bool write_packer_sources(FILE *fd, packer_t *ctx, const char *dir_na
         /* For each file found, write it to the archive */
         list_for_each(files_list, tmp2, file) {
             fprintf(fd, "%s%c", file->fn, 0);
+
+            /* Endianness on file informations */
+            file->mode = htonl(file->mode);
+            file->compressed_size = htonl(file->compressed_size);
+            file->file_size = htonl(file->file_size);
+
             fwrite(&file->mode, sizeof(file->mode), 1, fd);
             fwrite(&file->compressed_size, sizeof(file->compressed_size), 1, fd);
             fwrite(&file->file_size, sizeof(file->file_size), 1, fd);
-            if (file->file_size != 0)
+            if (ntohl(file->file_size) != 0)
             {
                 fwrite(&file->sum, crypto_hash_sha256_BYTES, 1, fd);
-                fwrite(file->content, file->compressed_size, 1, fd);
+                fwrite(file->content, ntohl(file->compressed_size), 1, fd);
             }
         }
 
