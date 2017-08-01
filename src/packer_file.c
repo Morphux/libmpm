@@ -27,6 +27,22 @@ int packer_file_free(void *magic) {
     return 1;
 }
 
+static mlist_t *list_insert_pf_sort(mlist_t *head, packer_file_t *file) {
+    mlist_t             *tmp = NULL;
+    packer_file_t       *ptr = NULL;
+
+    /* If the list is empty, return the new member */
+    if (head == NULL)
+        return list_add(head, file, sizeof(*file));
+
+    list_for_each(head, tmp, ptr) {
+        if (strcmp(file->fn, ptr->fn) <= 0)
+            return list_add_before(head, tmp, file, sizeof(*file));
+    }
+
+    return list_add(head, file, sizeof(*file));
+}
+
 packer_file_t *packer_file_init(const char *file, const char *dir) {
     packer_file_t   *ret = NULL;
 
@@ -105,7 +121,7 @@ bool read_files_from_dir(const char *dir_name, mlist_t **files, mlist_t **dirs) 
                 free(file);
                 goto error;
             }
-            list_add((*files), file, sizeof(*file));
+            *files = list_insert_pf_sort(*files, file);
         }
         free(file);
     }
